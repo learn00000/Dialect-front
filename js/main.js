@@ -4,6 +4,17 @@
   const body = document.body;
   const cards = document.querySelectorAll("[data-tilt]");
   const digitalHost = document.getElementById("digital-human-host");
+  const viewHome = document.getElementById("view-home");
+  const viewOpera = document.getElementById("view-opera");
+  const viewNianbai = document.getElementById("view-nianbai");
+  const viewDuanzhang = document.getElementById("view-duanzhang");
+  const btnOperaBack = document.getElementById("btn-opera-back");
+  const btnNbBack = document.getElementById("btn-nb-back");
+  const btnDzBack = document.getElementById("btn-dz-back");
+  const btnDzRefresh = document.getElementById("btn-dz-refresh");
+  const cardEnterDz = document.querySelector(".opera-card--enter-dz");
+  const cardEnterNb = document.querySelector(".opera-card--enter-nb");
+  const appRoot = document.querySelector(".app");
 
   function showToast(message) {
     if (!toastEl) return;
@@ -23,19 +34,165 @@
     showToast("登录 / 注册流程可在此对接统一认证。");
   });
 
+  /** 回到首页：关闭戏韵、断章等所有子视图 */
+  function showHomeView() {
+    if (!viewHome) return;
+    viewHome.hidden = false;
+    viewHome.setAttribute("aria-hidden", "false");
+    if (viewOpera) {
+      viewOpera.hidden = true;
+      viewOpera.setAttribute("aria-hidden", "true");
+    }
+    if (viewNianbai) {
+      viewNianbai.hidden = true;
+      viewNianbai.setAttribute("aria-hidden", "true");
+    }
+    if (viewDuanzhang) {
+      viewDuanzhang.hidden = true;
+      viewDuanzhang.setAttribute("aria-hidden", "true");
+    }
+    appRoot?.classList.remove("app--opera", "app--duanzhang");
+  }
+
+  function openOperaView() {
+    if (!viewHome || !viewOpera) return;
+    if (viewNianbai) {
+      viewNianbai.hidden = true;
+      viewNianbai.setAttribute("aria-hidden", "true");
+    }
+    if (viewDuanzhang) {
+      viewDuanzhang.hidden = true;
+      viewDuanzhang.setAttribute("aria-hidden", "true");
+    }
+    viewHome.hidden = true;
+    viewHome.setAttribute("aria-hidden", "true");
+    viewOpera.hidden = false;
+    viewOpera.setAttribute("aria-hidden", "false");
+    appRoot?.classList.remove("app--duanzhang");
+    appRoot?.classList.add("app--opera");
+    btnOperaBack?.focus({ preventScroll: true });
+  }
+
+  /** 入戏念白：从方音戏韵中间卡片进入 */
+  function openNianbaiView() {
+    if (!viewOpera || !viewNianbai) return;
+    viewOpera.hidden = true;
+    viewOpera.setAttribute("aria-hidden", "true");
+    viewNianbai.hidden = false;
+    viewNianbai.setAttribute("aria-hidden", "false");
+    if (viewDuanzhang) {
+      viewDuanzhang.hidden = true;
+      viewDuanzhang.setAttribute("aria-hidden", "true");
+    }
+    appRoot?.classList.remove("app--duanzhang");
+    appRoot?.classList.add("app--opera");
+    btnNbBack?.focus({ preventScroll: true });
+  }
+
+  function closeNianbaiView() {
+    if (!viewOpera || !viewNianbai) return;
+    viewNianbai.hidden = true;
+    viewNianbai.setAttribute("aria-hidden", "true");
+    viewOpera.hidden = false;
+    viewOpera.setAttribute("aria-hidden", "false");
+    appRoot?.classList.remove("app--duanzhang");
+    appRoot?.classList.add("app--opera");
+  }
+
+  /** 断章寻韵：从方音戏韵左侧卡片进入 */
+  function openDuanzhangView() {
+    if (!viewOpera || !viewDuanzhang) return;
+    viewOpera.hidden = true;
+    viewOpera.setAttribute("aria-hidden", "true");
+    viewDuanzhang.hidden = false;
+    viewDuanzhang.setAttribute("aria-hidden", "false");
+    appRoot?.classList.remove("app--opera");
+    appRoot?.classList.add("app--duanzhang");
+    btnDzBack?.focus({ preventScroll: true });
+  }
+
+  function closeDuanzhangView() {
+    if (!viewOpera || !viewDuanzhang) return;
+    viewDuanzhang.hidden = true;
+    viewDuanzhang.setAttribute("aria-hidden", "true");
+    viewOpera.hidden = false;
+    viewOpera.setAttribute("aria-hidden", "false");
+    appRoot?.classList.remove("app--duanzhang");
+    appRoot?.classList.add("app--opera");
+  }
+
   document.querySelectorAll(".feature-card__cta").forEach((btn) => {
     btn.addEventListener("click", () => {
       const action = btn.getAttribute("data-action");
-      if (action === "map") {
-        window.location.href = "map.html";
+      if (action === "opera") {
+        openOperaView();
         return;
       }
       const map = {
         pick: "方音拾级：学习闯关页可在此挂载。",
-        opera: "方音戏韵：TTS 合成与戏韵交互可在此挂载。",
+        map: "声绘山河：录音上传与地图语料库可在此挂载。",
       };
       showToast(map[action] || "功能开发中，敬请期待。");
     });
+  });
+
+  btnOperaBack?.addEventListener("click", () => {
+    showHomeView();
+  });
+
+  btnDzBack?.addEventListener("click", () => {
+    closeDuanzhangView();
+  });
+
+  btnNbBack?.addEventListener("click", () => {
+    closeNianbaiView();
+  });
+
+  btnDzRefresh?.addEventListener("click", () => {
+    showToast("已模拟刷新题目（可接题库接口）。");
+  });
+
+  cardEnterDz?.addEventListener("click", () => {
+    if (!viewOpera || viewOpera.hidden) return;
+    openDuanzhangView();
+  });
+  cardEnterDz?.addEventListener("keydown", (e) => {
+    if (e.key !== "Enter" && e.key !== " ") return;
+    if (!viewOpera || viewOpera.hidden) return;
+    e.preventDefault();
+    openDuanzhangView();
+  });
+
+  cardEnterNb?.addEventListener("click", () => {
+    if (!viewOpera || viewOpera.hidden) return;
+    openNianbaiView();
+  });
+  cardEnterNb?.addEventListener("keydown", (e) => {
+    if (e.key !== "Enter" && e.key !== " ") return;
+    if (!viewOpera || viewOpera.hidden) return;
+    e.preventDefault();
+    openNianbaiView();
+  });
+
+  document.querySelectorAll('a[href="#top"]').forEach((a) => {
+    a.addEventListener("click", () => {
+      showHomeView();
+    });
+  });
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key !== "Escape") return;
+    if (viewDuanzhang && !viewDuanzhang.hidden) {
+      closeDuanzhangView();
+      return;
+    }
+    if (viewNianbai && !viewNianbai.hidden) {
+      closeNianbaiView();
+      return;
+    }
+    if (viewOpera && !viewOpera.hidden) {
+      showHomeView();
+    }
   });
 
   /** 背景视差（尊重 reduced motion） */
