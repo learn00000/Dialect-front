@@ -1,0 +1,135 @@
+import { defineConfig } from 'vite'
+import vue from '@vitejs/plugin-vue'
+import { fileURLToPath } from 'node:url'
+
+/** 开发环境 Mock：GET 点位、POST 上传（消费 multipart 体后返回成功） */
+function dialectMapMockPlugin() {
+  const MOCK_POINTS = [
+    {
+      id: '1',
+      location: { lng: 120.153576, lat: 30.287459 },
+      area: '浙江省/杭州市/西湖区',
+      dialect: '吴语·杭州小片',
+      type: '方言',
+      audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
+      content: '你好，吃饭了吗？',
+      nickname: '西湖阿姐',
+      time: '2026-04-10 14:22:00'
+    },
+    {
+      id: '2',
+      location: { lng: 121.473701, lat: 31.230416 },
+      area: '上海市/上海市/黄浦区',
+      dialect: '吴语·上海话',
+      type: '童谣',
+      audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3',
+      content: '落雨喽，打烊喽，小八辣子开会喽。',
+      nickname: '石库门囡囡',
+      time: '2026-04-12 09:05:33'
+    },
+    {
+      id: '3',
+      location: { lng: 116.397428, lat: 39.90923 },
+      area: '北京市/北京市/东城区',
+      dialect: '北京官话',
+      type: '民谣',
+      audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3',
+      content: '前门情思大碗茶（节选哼唱）',
+      nickname: '胡同里的风',
+      time: '2026-04-15 18:40:12'
+    },
+    {
+      id: '4',
+      location: { lng: 113.264385, lat: 23.129112 },
+      area: '广东省/广州市/越秀区',
+      dialect: '粤语·广府片',
+      type: '戏曲',
+      audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3',
+      content: '帝女花之香夭（念白示范）',
+      nickname: '粤剧票友阿明',
+      time: '2026-04-16 11:18:45'
+    },
+    {
+      id: '5',
+      location: { lng: 104.065735, lat: 30.659462 },
+      area: '四川省/成都市/锦江区',
+      dialect: '西南官话·成渝小片',
+      type: '民俗',
+      audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3',
+      content: '清明采茶调（口传版）',
+      nickname: '锦江茶客',
+      time: '2026-04-17 08:56:21'
+    },
+    {
+      id: '6',
+      location: { lng: 120.585315, lat: 31.298886 },
+      area: '江苏省/苏州市/姑苏区',
+      dialect: '吴语·苏州话',
+      type: '方言',
+      audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3',
+      content: '今朝天气蛮好个。',
+      nickname: '评弹小周',
+      time: '2026-04-17 16:02:00'
+    }
+  ]
+
+  return {
+    name: 'dialect-map-mock-api',
+    configureServer(server) {
+      server.middlewares.use((req, res, next) => {
+        const url = req.url || ''
+
+        if (url.startsWith('/api/map/points') && req.method === 'GET') {
+          res.setHeader('Content-Type', 'application/json; charset=utf-8')
+          res.statusCode = 200
+          res.end(JSON.stringify({ code: 0, data: MOCK_POINTS }))
+          return
+        }
+
+        if (url.startsWith('/api/map/upload') && req.method === 'POST') {
+          const drain = () =>
+            new Promise((resolve) => {
+              req.on('data', () => {})
+              req.on('end', resolve)
+              req.on('error', resolve)
+            })
+          drain().then(() => {
+            const id = String(Date.now())
+            MOCK_POINTS.push({
+              id,
+              location: { lng: 120.15 + Math.random() * 0.02, lat: 30.25 + Math.random() * 0.02 },
+              area: '浙江省/杭州市/西湖区',
+              dialect: '新上传样本',
+              type: '方言',
+              audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
+              content: '（Mock 已接收上传）',
+              nickname: '访客',
+              time: new Date().toISOString().slice(0, 19).replace('T', ' ')
+            })
+            res.setHeader('Content-Type', 'application/json; charset=utf-8')
+            res.statusCode = 200
+            res.end(JSON.stringify({ code: 0, message: 'ok', data: { id } }))
+          })
+          return
+        }
+
+        next()
+      })
+    }
+  }
+}
+
+export default defineConfig({
+  plugins: [vue(), dialectMapMockPlugin()],
+  server: { port: 5173 },
+  build: {
+    rollupOptions: {
+      input: {
+        main: fileURLToPath(new URL('./index.html', import.meta.url)),
+        map: fileURLToPath(new URL('./map.html', import.meta.url))
+      }
+    }
+  }
+  // 生产环境或接入真实后端时：删除 dialectMapMockPlugin，并在 server 中配置 proxy，例如：
+  // server: { port: 5173, proxy: { '/api': 'http://127.0.0.1:8080' } }
+})

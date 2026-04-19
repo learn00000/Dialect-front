@@ -26,9 +26,12 @@
   document.querySelectorAll(".feature-card__cta").forEach((btn) => {
     btn.addEventListener("click", () => {
       const action = btn.getAttribute("data-action");
+      if (action === "map") {
+        window.location.href = "map.html";
+        return;
+      }
       const map = {
         pick: "方音拾级：学习闯关页可在此挂载。",
-        map: "声绘山河：录音上传与地图语料库可在此挂载。",
         opera: "方音戏韵：TTS 合成与戏韵交互可在此挂载。",
       };
       showToast(map[action] || "功能开发中，敬请期待。");
