@@ -75,12 +75,21 @@ function dialectMapMockPlugin() {
       time: '2026-04-17 16:02:00'
     }
   ]
+  const MOCK_STAGES = [
+    { id: 's1', order: 1, name: '乡音启程', theme: '吴语入门', difficulty: '简单' },
+    { id: 's2', order: 2, name: '市井晨曲', theme: '粤语日常', difficulty: '简单' },
+    { id: 's3', order: 3, name: '茶馆快问', theme: '川渝方言', difficulty: '中等' },
+    { id: 's4', order: 4, name: '戏台试音', theme: '越剧片段', difficulty: '中等' },
+    { id: 's5', order: 5, name: '乡韵进阶', theme: '多方言混合', difficulty: '困难' },
+    { id: 's6', order: 6, name: '方音大师', theme: '综合挑战', difficulty: '困难' }
+  ]
 
   return {
     name: 'dialect-map-mock-api',
     configureServer(server) {
       server.middlewares.use((req, res, next) => {
         const url = req.url || ''
+        const cleanUrl = url.split('?')[0]
 
         if (url.startsWith('/api/map/points') && req.method === 'GET') {
           res.setHeader('Content-Type', 'application/json; charset=utf-8')
@@ -116,6 +125,64 @@ function dialectMapMockPlugin() {
           return
         }
 
+        if (url.startsWith('/api/stages/list') && req.method === 'GET') {
+          res.setHeader('Content-Type', 'application/json; charset=utf-8')
+          res.statusCode = 200
+          res.end(JSON.stringify({ code: 0, data: MOCK_STAGES }))
+          return
+        }
+
+        const stageDetailMatch = cleanUrl.match(/^\/api\/stages\/([^/]+)$/)
+        if (stageDetailMatch && req.method === 'GET') {
+          const stageId = stageDetailMatch[1]
+          const questions = [
+            {
+              id: `${stageId}-q1`,
+              type: 'audioMeaning',
+              audioUrl: 'https://interactive-examples.mdn.mozilla.net/media/cc0-audio/t-rex-roar.mp3',
+              options: ['快点回家', '今天真热闹', '你吃饭了吗', '小雨下不停'],
+              correctIndex: 2
+            },
+            {
+              id: `${stageId}-q2`,
+              type: 'repeatScore',
+              sentence: '侬今朝开心伐？'
+            },
+            {
+              id: `${stageId}-q3`,
+              type: 'fillBlank',
+              stem: '方言填空：阿拉___去茶馆白相。',
+              options: ['今朝', '昨日', '明朝', '晚点'],
+              correctIndex: 0
+            },
+            {
+              id: `${stageId}-q4`,
+              type: 'operaRepeat',
+              script: '越音轻转，水袖拂风，侬且听我唱一段。'
+            }
+          ]
+          res.setHeader('Content-Type', 'application/json; charset=utf-8')
+          res.statusCode = 200
+          res.end(JSON.stringify({ code: 0, data: { id: stageId, questions } }))
+          return
+        }
+
+        const stageSubmitMatch = cleanUrl.match(/^\/api\/stages\/([^/]+)\/submit$/)
+        if (stageSubmitMatch && req.method === 'POST') {
+          const drain = () =>
+            new Promise((resolve) => {
+              req.on('data', () => {})
+              req.on('end', resolve)
+              req.on('error', resolve)
+            })
+          drain().then(() => {
+            res.setHeader('Content-Type', 'application/json; charset=utf-8')
+            res.statusCode = 200
+            res.end(JSON.stringify({ code: 0, message: 'ok' }))
+          })
+          return
+        }
+
         next()
       })
     }
@@ -130,7 +197,8 @@ export default defineConfig({
     rollupOptions: {
       input: {
         main: resolve(__dirname, 'index.html'),
-        map: resolve(__dirname, 'map.html')
+        map: resolve(__dirname, 'map.html'),
+        study: resolve(__dirname, 'study.html')
       }
     }
   }
