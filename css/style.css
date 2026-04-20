@@ -2094,21 +2094,22 @@ body:has(.app--duanzhang) .page-bg {
   min-width: 0;
   max-width: max-content !important;
   border-radius: 999px;
-  border: 2px solid rgba(96, 182, 255, 0.95);
-  background: rgba(11, 77, 111, 0.82);
-  color: #eaf5ff;
+  border: 1px solid rgba(229, 209, 146, 0.62);
+  background: rgba(13, 53, 48, 0.78);
+  color: #f5edd4;
   font: inherit;
   font-size: 0.84rem;
   font-weight: 800;
   letter-spacing: 0.05em;
   cursor: pointer;
-  box-shadow: 0 0 0 1px rgba(220, 244, 255, 0.22) inset;
+  box-shadow: 0 0 0 1px rgba(255, 245, 220, 0.12) inset, 0 6px 16px rgba(7, 34, 31, 0.28);
   margin: 0;
 }
 
 .nb-back:hover,
 .nb-back:focus-visible {
-  background: rgba(14, 95, 134, 0.9);
+  background: rgba(17, 69, 62, 0.92);
+  border-color: rgba(229, 209, 146, 0.78);
   outline: none;
 }
 

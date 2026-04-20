@@ -8,10 +8,10 @@
         <span class="brand__text">语韵东方</span>
       </a>
       <nav class="nav" aria-label="主导航">
-        <a class="nav__link" href="./index.html#top">首页</a>
-        <a class="nav__link nav__link--active" href="./study.html">方音拾级</a>
-        <a class="nav__link" href="./map.html">声绘山河</a>
+        <a class="nav__link nav__link--active" href="./index.html#top">首页</a>
+        <a class="nav__link" href="./index.html#features">核心功能</a>
         <a class="nav__link" href="./index.html#vision">项目愿景</a>
+        <a class="nav__link" href="./index.html#footer">关于</a>
       </nav>
       <button type="button" class="btn btn--ghost" @click="onAuthClick">登录 / 注册</button>
     </header>
@@ -22,7 +22,7 @@
           <div class="flex items-center gap-3">
             <button
               type="button"
-              class="rounded-xl border border-[rgba(58,143,138,0.2)] bg-white px-3 py-1.5 text-sm text-[#1a5c58] transition hover:border-[#165DFF] hover:text-[#165DFF]"
+              class="rounded-xl border border-[rgba(58,143,138,0.2)] bg-white px-3 py-1.5 text-sm text-[#1a5c58] transition hover:border-[#1a5c58] hover:bg-[#1a5c58]/5 hover:text-[#1a5c58]"
               @click="goBack"
             >
               返回
@@ -30,10 +30,10 @@
             <h1 class="text-lg font-semibold text-[#174a47] sm:text-xl">方言闯关大冒险</h1>
           </div>
           <div class="flex items-center gap-2 text-xs sm:gap-3 sm:text-sm">
-            <span class="rounded-full bg-[#165DFF]/10 px-3 py-1 text-[#165DFF]">Lv.{{ userLevel }}</span>
+            <span class="rounded-full bg-[#3a8f8a]/10 px-3 py-1 font-medium text-[#1a5c58]">Lv.{{ userLevel }}</span>
             <span
-              class="rounded-full px-3 py-1"
-              :class="checkedInToday ? 'bg-emerald-100 text-emerald-700' : 'bg-orange-100 text-orange-700'"
+              class="rounded-full px-3 py-1 font-medium"
+              :class="checkedInToday ? 'bg-[#3a8f8a]/15 text-[#1a5c58]' : 'bg-[#e59f48]/15 text-[#b85d00]'"
             >
               {{ checkedInToday ? '今日已打卡' : '今日待打卡' }}
             </span>
@@ -42,7 +42,7 @@
       </section>
 
       <section
-        class="relative min-h-0 flex-1 overflow-hidden rounded-3xl border border-[rgba(58,143,138,0.15)] bg-white/85 p-4 shadow-[0_16px_40px_rgba(22,88,85,0.08)] ring-1 ring-[rgba(58,143,138,0.08)] sm:p-5"
+        class="relative min-h-0 flex-1 overflow-hidden rounded-3xl border border-[#3a8f8a]/20 bg-gradient-to-b from-white/95 to-white/70 p-4 shadow-[0_16px_40px_rgba(22,88,85,0.08)] ring-1 ring-[rgba(58,143,138,0.08)] backdrop-blur-md sm:p-5"
       >
         <div class="mb-5 flex flex-wrap items-center justify-between gap-3">
           <h2 class="text-sm font-semibold text-slate-700 sm:text-base">关卡地图</h2>
@@ -57,7 +57,7 @@
             :class="index % 2 === 0 ? 'justify-start' : 'justify-end'"
           >
             <div v-if="index < mapStages.length - 1" class="pointer-events-none absolute left-1/2 top-16 h-16 -translate-x-1/2">
-              <div class="h-full border-l-2 border-dashed border-[rgba(58,143,138,0.3)]" />
+              <div class="h-full border-l-[3px] border-dotted border-[#69c4bf]/60" />
             </div>
 
             <button
@@ -79,7 +79,7 @@
               <p class="mt-1 text-xs opacity-80">{{ stage.theme }}</p>
               <div
                 v-if="newUnlockedStageId === stage.id"
-                class="absolute -right-2 -top-2 rounded-full bg-[#FF7D00] px-2 py-0.5 text-[10px] font-semibold text-white unlock-pop"
+                class="unlock-pop absolute -right-2 -top-2 rounded-full bg-gradient-to-r from-[#e59f48] to-[#d68529] px-2 py-0.5 text-[10px] font-semibold text-white shadow-md ring-2 ring-white/50"
               >
                 新解锁
               </div>
@@ -94,8 +94,8 @@
         </div>
       </section>
 
-      <footer class="mt-3 rounded-2xl border border-[rgba(58,143,138,0.15)] bg-white/85 px-4 py-2.5 text-sm text-slate-600 shadow-sm">
-        当前进度：<span class="font-semibold text-[#165DFF]">{{ completedStageCount }}</span> / {{ stages.length }} 关
+      <footer class="mt-3 rounded-2xl border border-[rgba(58,143,138,0.15)] bg-white/85 px-4 py-2.5 text-sm text-slate-600 shadow-sm backdrop-blur-md">
+        当前进度：<span class="font-semibold text-[#1a5c58]">{{ completedStageCount }}</span> / {{ stages.length }} 关
       </footer>
     </main>
 
@@ -128,8 +128,8 @@
             <p>状态：{{ statusLabel(getStageStatus(selectedStage)) }}</p>
           </div>
           <div class="mt-6 flex justify-end gap-2">
-            <button class="rounded-xl border border-slate-300 px-4 py-2 text-sm text-slate-600" @click="stageDialogVisible = false">取消</button>
-            <button class="rounded-xl bg-[#165DFF] px-4 py-2 text-sm font-medium text-white" @click="startChallenge">开始挑战</button>
+            <button class="rounded-xl border border-slate-300 px-4 py-2 text-sm text-slate-600 transition hover:bg-slate-50" @click="stageDialogVisible = false">取消</button>
+            <button class="rounded-xl bg-gradient-to-r from-[#69c4bf] to-[#3a8f8a] px-4 py-2 text-sm font-medium text-white shadow-md transition hover:from-[#5ab5b0] hover:to-[#2b857a]" @click="startChallenge">开始挑战</button>
           </div>
         </div>
       </div>
@@ -146,24 +146,24 @@
               <h3 class="text-lg font-semibold text-slate-900">{{ challengeStage.name }}</h3>
               <p class="text-sm text-slate-500">题目 {{ challengeIndex + 1 }} / {{ challengeQuestions.length }}</p>
             </div>
-            <div class="text-sm font-medium text-[#165DFF]">通关进度 {{ challengeProgress }}%</div>
+            <div class="text-sm font-medium text-[#1a5c58]">通关进度 {{ challengeProgress }}%</div>
           </div>
 
-          <div class="mb-5 h-2 overflow-hidden rounded-full bg-slate-100">
-            <div class="h-full rounded-full bg-gradient-to-r from-[#165DFF] to-[#FF7D00] transition-all" :style="{ width: `${challengeProgress}%` }" />
+          <div class="mb-5 h-2 overflow-hidden rounded-full bg-slate-100/80 ring-1 ring-inset ring-slate-200/50">
+            <div class="h-full rounded-full bg-gradient-to-r from-[#69c4bf] to-[#e59f48] shadow-sm transition-all" :style="{ width: `${challengeProgress}%` }" />
           </div>
 
           <section v-if="currentQuestion" class="rounded-2xl bg-slate-50 p-4">
             <h4 class="text-base font-semibold text-slate-900">{{ questionTypeLabel(currentQuestion.type) }}</h4>
 
             <div v-if="currentQuestion.type === 'audioMeaning'" class="mt-3 space-y-3">
-              <button class="rounded-lg bg-[#165DFF] px-3 py-2 text-sm text-white" @click="playAudio(currentQuestion.audioUrl)">播放方言音频</button>
+              <button class="rounded-xl bg-gradient-to-r from-[#69c4bf] to-[#3a8f8a] px-4 py-2.5 text-sm font-medium text-white shadow-sm transition hover:from-[#5ab5b0] hover:to-[#2b857a]" @click="playAudio(currentQuestion.audioUrl)">播放方言音频</button>
               <div class="grid gap-2 sm:grid-cols-2">
                 <button
                   v-for="(option, idx) in currentQuestion.options"
                   :key="option"
-                  class="rounded-lg border px-3 py-2 text-left text-sm transition"
-                  :class="questionAnswer.choice === idx ? 'border-[#165DFF] bg-[#165DFF]/10 text-[#165DFF]' : 'border-slate-200 bg-white text-slate-700'"
+                  class="rounded-xl border px-3 py-2.5 text-left text-sm transition"
+                  :class="questionAnswer.choice === idx ? 'border-[#3a8f8a] bg-[#3a8f8a]/10 text-[#1a5c58] ring-1 ring-[#3a8f8a]/50' : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50'"
                   @click="questionAnswer.choice = idx"
                 >
                   {{ idx + 1 }}. {{ option }}
@@ -174,10 +174,10 @@
             <div v-else-if="currentQuestion.type === 'repeatScore'" class="mt-3 space-y-3">
               <p class="text-sm text-slate-700">请跟读：{{ currentQuestion.sentence }}</p>
               <div class="flex flex-wrap gap-2">
-                <button class="rounded-lg bg-[#165DFF] px-3 py-2 text-sm text-white disabled:opacity-40" :disabled="isRecording" @click="startRecording">开始录音</button>
-                <button class="rounded-lg bg-orange-500 px-3 py-2 text-sm text-white disabled:opacity-40" :disabled="!isRecording" @click="stopRecording">停止录音</button>
+                <button class="rounded-xl bg-gradient-to-r from-[#69c4bf] to-[#3a8f8a] px-4 py-2.5 text-sm font-medium text-white shadow-sm transition hover:from-[#5ab5b0] hover:to-[#2b857a] disabled:opacity-40 disabled:hover:from-[#69c4bf] disabled:hover:to-[#3a8f8a]" :disabled="isRecording" @click="startRecording">开始录音</button>
+                <button class="rounded-xl bg-gradient-to-r from-[#e59f48] to-[#d68529] px-4 py-2.5 text-sm font-medium text-white shadow-sm transition hover:from-[#d9943f] hover:to-[#c77a23] disabled:opacity-40 disabled:hover:from-[#e59f48] disabled:hover:to-[#d68529]" :disabled="!isRecording" @click="stopRecording">停止录音</button>
               </div>
-              <p v-if="questionAnswer.score !== null" class="text-sm text-emerald-700">AI 打分：{{ questionAnswer.score }} 分</p>
+              <p v-if="questionAnswer.score !== null" class="text-sm font-medium text-[#1a5c58]">AI 打分：{{ questionAnswer.score }} 分</p>
             </div>
 
             <div v-else-if="currentQuestion.type === 'fillBlank'" class="mt-3 space-y-3">
@@ -186,8 +186,8 @@
                 <button
                   v-for="(option, idx) in currentQuestion.options"
                   :key="option"
-                  class="rounded-lg border px-3 py-2 text-left text-sm transition"
-                  :class="questionAnswer.choice === idx ? 'border-[#165DFF] bg-[#165DFF]/10 text-[#165DFF]' : 'border-slate-200 bg-white text-slate-700'"
+                  class="rounded-xl border px-3 py-2.5 text-left text-sm transition"
+                  :class="questionAnswer.choice === idx ? 'border-[#3a8f8a] bg-[#3a8f8a]/10 text-[#1a5c58] ring-1 ring-[#3a8f8a]/50' : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50'"
                   @click="questionAnswer.choice = idx"
                 >
                   {{ option }}
@@ -198,16 +198,16 @@
             <div v-else-if="currentQuestion.type === 'operaRepeat'" class="mt-3 space-y-3">
               <p class="text-sm text-slate-700">戏曲小片段：{{ currentQuestion.script }}</p>
               <div class="flex flex-wrap gap-2">
-                <button class="rounded-lg bg-[#165DFF] px-3 py-2 text-sm text-white disabled:opacity-40" :disabled="isRecording" @click="startRecording">开始录音</button>
-                <button class="rounded-lg bg-orange-500 px-3 py-2 text-sm text-white disabled:opacity-40" :disabled="!isRecording" @click="stopRecording">停止录音</button>
+                <button class="rounded-xl bg-gradient-to-r from-[#69c4bf] to-[#3a8f8a] px-4 py-2.5 text-sm font-medium text-white shadow-sm transition hover:from-[#5ab5b0] hover:to-[#2b857a] disabled:opacity-40 disabled:hover:from-[#69c4bf] disabled:hover:to-[#3a8f8a]" :disabled="isRecording" @click="startRecording">开始录音</button>
+                <button class="rounded-xl bg-gradient-to-r from-[#e59f48] to-[#d68529] px-4 py-2.5 text-sm font-medium text-white shadow-sm transition hover:from-[#d9943f] hover:to-[#c77a23] disabled:opacity-40 disabled:hover:from-[#e59f48] disabled:hover:to-[#d68529]" :disabled="!isRecording" @click="stopRecording">停止录音</button>
               </div>
-              <p v-if="questionAnswer.score !== null" class="text-sm text-emerald-700">跟读完成，评分：{{ questionAnswer.score }}</p>
+              <p v-if="questionAnswer.score !== null" class="text-sm font-medium text-[#1a5c58]">跟读完成，评分：{{ questionAnswer.score }}</p>
             </div>
           </section>
 
           <div class="mt-5 flex flex-wrap justify-end gap-2">
-            <button class="rounded-xl border border-slate-300 px-4 py-2 text-sm text-slate-600" @click="closeChallenge">中止挑战</button>
-            <button class="rounded-xl bg-[#FF7D00] px-4 py-2 text-sm font-medium text-white" @click="submitCurrentQuestion">
+            <button class="rounded-xl border border-slate-300 px-4 py-2 text-sm text-slate-600 transition hover:bg-slate-50" @click="closeChallenge">中止挑战</button>
+            <button class="rounded-xl bg-gradient-to-r from-[#e59f48] to-[#d68529] px-4 py-2 text-sm font-medium text-white shadow-md transition hover:from-[#d9943f] hover:to-[#c77a23]" @click="submitCurrentQuestion">
               {{ challengeIndex === challengeQuestions.length - 1 ? '提交并结算' : '提交下一题' }}
             </button>
           </div>
@@ -221,14 +221,14 @@
         class="fixed inset-0 z-[70] flex items-center justify-center bg-black/45 p-4 backdrop-blur-sm"
         @click.self="resultVisible = false"
       >
-        <div class="w-full max-w-md rounded-3xl bg-white p-6 text-center shadow-2xl">
-          <h3 class="text-2xl font-semibold" :class="stagePassed ? 'text-emerald-600' : 'text-orange-600'">
+        <div class="w-full max-w-md rounded-3xl bg-white p-6 text-center shadow-2xl ring-1 ring-black/5">
+          <h3 class="text-2xl font-bold" :class="stagePassed ? 'text-[#3a8f8a]' : 'text-[#e59f48]'">
             {{ stagePassed ? '通关成功' : '继续努力' }}
           </h3>
-          <p class="mt-3 text-sm text-slate-600">得分：{{ stageScore }} / 100</p>
+          <p class="mt-3 text-sm font-medium text-slate-600">得分：<span class="text-lg text-slate-800">{{ stageScore }}</span> / 100</p>
           <p class="mt-2 text-sm text-slate-500">{{ stageComment }}</p>
-          <p v-if="unlockMessage" class="mt-3 text-sm font-medium text-[#FF7D00] float-text">{{ unlockMessage }}</p>
-          <button class="mt-5 rounded-xl bg-[#165DFF] px-4 py-2 text-sm font-medium text-white" @click="resultVisible = false">返回地图</button>
+          <p v-if="unlockMessage" class="mt-4 text-sm font-semibold text-[#e59f48] float-text">{{ unlockMessage }}</p>
+          <button class="mt-6 w-full rounded-xl bg-gradient-to-r from-[#69c4bf] to-[#3a8f8a] px-4 py-3 text-sm font-medium text-white shadow-md transition hover:from-[#5ab5b0] hover:to-[#2b857a]" @click="resultVisible = false">返回地图</button>
         </div>
       </div>
     </teleport>
@@ -298,9 +298,9 @@ function getStageStatus(stage) {
 
 function stageCardClass(stage) {
   const status = getStageStatus(stage)
-  if (status === 'completed') return 'border-[#36ad6a]/35 bg-[#36ad6a]/10 text-[#2b8753] hover:shadow-md'
-  if (status === 'current') return 'border-[#FF7D00]/45 bg-[#FF7D00]/12 text-[#b85d00] hover:shadow-md'
-  return 'cursor-not-allowed border-slate-200 bg-slate-100 text-[#999]'
+  if (status === 'completed') return 'border-[#69c4bf]/40 bg-white/90 text-[#1a5c58] hover:shadow-md hover:border-[#69c4bf]/60 backdrop-blur-sm'
+  if (status === 'current') return 'border-[#e59f48]/60 bg-gradient-to-br from-white/95 to-[#fdf8f2]/90 text-[#b85d00] shadow-[0_4px_20px_rgba(229,159,72,0.15)] hover:shadow-[0_6px_24px_rgba(229,159,72,0.25)] ring-2 ring-[#e59f48]/20 backdrop-blur-sm'
+  return 'cursor-not-allowed border-slate-200/60 bg-slate-50/50 text-slate-400 backdrop-blur-sm'
 }
 
 function statusLabel(status) {
