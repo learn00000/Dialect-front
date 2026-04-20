@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>语韵东方 · 地方方言语音合成与交互体验</title>
+    <link rel="stylesheet" crossorigin href="./assets/style-DzR8pS9F.css">
+  </head>
+  <body>
+    <div class="page-bg" aria-hidden="true">
+      <svg class="page-bg__svg" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice">
+        <defs>
+          <linearGradient id="g-mist" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="rgba(120, 195, 195, 0.12)" />
+            <stop offset="100%" stop-color="rgba(255, 255, 255, 0)" />
+          </linearGradient>
+        </defs>
+        <path fill="url(#g-mist)" d="M0 420 Q360 320 720 420 T1440 380 V900 H0Z" />
+        <g class="page-bg__lines" fill="none" stroke="rgba(58, 143, 138, 0.11)" stroke-width="1.15">
+          <path d="M80 680 Q200 620 340 660 T620 640" />
+          <path d="M900 720 Q1040 660 1180 700 T1380 680" />
+          <path d="M200 200 Q400 120 600 180 T1000 160" />
+          <path d="M1100 240 Q1220 200 1320 220" />
+        </g>
+        <g class="page-bg__clouds" fill="none" stroke="rgba(58, 143, 138, 0.085)" stroke-width="1">
+          <path d="M100 520c20-25 55-25 75 0 15-18 45-18 60 0 20-22 55-15 70 10" />
+          <path d="M1180 180c18-20 48-20 65 0 12-15 38-15 50 0 18-18 48-12 62 8" />
+        </g>
+        <g class="page-bg__waves" fill="none" stroke="rgba(61, 148, 144, 0.065)" stroke-width="1.1" stroke-linecap="round">
+          <path d="M0 505 C320 472 520 548 780 512 S1180 468 1440 498" />
+          <path d="M0 548 C280 518 460 572 740 538 S1120 498 1440 528" />
+          <path d="M0 592 C360 562 540 618 820 582 S1240 542 1440 572" />
+        </g>
+      </svg>
+    </div>
+
+    <div class="app">
+    <header class="site-header">
+      <a class="brand" href="#">
+        <span class="brand__mark" aria-hidden="true"></span>
+        <span class="brand__text">语韵东方</span>
+      </a>
+      <nav class="nav" aria-label="主导航">
+        <a class="nav__link nav__link--active" href="#top">首页</a>
+        <a class="nav__link" href="#features">核心功能</a>
+        <a class="nav__link" href="#vision">项目愿景</a>
+        <a class="nav__link" href="#footer">关于</a>
+      </nav>
+      <button type="button" class="btn btn--ghost" id="btn-auth">登录 / 注册</button>
+    </header>
+
+    <div class="content-slot" id="content-slot">
+    <div class="view-stack view-stack--home" id="view-home">
+    <main class="hero" id="top">
+      <section class="hero__left" aria-label="数字人展示与接入区域">
+        <div
+          class="avatar-panel"
+          id="digital-human-host"
+          role="button"
+          tabindex="0"
+          aria-label="数字人接入区域，点击切换演示状态"
+        >
+          <div class="avatar-panel__glow" aria-hidden="true"></div>
+          <div class="avatar-panel__frame">
+            <img
+              class="avatar-panel__img"
+              src="./assets/digital-demo-DhruZKR0.png"
+              alt="数字人「阿雅」演示画面，可替换为实时驱动模型"
+              width="560"
+              height="720"
+            />
+            <div class="avatar-panel__badge">
+              <span class="avatar-panel__badge-name">接入区</span>
+            </div>
+            <span class="avatar-panel__name-tag" aria-label="数字人名称">阿雅</span>
+          </div>
+          <p class="avatar-panel__hint">
+            左侧预留 <strong>数字人 / 虚拟主播</strong> 容器，可对接 WebGL、Live2D、视频流或 RTC，用于方言讲解与互动引导。
+          </p>
+          <div class="avatar-panel__tech" role="status">
+            <span class="pulse-dot" aria-hidden="true"></span>
+            <span id="avatar-status">交互引擎待接入</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="hero__right" id="features">
+        <div class="hero__intro">
+          <h1 class="hero__title">
+            <span class="hero__title-main"
+              ><span class="hero__title-prefix">声声不息</span><span class="hero__title-sep">-</span><span class="hero__title-accent">方音新生</span></span>
+          </h1>
+          <p class="hero__lead">
+            开启方言学习之旅，中国方言文化保护平台
+          </p>
+        </div>
+
+        <div class="cards" role="list">
+          <article class="feature-card" data-tilt data-card="pick">
+            <h2 class="feature-card__title">方音拾级</h2>
+            <div class="feature-card__visual" aria-hidden="true">
+              <div class="illu illu--steps">
+                <span class="illu__orb"></span>
+                <span class="illu__step illu__step--1"></span>
+                <span class="illu__step illu__step--2"></span>
+                <span class="illu__step illu__step--3"></span>
+              </div>
+            </div>
+            <p class="feature-card__desc">
+              阶梯式学习与闯关：跟读、辨音、情境对话，配合合成语音示范，让「难学、少书面」的方言也能被循序渐进地掌握。
+            </p>
+            <button type="button" class="btn btn--primary feature-card__cta" data-action="pick">
+              进入拾级
+            </button>
+          </article>
+
+          <article class="feature-card" data-tilt data-card="map">
+            <h2 class="feature-card__title">声绘山河</h2>
+            <div class="feature-card__visual" aria-hidden="true">
+              <div class="illu illu--map">
+                <span class="illu__map-body"></span>
+                <span class="illu__pin illu__pin--a"></span>
+                <span class="illu__pin illu__pin--b"></span>
+                <span class="illu__wave"></span>
+              </div>
+            </div>
+            <p class="feature-card__desc">
+              采集方言朗读与日常语料，共建地图化乡音档案；汇聚高质量录音，为模型训练与语言学留存可溯源的「声音山河」。
+            </p>
+            <a class="btn btn--primary feature-card__cta feature-card__cta--link" href="map.html">
+              参与声绘
+            </a>
+          </article>
+
+          <article class="feature-card" data-tilt data-card="opera">
+            <h2 class="feature-card__title">方音戏韵</h2>
+            <div class="feature-card__visual" aria-hidden="true">
+              <div class="illu illu--tts">
+                <span class="illu__mic"></span>
+                <span class="illu__bars"><i></i><i></i><i></i><i></i><i></i></span>
+              </div>
+            </div>
+            <p class="feature-card__desc">
+              方言语音合成与戏韵化交互：角色对白、韵白体验、可分享的声音小品，让小众方音在可玩、可听、可传播中重新被看见。
+            </p>
+            <button type="button" class="btn btn--primary feature-card__cta" data-action="opera">
+              体验戏韵
+            </button>
+          </article>
+        </div>
+      </section>
+    </main>
+
+    <section class="vision" id="vision">
+      <div class="vision__inner">
+        <h2 class="vision__title">活态保存 · 智能传播</h2>
+        <p class="vision__text">
+          我们关注无文字或文献稀缺的口传方言，通过<strong>合成 + 采集 + 交互</strong>闭环，把个人记忆转化为可检索、可训练、可体验的数字文化资产。
+        </p>
+      </div>
+    </section>
+    </div>
+
+    <div
+      class="view-stack view-stack--opera"
+      id="view-opera"
+      hidden
+      aria-hidden="true"
+      role="region"
+      aria-label="方音戏韵体验区"
+    >
+      <div class="opera-stage">
+        <div class="opera-stage__corners" aria-hidden="true">
+          <span class="opera-corner opera-corner--tl"></span>
+          <span class="opera-corner opera-corner--tr"></span>
+          <span class="opera-corner opera-corner--bl"></span>
+          <span class="opera-corner opera-corner--br"></span>
+        </div>
+        <div class="opera-stage__inner">
+        <header class="opera-masthead">
+          <div class="opera-masthead__bar">
+            <button type="button" class="opera-back" id="btn-opera-back">
+              <span aria-hidden="true">‹</span> 返回首页
+            </button>
+            <div class="opera-masthead__title">
+              <div class="opera-title-cloud" aria-hidden="true">
+                <span></span><span></span><span></span><span></span><span></span>
+              </div>
+              <div class="opera-title-frame">
+                <span class="opera-title-frame__curl opera-title-frame__curl--l" aria-hidden="true"></span>
+                <h1 class="opera-title">方音戏韵</h1>
+                <span class="opera-title-frame__curl opera-title-frame__curl--r" aria-hidden="true"></span>
+              </div>
+            </div>
+            <div class="opera-masthead__spacer" aria-hidden="true"></div>
+          </div>
+        </header>
+
+        <section class="opera-body" aria-label="戏韵体验模块">
+        <div class="opera-modules">
+          <article
+            class="opera-card opera-card--puzzle opera-card--enter-dz"
+            tabindex="0"
+            role="link"
+            aria-label="进入断章寻韵"
+          >
+            <div class="opera-card__cloud-cap"><span>断章寻韵</span></div>
+            <div class="opera-card__body">
+              <div class="opera-grid" aria-label="戏曲意象剪影网格">
+                <div class="opera-grid__cell opera-grid__cell--mint">
+                  <svg class="opera-silhouette" viewBox="0 0 80 100" aria-hidden="true">
+                    <path
+                      fill="currentColor"
+                      d="M40 10c7 0 12 5 12 12 0 5-3 9-7 11 9 4 15 14 17 25l1 8h-46l1-8c2-11 8-21 17-25-4-2-7-6-7-11 0-7 5-12 12-12zm0 52c9 0 16 7 17 16h-34c1-9 8-16 17-16zm-10 22h20c3 0 5 2 6 5l3 11h-38l3-11c1-3 3-5 6-5z"
+                    />
+                  </svg>
+                </div>
+                <div class="opera-grid__cell opera-grid__cell--peach">
+                  <svg class="opera-silhouette" viewBox="0 0 80 100" aria-hidden="true">
+                    <path
+                      fill="currentColor"
+                      d="M40 14L26 22v5l14-7 14 7v-5zm-16 18h32v6H24zm4 8h24v8H28zm-4 10h8v34h-8zm12 0h8v34H40zm12 0h8v34h-8z"
+                    />
+                  </svg>
+                </div>
+                <div class="opera-grid__cell opera-grid__cell--butter">
+                  <svg class="opera-silhouette" viewBox="0 0 80 100" aria-hidden="true">
+                    <path
+                      fill="currentColor"
+                      d="M40 12c-8 0-14 6-15 14h-6v6h6v28h-8v8h52v-8h-8V32h6v-6h-6c-1-8-7-14-15-14zm0 8c4 0 7 3 7 7h-14c0-4 3-7 7-7zm-11 22h22v24H29zm4 8h6v8h-6zm12 0h6v8h-6z"
+                    />
+                  </svg>
+                </div>
+                <div class="opera-grid__cell opera-grid__cell--sea">
+                  <svg class="opera-silhouette" viewBox="0 0 80 100" aria-hidden="true">
+                    <path
+                      fill="currentColor"
+                      d="M18 78l8-48 4 2-6 38h28l-6-38 4-2 8 48zm22-58l6 14h10l-14 8-14-8h10z"
+                    />
+                  </svg>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article
+            class="opera-card opera-card--chat opera-card--enter-nb"
+            tabindex="0"
+            role="link"
+            aria-label="进入入戏念白"
+          >
+            <div class="opera-card__cloud-cap"><span>入戏念白</span></div>
+            <div class="opera-card__body opera-card__body--chat">
+              <div class="opera-chat">
+                <p class="opera-bubble opera-bubble--left">侬好呀，今朝阿拉一道练练这段韵白好伐？</p>
+                <p class="opera-bubble opera-bubble--right">好额好额，侬先起个头，我跟着念。</p>
+                <p class="opera-bubble opera-bubble--left">「月色溶溶夜」——侬听吾个腔调，中不中？</p>
+                <p class="opera-bubble opera-bubble--right">中！方音里向个落点，吾一记就听出来哉。</p>
+              </div>
+            </div>
+          </article>
+
+          <article class="opera-card opera-card--audio" tabindex="0">
+            <div class="opera-card__cloud-cap"><span>辨音识意</span></div>
+            <div class="opera-card__body opera-card__body--audio">
+              <div class="opera-wave" aria-hidden="true">
+                <span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+                <span></span><span></span><span></span><span></span><span></span>
+              </div>
+              <div class="opera-instruments">
+                <svg class="opera-inst opera-inst--ruan" viewBox="0 0 120 140" aria-hidden="true">
+                  <ellipse cx="60" cy="52" rx="38" ry="44" fill="none" stroke="currentColor" stroke-width="3" />
+                  <circle cx="60" cy="52" r="9" fill="none" stroke="currentColor" stroke-width="2.5" />
+                  <path
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2.5"
+                    stroke-linecap="round"
+                    d="M60 8v24M42 20l18 12M78 20L60 32"
+                  />
+                  <path fill="none" stroke="currentColor" stroke-width="2.5" d="M60 96v28" stroke-linecap="round" />
+                </svg>
+                <svg class="opera-inst opera-inst--pipa" viewBox="0 0 120 140" aria-hidden="true">
+                  <path
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="3"
+                    d="M28 118 L92 22"
+                    stroke-linecap="round"
+                  />
+                  <ellipse
+                    cx="44"
+                    cy="98"
+                    rx="26"
+                    ry="32"
+                    transform="rotate(-58 44 98)"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2.5"
+                  />
+                  <path
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    d="M52 88l22-48M46 96l22-48M40 104l22-48"
+                  />
+                </svg>
+              </div>
+            </div>
+          </article>
+        </div>
+        </section>
+        </div>
+      </div>
+    </div>
+
+    <div
+      class="view-stack view-stack--nianbai"
+      id="view-nianbai"
+      hidden
+      aria-hidden="true"
+      role="region"
+      aria-label="入戏念白"
+    >
+      <div class="nb-page">
+        <div class="nb-page__inner">
+          <button type="button" class="nb-back" id="btn-nb-back">
+            <span aria-hidden="true">‹</span> 返回戏韵
+          </button>
+          <header class="nb-hero">
+            <h1 class="nb-title">入戏念白 · 你入戏中来</h1>
+          </header>
+
+          <section class="nb-shell" aria-label="入戏念白交互区">
+            <div class="nb-main">
+              <div class="nb-headline">核心语音生成交互区</div>
+              <div class="nb-grid">
+                <section class="nb-card nb-card--select">
+                  <h2 class="nb-card__title nb-card__title--ornament">
+                    <span class="nb-ornament" aria-hidden="true"></span>
+                    国风卡片选择
+                    <span class="nb-ornament" aria-hidden="true"></span>
+                  </h2>
+                  <div class="nb-row nb-row--top">
+                    <button type="button" class="nb-chip nb-chip--active">方言选择</button>
+                    <span class="nb-plus" aria-hidden="true">+</span>
+                    <button type="button" class="nb-chip nb-chip--active">剧种选择</button>
+                    <button type="button" class="nb-drop" aria-label="展开剧种列表">▼</button>
+                  </div>
+                  <div class="nb-row nb-row--label">
+                    <span>方言选择</span>
+                    <button type="button" class="nb-drop" aria-label="展开方言列表">▼</button>
+                    <span>内容写入</span>
+                    <button type="button" class="nb-drop" aria-label="展开内容列表">▼</button>
+                  </div>
+                  <input class="nb-input" type="text" placeholder="戏词输入 > [原录卡片名器" />
+                  <button type="button" class="nb-generate">生成</button>
+                  <div class="nb-divider" aria-hidden="true"></div>
+                  <h3 class="nb-subtitle">
+                    <span class="nb-ornament" aria-hidden="true"></span>
+                    国式模板展示
+                    <span class="nb-ornament" aria-hidden="true"></span>
+                  </h3>
+                  <div class="nb-template">
+                    <p>【预录真人原声】小生乃那</p>
+                    <p>—【你的名字 / 自定义文本 · AI 方言TTS合成】</p>
+                    <p>【预录真人原声】一起!</p>
+                  </div>
+                </section>
+
+                <section class="nb-card">
+                  <h2 class="nb-card__title">语音实时预览</h2>
+                  <div class="nb-wave" aria-hidden="true">
+                    <span></span><span></span><span></span><span></span><span></span><span></span>
+                    <span></span><span></span><span></span><span></span><span></span><span></span>
+                  </div>
+                  <div class="nb-tabs">
+                    <button type="button" class="nb-tab nb-tab--active">真人腔原声</button>
+                    <button type="button" class="nb-tab">AI 方言 TTS 合成</button>
+                    <button type="button" class="nb-tab">混合唱片</button>
+                  </div>
+                </section>
+              </div>
+            </div>
+
+            <aside class="nb-side">
+              <section class="nb-side-card">
+                <h2 class="nb-side-card__title">背景留白文</h2>
+                <div class="nb-qrcode">二维码位</div>
+                <button type="button" class="nb-side-btn">回复名片</button>
+              </section>
+              <section class="nb-side-card">
+                <h2 class="nb-side-card__title">导出分享区</h2>
+                <div class="nb-avatar">
+                  <img src="./assets/avatar-demo-_MW1CzTl.png" alt="分享头像示意图" width="160" height="160" />
+                </div>
+                <button type="button" class="nb-side-btn nb-side-btn--primary">重新生成台词</button>
+              </section>
+            </aside>
+          </section>
+        </div>
+      </div>
+    </div>
+
+    <div
+      class="view-stack view-stack--duanzhang"
+      id="view-duanzhang"
+      hidden
+      aria-hidden="true"
+      role="region"
+      aria-label="断章寻韵"
+    >
+      <div class="dz-page">
+        <div class="dz-page__bg" aria-hidden="true"></div>
+        <div class="dz-page__scrim" aria-hidden="true"></div>
+        <button type="button" class="dz-back" id="btn-dz-back">
+          <span aria-hidden="true">‹</span> 返回戏韵
+        </button>
+        <header class="dz-hero">
+          <div class="dz-title-plaque">
+            <h1 class="dz-title">断章寻韵·重连戏韵声段</h1>
+          </div>
+        </header>
+        <div class="dz-page__inner">
+          <div class="dz-scroll">
+            <div class="dz-panel">
+              <div class="dz-panel__subtitle">
+                <span class="dz-diamond" aria-hidden="true"></span>
+                <span>方言戏曲拆分拼接题</span>
+                <span class="dz-diamond" aria-hidden="true"></span>
+              </div>
+              <div class="dz-rows">
+                <div class="dz-row">
+                  <span class="dz-token">方言</span>
+                  <span class="dz-token dz-token--accent">戏曲</span>
+                  <span class="dz-token">拆</span>
+                  <span class="dz-hole" aria-hidden="true"></span>
+                  <span class="dz-token">接词</span>
+                </div>
+                <div class="dz-row">
+                  <span class="dz-token">戏曲</span>
+                  <span class="dz-token">唱</span>
+                  <span class="dz-hole dz-hole--wide" aria-hidden="true"></span>
+                  <span class="dz-token">词</span>
+                </div>
+              </div>
+              <button type="button" class="dz-refresh" id="btn-dz-refresh" title="刷新题目">
+                <span class="dz-refresh__glyph" aria-hidden="true">↻</span>
+                <span class="dz-refresh__text">刷新题目</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    </div>
+
+    <footer class="site-footer" id="footer">
+      <div class="site-footer__row">
+        <div class="site-footer__badges">
+          <span class="seal">语韵东方</span>
+          <span class="seal seal--outline">方言数字化</span>
+        </div>
+        <div class="site-footer__links">
+          <a href="#top">首页</a>
+          <a href="#features">功能</a>
+          <a href="#vision">愿景</a>
+        </div>
+      </div>
+      <p class="site-footer__copy">© 2026 语韵东方 · 地方方言语音合成与交互体验设计。保留所有权利。</p>
+    </footer>
+    </div>
+
+    <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+    <script src="js/main.js" defer></script>
+  </body>
+</html>
