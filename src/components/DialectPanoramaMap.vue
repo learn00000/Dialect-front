@@ -1,46 +1,31 @@
 <template>
-  <div class="flex h-full min-h-0 flex-col bg-slate-950 text-slate-100">
-    <!-- 顶部导航 -->
-    <header
-      class="relative z-30 flex h-14 shrink-0 items-center justify-between border-b border-white/10 bg-gradient-to-r from-slate-950 via-[#0a1628] to-slate-950 px-4 shadow-[0_8px_30px_rgba(22,93,255,0.12)] backdrop-blur"
-    >
-      <div class="flex items-center gap-3">
-        <div
-          class="flex h-9 w-9 items-center justify-center rounded-xl bg-[#165DFF] text-sm font-bold text-white shadow-lg shadow-[#165DFF]/35"
-        >
-          方
-        </div>
-        <div>
-          <div class="text-sm font-semibold tracking-wide text-white">方言文化保护</div>
-          <div class="text-[11px] text-slate-400">方言全景地图</div>
-        </div>
-      </div>
-      <nav class="flex items-center gap-2 text-sm">
-        <a
-          href="/"
-          class="rounded-lg px-3 py-1.5 text-slate-300 transition hover:bg-white/5 hover:text-white"
-        >
-          返回首页
-        </a>
-        <a
-          href="/profile"
-          class="rounded-lg px-3 py-1.5 text-slate-300 transition hover:bg-white/5 hover:text-white"
-          @click.prevent="onPersonalCenter"
-        >
-          个人中心
-        </a>
+  <div
+    class="map-shell flex h-full min-h-0 flex-col bg-[#eef8f6] font-sans text-ink [background-image:radial-gradient(120%_70%_at_50%_-15%,rgba(255,255,255,0.95)_0%,transparent_58%),radial-gradient(ellipse_55%_42%_at_0%_100%,rgba(105,196,191,0.11)_0%,transparent_55%),linear-gradient(168deg,#fbffff_0%,#e9f5f3_42%,#f4fbfa_100%)]"
+  >
+    <!-- 顶栏：与首页 index.html 的 site-header 结构、类名一致 -->
+    <header class="site-header">
+      <a class="brand" href="./index.html#top">
+        <span class="brand__mark" aria-hidden="true"></span>
+        <span class="brand__text">语韵东方</span>
+      </a>
+      <nav class="nav" aria-label="主导航">
+        <a class="nav__link" href="./index.html#top">首页</a>
+        <a class="nav__link" href="./index.html#features">核心功能</a>
+        <a class="nav__link" href="./index.html#vision">项目愿景</a>
+        <a class="nav__link" href="./index.html#footer">关于</a>
       </nav>
+      <button type="button" class="btn btn--ghost" @click="onAuthClick">登录 / 注册</button>
     </header>
 
-    <div class="relative flex min-h-0 flex-1">
-      <!-- 左侧边栏 -->
+    <div class="relative flex min-h-0 min-w-0 flex-1">
+      <!-- 左侧边栏：与主站卡片一致的浅色玻璃 -->
       <aside
-        class="relative z-20 flex shrink-0 flex-col border-r border-white/10 bg-slate-950/90 shadow-card backdrop-blur transition-[width] duration-300 ease-out"
+        class="relative z-20 flex shrink-0 flex-col border-r border-[rgba(58,143,138,0.12)] bg-white/55 shadow-card backdrop-blur-[14px] transition-[width] duration-300 ease-out"
         :class="sidebarCollapsed ? 'w-[52px]' : 'w-[320px]'"
       >
         <button
           type="button"
-          class="absolute -right-3 top-16 z-10 flex h-7 w-7 items-center justify-center rounded-full border border-white/10 bg-slate-900 text-xs text-slate-200 shadow-md transition hover:border-[#165DFF]/50 hover:text-white"
+          class="absolute -right-3 top-16 z-10 flex h-7 w-7 items-center justify-center rounded-full border border-[rgba(58,143,138,0.2)] bg-white text-xs text-[#1a5c58] shadow-md transition hover:border-brand hover:bg-mist"
           :title="sidebarCollapsed ? '展开侧栏' : '收起侧栏'"
           @click="sidebarCollapsed = !sidebarCollapsed"
         >
@@ -48,15 +33,17 @@
         </button>
 
         <div v-if="!sidebarCollapsed" class="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto p-4">
-          <section class="rounded-2xl border border-white/10 bg-gradient-to-b from-slate-900/80 to-slate-950/90 p-4 shadow-inner">
-            <h3 class="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-[#7aa8ff]">
-              <span class="h-1.5 w-1.5 rounded-full bg-[#165DFF] shadow-[0_0_12px_#165DFF]" />
+          <section
+            class="rounded-[1.25rem] border border-white/90 bg-gradient-to-b from-white/95 to-white/75 p-4 shadow-[0_6px_28px_rgba(22,88,85,0.06)] ring-1 ring-[rgba(58,143,138,0.08)]"
+          >
+            <h3 class="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-[#1a5c58]">
+              <span class="h-1.5 w-1.5 rounded-full bg-brand shadow-[0_0_10px_rgba(58,143,138,0.55)]" />
               地区选择
             </h3>
             <div class="space-y-2">
               <select
                 v-model="selProvince"
-                class="w-full rounded-xl border border-white/10 bg-slate-900/80 px-3 py-2 text-sm text-slate-100 outline-none ring-[#165DFF]/40 focus:border-[#165DFF]/60 focus:ring-2"
+                class="w-full rounded-xl border border-[rgba(58,143,138,0.18)] bg-white/90 px-3 py-2 text-sm text-[#152322] outline-none focus:border-brand focus:ring-2 focus:ring-brand/25"
                 @change="onProvinceChange"
               >
                 <option value="">请选择省</option>
@@ -64,7 +51,7 @@
               </select>
               <select
                 v-model="selCity"
-                class="w-full rounded-xl border border-white/10 bg-slate-900/80 px-3 py-2 text-sm text-slate-100 outline-none ring-[#165DFF]/40 focus:border-[#165DFF]/60 focus:ring-2"
+                class="w-full rounded-xl border border-[rgba(58,143,138,0.18)] bg-white/90 px-3 py-2 text-sm text-[#152322] outline-none focus:border-brand focus:ring-2 focus:ring-brand/25 disabled:opacity-40"
                 :disabled="!selProvince"
                 @change="onCityChange"
               >
@@ -73,7 +60,7 @@
               </select>
               <select
                 v-model="selDistrict"
-                class="w-full rounded-xl border border-white/10 bg-slate-900/80 px-3 py-2 text-sm text-slate-100 outline-none ring-[#165DFF]/40 focus:border-[#165DFF]/60 focus:ring-2"
+                class="w-full rounded-xl border border-[rgba(58,143,138,0.18)] bg-white/90 px-3 py-2 text-sm text-[#152322] outline-none focus:border-brand focus:ring-2 focus:ring-brand/25 disabled:opacity-40"
                 :disabled="!selCity"
               >
                 <option value="">请选择区县</option>
@@ -82,8 +69,10 @@
             </div>
           </section>
 
-          <section class="rounded-2xl border border-white/10 bg-slate-900/60 p-4">
-            <h3 class="mb-3 text-xs font-semibold uppercase tracking-wider text-[#7aa8ff]">内容类型（多选）</h3>
+          <section
+            class="rounded-[1.25rem] border border-white/90 bg-white/80 p-4 shadow-[0_6px_28px_rgba(22,88,85,0.05)] ring-1 ring-[rgba(58,143,138,0.06)]"
+          >
+            <h3 class="mb-3 text-xs font-semibold uppercase tracking-wider text-[#1a5c58]">内容类型（多选）</h3>
             <div class="flex flex-wrap gap-2">
               <button
                 v-for="t in contentTypes"
@@ -92,29 +81,29 @@
                 class="rounded-full border px-3 py-1 text-xs transition"
                 :class="
                   selectedTypes.includes(t)
-                    ? 'border-[#165DFF] bg-[#165DFF]/20 text-white shadow-[0_0_16px_rgba(22,93,255,0.35)]'
-                    : 'border-white/10 bg-slate-950/40 text-slate-300 hover:border-[#165DFF]/40'
+                    ? 'border-brand bg-gradient-to-br from-brand-light/35 to-brand/25 text-[#0f3d3a] shadow-[0_4px_14px_rgba(58,143,138,0.25)]'
+                    : 'border-[rgba(58,143,138,0.2)] bg-white/70 text-[#3a4a49] hover:border-brand/50'
                 "
                 @click="toggleType(t)"
               >
                 {{ t }}
               </button>
             </div>
-            <p class="mt-2 text-[11px] text-slate-500">未选择任何类型时，显示全部类型点位。</p>
+            <p class="mt-2 text-[11px] text-[#5d6e6d]">未选择任何类型时，显示全部类型点位。</p>
           </section>
 
           <div class="mt-auto flex flex-col gap-2">
             <button
               type="button"
-              class="flex items-center justify-center gap-2 rounded-xl bg-[#165DFF] px-3 py-2.5 text-sm font-medium text-white shadow-lg shadow-[#165DFF]/30 transition hover:bg-[#0f4fe0] active:scale-[0.99]"
+              class="flex items-center justify-center gap-2 rounded-xl bg-gradient-to-br from-[#7ed4ce] via-brand to-[#2a726d] px-3 py-2.5 text-sm font-semibold text-white shadow-[0_8px_22px_rgba(26,92,88,0.28)] transition hover:brightness-[1.04] active:scale-[0.99]"
               @click="goMyLocation"
             >
-              <span class="inline-block h-2 w-2 rounded-full bg-white/90 shadow-[0_0_10px_white]" />
+              <span class="inline-block h-2 w-2 rounded-full bg-white/95 shadow-[0_0_8px_rgba(255,255,255,0.9)]" />
               前往我的位置
             </button>
             <button
               type="button"
-              class="rounded-xl border border-[#165DFF]/40 bg-slate-900/80 px-3 py-2.5 text-sm text-[#a8c4ff] transition hover:border-[#165DFF] hover:text-white"
+              class="rounded-xl border border-[rgba(58,143,138,0.35)] bg-white/85 px-3 py-2.5 text-sm font-medium text-[#1a5c58] transition hover:border-brand hover:bg-mist/80"
               @click="openRecordPanel"
             >
               上传方言录音
@@ -124,25 +113,29 @@
 
         <div
           v-else
-          class="flex flex-1 flex-col items-center gap-3 py-4 text-[10px] text-slate-500 [writing-mode:vertical-rl]"
+          class="flex flex-1 flex-col items-center gap-3 py-4 text-[10px] text-[#5d6e6d] [writing-mode:vertical-rl]"
         >
           侧栏已收起
         </div>
       </aside>
 
       <!-- 地图主区域 -->
-      <main class="relative min-h-0 min-w-0 flex-1 bg-slate-900">
-        <div id="amap-container" ref="mapContainerRef" class="absolute inset-0 z-0" />
+      <main class="relative min-h-0 min-w-0 flex-1 bg-[#dfecea]">
+        <div
+          id="amap-container"
+          ref="mapContainerRef"
+          class="absolute inset-2 z-0 overflow-hidden rounded-2xl border border-[rgba(58,143,138,0.15)] bg-white shadow-[inset_0_1px_0_rgba(255,255,255,0.85),0_8px_32px_rgba(22,88,85,0.08)] sm:inset-3"
+        />
 
         <div
           v-if="mapLoading"
-          class="pointer-events-none absolute inset-0 z-10 flex items-center justify-center bg-slate-950/40 backdrop-blur-sm"
+          class="pointer-events-none absolute inset-0 z-10 flex items-center justify-center bg-white/35 backdrop-blur-[2px]"
         >
           <div
-            class="flex items-center gap-3 rounded-2xl border border-white/10 bg-slate-900/90 px-5 py-3 text-sm text-slate-200 shadow-card"
+            class="flex items-center gap-3 rounded-2xl border border-[rgba(58,143,138,0.15)] bg-white/95 px-5 py-3 text-sm text-[#3a4a49] shadow-card"
           >
             <span
-              class="inline-block h-4 w-4 animate-spin rounded-full border-2 border-[#165DFF] border-t-transparent"
+              class="inline-block h-4 w-4 animate-spin rounded-full border-2 border-brand border-t-transparent"
             />
             地图加载中…
           </div>
@@ -152,16 +145,16 @@
         <transition name="slide-fade">
           <aside
             v-if="panelOpen && selectedPoint"
-            class="absolute right-0 top-0 z-20 flex h-full w-full max-w-sm flex-col border-l border-white/10 bg-gradient-to-b from-slate-950/95 via-slate-950/95 to-[#0a1628]/98 p-5 shadow-[-12px_0_40px_rgba(0,0,0,0.45)] backdrop-blur-md sm:w-96"
+            class="absolute right-0 top-0 z-20 flex h-full w-full max-w-sm flex-col border-l border-[rgba(58,143,138,0.12)] bg-gradient-to-b from-white/98 via-white/95 to-mist/95 p-5 shadow-[-12px_0_40px_rgba(22,88,85,0.12)] backdrop-blur-md sm:w-96"
           >
             <div class="mb-4 flex items-start justify-between gap-2">
               <div>
-                <div class="text-[11px] font-medium uppercase tracking-wider text-[#7aa8ff]">点位详情</div>
-                <h2 class="mt-1 text-lg font-semibold text-white">{{ selectedPoint.area }}</h2>
+                <div class="text-[11px] font-medium uppercase tracking-wider text-brand">点位详情</div>
+                <h2 class="mt-1 text-lg font-semibold text-[#174a47]">{{ selectedPoint.area }}</h2>
               </div>
               <button
                 type="button"
-                class="rounded-full border border-white/10 p-1.5 text-slate-400 transition hover:border-[#165DFF]/50 hover:text-white"
+                class="rounded-full border border-[rgba(58,143,138,0.2)] p-1.5 text-[#5d6e6d] transition hover:border-brand hover:text-[#1a5c58]"
                 aria-label="关闭"
                 @click="closeDetailPanel"
               >
@@ -170,36 +163,36 @@
             </div>
 
             <div class="space-y-3 text-sm">
-              <div class="rounded-xl border border-white/10 bg-slate-900/70 p-3">
-                <div class="text-[11px] text-slate-500">方言片区</div>
-                <div class="mt-1 text-slate-100">{{ selectedPoint.dialect }}</div>
+              <div class="rounded-xl border border-[rgba(58,143,138,0.12)] bg-white/90 p-3">
+                <div class="text-[11px] text-[#5d6e6d]">方言片区</div>
+                <div class="mt-1 text-[#152322]">{{ selectedPoint.dialect }}</div>
               </div>
-              <div class="rounded-xl border border-white/10 bg-slate-900/70 p-3">
-                <div class="text-[11px] text-slate-500">发言人昵称</div>
-                <div class="mt-1 text-slate-100">{{ selectedPoint.nickname }}</div>
+              <div class="rounded-xl border border-[rgba(58,143,138,0.12)] bg-white/90 p-3">
+                <div class="text-[11px] text-[#5d6e6d]">发言人昵称</div>
+                <div class="mt-1 text-[#152322]">{{ selectedPoint.nickname }}</div>
               </div>
-              <div class="rounded-xl border border-white/10 bg-slate-900/70 p-3">
-                <div class="text-[11px] text-slate-500">内容类型</div>
+              <div class="rounded-xl border border-[rgba(58,143,138,0.12)] bg-white/90 p-3">
+                <div class="text-[11px] text-[#5d6e6d]">内容类型</div>
                 <div class="mt-1">
                   <span
-                    class="inline-flex rounded-full border border-[#165DFF]/40 bg-[#165DFF]/15 px-2 py-0.5 text-xs text-[#b6ceff]"
+                    class="inline-flex rounded-full border border-brand/35 bg-brand/10 px-2 py-0.5 text-xs text-[#1a5c58]"
                   >
                     {{ selectedPoint.type }}
                   </span>
                 </div>
               </div>
-              <div class="rounded-xl border border-white/10 bg-slate-900/70 p-3">
-                <div class="text-[11px] text-slate-500">文字内容</div>
-                <p class="mt-1 leading-relaxed text-slate-200">{{ selectedPoint.content }}</p>
+              <div class="rounded-xl border border-[rgba(58,143,138,0.12)] bg-white/90 p-3">
+                <div class="text-[11px] text-[#5d6e6d]">文字内容</div>
+                <p class="mt-1 leading-relaxed text-[#2c3d3c]">{{ selectedPoint.content }}</p>
               </div>
-              <div class="rounded-xl border border-white/10 bg-slate-900/70 p-3">
-                <div class="text-[11px] text-slate-500">上传时间</div>
-                <div class="mt-1 text-slate-300">{{ selectedPoint.time }}</div>
+              <div class="rounded-xl border border-[rgba(58,143,138,0.12)] bg-white/90 p-3">
+                <div class="text-[11px] text-[#5d6e6d]">上传时间</div>
+                <div class="mt-1 text-[#3a4a49]">{{ selectedPoint.time }}</div>
               </div>
             </div>
 
-            <div class="mt-4 rounded-2xl border border-[#165DFF]/25 bg-slate-900/80 p-3 shadow-inner">
-              <div class="mb-2 text-xs text-slate-400">音频播放</div>
+            <div class="mt-4 rounded-2xl border border-[rgba(58,143,138,0.18)] bg-mist/60 p-3 shadow-inner">
+              <div class="mb-2 text-xs text-[#5d6e6d]">音频播放</div>
               <audio
                 ref="detailAudioRef"
                 class="w-full rounded-lg"
@@ -212,10 +205,10 @@
         </transition>
       </main>
 
-      <!-- 右下角悬浮：快速录音上传 -->
+      <!-- 右下角悬浮：快速录音上传（抬高以免压住底栏） -->
       <button
         type="button"
-        class="fixed bottom-6 right-6 z-40 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-[#165DFF] to-[#0b3fbf] text-2xl text-white shadow-[0_12px_40px_rgba(22,93,255,0.45)] ring-2 ring-white/10 transition hover:scale-105 active:scale-95"
+        class="fixed bottom-[5.5rem] right-5 z-40 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-[#7ed4ce] via-brand to-[#2a726d] text-2xl text-white shadow-[0_12px_36px_rgba(26,92,88,0.35)] ring-2 ring-white/50 transition hover:scale-105 active:scale-95 sm:right-6"
         title="快速录音上传"
         aria-label="快速录音上传"
         @click="openRecordPanel"
@@ -224,35 +217,61 @@
       </button>
     </div>
 
+    <!-- 底栏：与主站 site-footer 一致 -->
+    <footer
+      class="relative z-30 shrink-0 border-t border-[rgba(58,143,138,0.07)] bg-gradient-to-b from-white/88 to-[rgba(248,252,251,0.92)] px-4 py-2 shadow-[0_-4px_24px_rgba(22,72,70,0.04)] backdrop-blur-[14px]"
+    >
+      <div
+        class="mx-auto flex max-w-[1280px] flex-wrap items-center justify-between gap-2 gap-y-1 text-[0.88rem] text-[#5d6e6d]"
+      >
+        <div class="flex flex-wrap items-center gap-2">
+          <span
+            class="inline-flex min-w-[6.75rem] rotate-[-2deg] items-center justify-center rounded-lg border-2 border-[#d14c4c] bg-white/75 px-3 py-1.5 text-[0.95rem] font-bold tracking-[0.12em] text-[#c23d3d] shadow-[0_4px_14px_rgba(194,61,61,0.1)]"
+          >语韵东方</span>
+          <span
+            class="inline-flex min-w-[6.75rem] rotate-[1.5deg] items-center justify-center rounded-lg border border-dashed border-[rgba(58,143,138,0.42)] bg-white/55 px-3 py-1.5 text-[0.95rem] font-bold tracking-[0.08em] text-brand-deep"
+          >方言数字化</span>
+        </div>
+        <nav class="flex flex-wrap gap-4">
+          <a href="./index.html#top" class="text-[#5d6e6d] no-underline transition hover:text-brand-deep">首页</a>
+          <a href="./index.html#features" class="text-[#5d6e6d] no-underline transition hover:text-brand-deep">功能</a>
+          <a href="./index.html#vision" class="text-[#5d6e6d] no-underline transition hover:text-brand-deep">愿景</a>
+        </nav>
+      </div>
+      <p class="mx-auto max-w-[1280px] px-4 pb-0.5 text-[0.68rem] leading-snug text-[#7a8a89]">
+        © 2026 语韵东方 · 地方方言语音合成与交互体验设计。
+      </p>
+    </footer>
+
     <!-- 录音 / 上传面板 -->
     <teleport to="body">
       <div
         v-if="recordPanelOpen"
-        class="fixed inset-0 z-[60] flex items-center justify-center bg-slate-950/70 p-4 backdrop-blur-sm"
+        class="fixed inset-0 z-[60] flex items-center justify-center bg-[#152322]/45 p-4 backdrop-blur-sm"
         @click.self="closeRecordPanel"
       >
         <div
-          class="w-full max-w-lg rounded-2xl border border-white/10 bg-gradient-to-b from-slate-900 to-slate-950 p-6 shadow-card"
+          class="w-full max-w-lg rounded-[1.25rem] border border-[rgba(58,143,138,0.15)] bg-gradient-to-b from-white/98 to-mist/90 p-6 shadow-card ring-1 ring-[rgba(58,143,138,0.08)]"
           @click.stop
         >
           <div class="mb-4 flex items-center justify-between">
-            <h3 class="text-lg font-semibold text-white">方言录音上传</h3>
+            <h3 class="text-lg font-semibold text-[#174a47]">方言录音上传</h3>
             <button
               type="button"
-              class="rounded-full border border-white/10 px-2 py-1 text-sm text-slate-400 hover:text-white"
+              class="rounded-full border border-[rgba(58,143,138,0.2)] px-2 py-1 text-sm text-[#5d6e6d] transition hover:border-brand hover:text-brand-deep"
               @click="closeRecordPanel"
             >
               关闭
             </button>
           </div>
 
-          <div class="space-y-4 text-sm">
+          <div class="space-y-4 text-sm text-[#152322]">
             <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <label class="block">
-                <span class="mb-1 block text-xs text-slate-400">省</span>
+                <span class="mb-1 block text-xs text-[#5d6e6d]">省</span>
                 <select
                   v-model="uploadProvince"
-                  class="w-full rounded-xl border border-white/10 bg-slate-950/60 px-3 py-2 text-slate-100 outline-none focus:border-[#165DFF]/60"
+                  class="w-full rounded-xl border border-[rgba(58,143,138,0.2)] bg-white/90 px-3 py-2 text-[#152322] outline-none focus:border-brand focus:ring-2 focus:ring-brand/20"
                   @change="onUploadProvinceChange"
                 >
                   <option value="">请选择</option>
@@ -260,10 +279,10 @@
                 </select>
               </label>
               <label class="block">
-                <span class="mb-1 block text-xs text-slate-400">市</span>
+                <span class="mb-1 block text-xs text-[#5d6e6d]">市</span>
                 <select
                   v-model="uploadCity"
-                  class="w-full rounded-xl border border-white/10 bg-slate-950/60 px-3 py-2 text-slate-100 outline-none focus:border-[#165DFF]/60"
+                  class="w-full rounded-xl border border-[rgba(58,143,138,0.2)] bg-white/90 px-3 py-2 text-[#152322] outline-none focus:border-brand focus:ring-2 focus:ring-brand/20 disabled:opacity-40"
                   :disabled="!uploadProvince"
                   @change="onUploadCityChange"
                 >
@@ -272,10 +291,10 @@
                 </select>
               </label>
               <label class="block sm:col-span-2">
-                <span class="mb-1 block text-xs text-slate-400">区县</span>
+                <span class="mb-1 block text-xs text-[#5d6e6d]">区县</span>
                 <select
                   v-model="uploadDistrict"
-                  class="w-full rounded-xl border border-white/10 bg-slate-950/60 px-3 py-2 text-slate-100 outline-none focus:border-[#165DFF]/60"
+                  class="w-full rounded-xl border border-[rgba(58,143,138,0.2)] bg-white/90 px-3 py-2 text-[#152322] outline-none focus:border-brand focus:ring-2 focus:ring-brand/20 disabled:opacity-40"
                   :disabled="!uploadCity"
                 >
                   <option value="">请选择</option>
@@ -285,41 +304,41 @@
             </div>
 
             <label class="block">
-              <span class="mb-1 block text-xs text-slate-400">方言类型 / 片区</span>
+              <span class="mb-1 block text-xs text-[#5d6e6d]">方言类型 / 片区</span>
               <input
                 v-model="uploadDialect"
                 type="text"
                 placeholder="例如：吴语·杭州小片"
-                class="w-full rounded-xl border border-white/10 bg-slate-950/60 px-3 py-2 text-slate-100 outline-none focus:border-[#165DFF]/60"
+                class="w-full rounded-xl border border-[rgba(58,143,138,0.2)] bg-white/90 px-3 py-2 text-[#152322] outline-none placeholder:text-[#7a8a89] focus:border-brand focus:ring-2 focus:ring-brand/20"
               />
             </label>
 
             <label class="block">
-              <span class="mb-1 block text-xs text-slate-400">内容类型</span>
+              <span class="mb-1 block text-xs text-[#5d6e6d]">内容类型</span>
               <select
                 v-model="uploadContentType"
-                class="w-full rounded-xl border border-white/10 bg-slate-950/60 px-3 py-2 text-slate-100 outline-none focus:border-[#165DFF]/60"
+                class="w-full rounded-xl border border-[rgba(58,143,138,0.2)] bg-white/90 px-3 py-2 text-[#152322] outline-none focus:border-brand focus:ring-2 focus:ring-brand/20"
               >
                 <option v-for="t in contentTypes" :key="'ut-' + t" :value="t">{{ t }}</option>
               </select>
             </label>
 
             <label class="block">
-              <span class="mb-1 block text-xs text-slate-400">文字说明（可选）</span>
+              <span class="mb-1 block text-xs text-[#5d6e6d]">文字说明（可选）</span>
               <textarea
                 v-model="uploadText"
                 rows="2"
-                class="w-full resize-none rounded-xl border border-white/10 bg-slate-950/60 px-3 py-2 text-slate-100 outline-none focus:border-[#165DFF]/60"
+                class="w-full resize-none rounded-xl border border-[rgba(58,143,138,0.2)] bg-white/90 px-3 py-2 text-[#152322] outline-none placeholder:text-[#7a8a89] focus:border-brand focus:ring-2 focus:ring-brand/20"
                 placeholder="补充说明、注音或翻译等"
               />
             </label>
 
-            <div class="rounded-2xl border border-white/10 bg-slate-950/50 p-4">
-              <div class="mb-2 text-xs text-slate-400">录音控制</div>
+            <div class="rounded-2xl border border-[rgba(58,143,138,0.12)] bg-white/80 p-4">
+              <div class="mb-2 text-xs text-[#5d6e6d]">录音控制</div>
               <div class="flex flex-wrap gap-2">
                 <button
                   type="button"
-                  class="rounded-xl bg-[#165DFF] px-4 py-2 text-xs font-medium text-white disabled:opacity-40"
+                  class="rounded-xl bg-gradient-to-br from-[#7ed4ce] to-brand px-4 py-2 text-xs font-semibold text-white shadow-[0_6px_18px_rgba(26,92,88,0.22)] disabled:opacity-40"
                   :disabled="isRecording"
                   @click="startRecording"
                 >
@@ -327,7 +346,7 @@
                 </button>
                 <button
                   type="button"
-                  class="rounded-xl border border-rose-400/50 px-4 py-2 text-xs text-rose-100 disabled:opacity-40"
+                  class="rounded-xl border border-rose-400/55 bg-white/60 px-4 py-2 text-xs text-rose-700 disabled:opacity-40"
                   :disabled="!isRecording"
                   @click="stopRecording"
                 >
@@ -335,15 +354,15 @@
                 </button>
                 <button
                   type="button"
-                  class="rounded-xl border border-white/15 px-4 py-2 text-xs text-slate-200 disabled:opacity-40"
+                  class="rounded-xl border border-[rgba(58,143,138,0.25)] bg-white/70 px-4 py-2 text-xs text-[#3a4a49] disabled:opacity-40"
                   :disabled="!previewUrl"
                   @click="togglePreviewPlayback"
                 >
                   {{ previewPlaying ? '停止试听' : '播放试听' }}
                 </button>
               </div>
-              <p v-if="recordError" class="mt-2 text-xs text-rose-300">{{ recordError }}</p>
-              <p v-else class="mt-2 text-[11px] text-slate-500">
+              <p v-if="recordError" class="mt-2 text-xs text-rose-600">{{ recordError }}</p>
+              <p v-else class="mt-2 text-[11px] text-[#5d6e6d]">
                 使用浏览器 MediaRecorder 采集音频；结束录音后可试听再上传。
               </p>
               <audio v-show="false" ref="previewAudioRef" :src="previewUrl || undefined" @ended="previewPlaying = false" />
@@ -351,7 +370,7 @@
 
             <button
               type="button"
-              class="flex w-full items-center justify-center rounded-xl bg-gradient-to-r from-[#165DFF] to-[#3b82f6] py-2.5 text-sm font-semibold text-white shadow-lg shadow-[#165DFF]/30 disabled:cursor-not-allowed disabled:opacity-40"
+              class="flex w-full items-center justify-center rounded-xl bg-gradient-to-r from-[#7ed4ce] via-brand to-[#2a726d] py-2.5 text-sm font-semibold text-white shadow-[0_8px_24px_rgba(26,92,88,0.28)] disabled:cursor-not-allowed disabled:opacity-40"
               :disabled="uploading || !recordBlob"
               @click="submitUpload"
             >
@@ -515,8 +534,8 @@ function matchesTypes(pt) {
   return selectedTypes.value.includes(pt.type)
 }
 
-function onPersonalCenter() {
-  window.alert('请在项目中接入「个人中心」路由或页面。')
+function onAuthClick() {
+  window.alert('登录 / 注册流程可在此对接统一认证。')
 }
 
 async function fetchMapPoints() {
@@ -656,7 +675,9 @@ async function initMap() {
     const map = new window.AMap.Map(el, {
       zoom: 5,
       center: [108.55, 34.32],
-      viewMode: '2D'
+      viewMode: '2D',
+      /** 清新浅绿系底图，与主站青玉色更协调（可改为 normal / macaron 等） */
+      mapStyle: 'amap://styles/fresh'
     })
     map.addControl(new window.AMap.Scale())
     map.addControl(new window.AMap.ToolBar({ position: { right: 12, top: 110 } }))

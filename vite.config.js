@@ -1,5 +1,9 @@
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
+import { resolve } from 'node:path'
+import { fileURLToPath } from 'node:url'
+
+const __dirname = fileURLToPath(new URL('.', import.meta.url))
 
 /** 开发环境 Mock：GET 点位、POST 上传（消费 multipart 体后返回成功） */
 function dialectMapMockPlugin() {
@@ -119,8 +123,17 @@ function dialectMapMockPlugin() {
 }
 
 export default defineConfig({
+  base: './',
   plugins: [vue(), dialectMapMockPlugin()],
-  server: { port: 5173 }
+  server: { port: 5173 },
+  build: {
+    rollupOptions: {
+      input: {
+        main: resolve(__dirname, 'index.html'),
+        map: resolve(__dirname, 'map.html')
+      }
+    }
+  }
   // 生产环境或接入真实后端时：删除 dialectMapMockPlugin，并在 server 中配置 proxy，例如：
   // server: { port: 5173, proxy: { '/api': 'http://127.0.0.1:8080' } }
 })

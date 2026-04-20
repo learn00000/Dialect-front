@@ -122,6 +122,7 @@
   }
 
   document.querySelectorAll(".feature-card__cta").forEach((btn) => {
+    if (btn.classList.contains("feature-card__cta--link")) return;
     btn.addEventListener("click", () => {
       const action = btn.getAttribute("data-action");
       if (action === "opera") {
@@ -130,7 +131,6 @@
       }
       const map = {
         pick: "方音拾级：学习闯关页可在此挂载。",
-        map: "声绘山河：录音上传与地图语料库可在此挂载。",
       };
       showToast(map[action] || "功能开发中，敬请期待。");
     });
