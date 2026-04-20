@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>每日方言闯关 · 语韵东方</title>
+  </head>
+  <body class="m-0 h-full overflow-hidden antialiased">
+    <div id="app" class="h-full"></div>
+    <script>
+      (function () {
+        if (location.protocol !== "file:") return;
+        var el = document.getElementById("app");
+        if (!el) return;
+        el.innerHTML =
+          '<div style="font-family:system-ui,-apple-system,sans-serif;padding:clamp(1rem,4vw,2rem);max-width:32rem;margin:0 auto;line-height:1.65;color:#152322">' +
+          '<h1 style="font-size:1.15rem;margin:0 0 0.75rem">闯关页需要通过 Vite 开发服务器打开</h1>' +
+          '<p style="margin:0 0 0.75rem">不能双击用 <code>file://</code> 打开本页。请在项目目录执行 <code>npm run dev</code> 后访问 <strong>http://localhost:5173/study.html</strong>，或先 <code>npm run build</code> 再 <code>npm run preview</code>。</p>' +
+          "</div>";
+      })();
+    </script>
+    <script type="module" src="./src/main.js"></script>
+  </body>
+</html>
