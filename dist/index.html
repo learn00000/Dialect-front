@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>语韵东方 · 地方方言语音合成与交互体验</title>
-    <link rel="stylesheet" crossorigin href="./assets/style-DzR8pS9F.css">
+    <link rel="stylesheet" crossorigin href="./assets/style-DX_cSj4p.css">
   </head>
   <body>
     <div class="page-bg" aria-hidden="true">
@@ -88,7 +88,7 @@
         <div class="hero__intro">
           <h1 class="hero__title">
             <span class="hero__title-main"
-              ><span class="hero__title-prefix">声声不息</span><span class="hero__title-sep">-</span><span class="hero__title-accent">方音新生</span></span>
+              ><span class="hero__title-prefix">声溯古韵</span><span class="hero__title-sep">-</span><span class="hero__title-accent">乡音焕新</span></span>
           </h1>
           <p class="hero__lead">
             开启方言学习之旅，中国方言文化保护平台
@@ -260,8 +260,13 @@
             </div>
           </article>
 
-          <article class="opera-card opera-card--audio" tabindex="0">
-            <div class="opera-card__cloud-cap"><span>辨音识意</span></div>
+          <article
+            class="opera-card opera-card--audio opera-card--enter-bianyin"
+            tabindex="0"
+            role="link"
+            aria-label="进入辨音解意"
+          >
+            <div class="opera-card__cloud-cap"><span>辨音解意</span></div>
             <div class="opera-card__body opera-card__body--audio">
               <div class="opera-wave" aria-hidden="true">
                 <span></span><span></span><span></span><span></span><span></span><span></span><span></span>
@@ -353,31 +358,27 @@
                     <span>内容写入</span>
                     <button type="button" class="nb-drop" aria-label="展开内容列表">▼</button>
                   </div>
-                  <input class="nb-input" type="text" placeholder="戏词输入 > [原录卡片名器" />
-                  <button type="button" class="nb-generate">生成</button>
+                  <input class="nb-input" type="text" id="nb-user-input" placeholder="输入你的名字或自定义文本" />
+                  <button type="button" class="nb-generate" id="btn-nb-generate">生成并试听</button>
                   <div class="nb-divider" aria-hidden="true"></div>
                   <h3 class="nb-subtitle">
                     <span class="nb-ornament" aria-hidden="true"></span>
-                    国式模板展示
+                    拼接预览
                     <span class="nb-ornament" aria-hidden="true"></span>
                   </h3>
-                  <div class="nb-template">
-                    <p>【预录真人原声】小生乃那</p>
-                    <p>—【你的名字 / 自定义文本 · AI 方言TTS合成】</p>
-                    <p>【预录真人原声】一起!</p>
-                  </div>
+                  <div class="nb-wave-visualizer" id="nb-wave-visualizer"></div>
                 </section>
 
                 <section class="nb-card">
-                  <h2 class="nb-card__title">语音实时预览</h2>
-                  <div class="nb-wave" aria-hidden="true">
-                    <span></span><span></span><span></span><span></span><span></span><span></span>
-                    <span></span><span></span><span></span><span></span><span></span><span></span>
+                  <h2 class="nb-card__title">背景与分享</h2>
+                  <div class="nb-background-selector">
+                    <label for="nb-bg-upload" class="nb-upload-btn">选择背景图</label>
+                    <input type="file" id="nb-bg-upload" accept="image/*" hidden>
+                    <div class="nb-background-preview" id="nb-background-preview"></div>
                   </div>
-                  <div class="nb-tabs">
-                    <button type="button" class="nb-tab nb-tab--active">真人腔原声</button>
-                    <button type="button" class="nb-tab">AI 方言 TTS 合成</button>
-                    <button type="button" class="nb-tab">混合唱片</button>
+                  <div class="nb-share-card-container" id="nb-share-card-container" hidden>
+                    <canvas id="nb-share-canvas" width="400" height="600"></canvas>
+                    <button type="button" class="nb-generate nb-share-btn" id="btn-nb-share">分享我的戏韵名片</button>
                   </div>
                 </section>
               </div>
@@ -403,6 +404,71 @@
     </div>
 
     <div
+      class="view-stack view-stack--bianyin"
+      id="view-bianyin"
+      hidden
+      aria-hidden="true"
+      role="region"
+      aria-label="辨音解意"
+    >
+      <div class="by-page">
+        <div class="by-page__inner">
+          <button type="button" class="by-back" id="btn-by-back">
+            <span aria-hidden="true">‹</span> 返回戏韵
+          </button>
+          <header class="by-hero">
+            <h1 class="by-title">辨音解意 · 弦歌知雅趣</h1>
+            <p class="by-subtitle">聆听方言戏曲原生唱段，辨析文辞，读懂乡音背后的文化脉络。</p>
+          </header>
+
+          <section class="by-shell" aria-label="辨音解意互动区">
+            <aside class="by-wall" aria-label="戏曲图标墙">
+              <h2 class="by-wall__title">戏曲图鉴</h2>
+              <p class="by-wall__desc">点亮剧种图标，逐级解锁更多地域唱段。</p>
+              <div class="by-level-grid" id="by-level-grid"></div>
+            </aside>
+
+            <div class="by-main">
+              <div class="by-main__header">
+                <p class="by-level-name" id="by-level-name">请选择左侧剧种开启关卡</p>
+                <div class="by-progress" id="by-progress">已点亮 0 / 0</div>
+              </div>
+
+              <div class="by-audio-card">
+                <p class="by-question" id="by-question">聆听本段方言戏韵，选出对应的文辞与文化内涵</p>
+                <button type="button" class="by-play-btn" id="btn-by-play">播放唱段</button>
+                <p class="by-audio-tip" id="by-audio-tip">提示：先听音，再作答。</p>
+              </div>
+
+              <form class="by-options" id="by-options">
+                <label class="by-option by-option--a">
+                  <input type="radio" name="by-answer" value="A" />
+                  <span class="by-option__tag">选项 A · 现代通俗白话释义</span>
+                  <span class="by-option__text" id="by-option-a"></span>
+                </label>
+                <label class="by-option by-option--b">
+                  <input type="radio" name="by-answer" value="B" />
+                  <span class="by-option__tag">选项 B · 戏曲原文文辞</span>
+                  <span class="by-option__text" id="by-option-b"></span>
+                </label>
+                <label class="by-option by-option--c">
+                  <input type="radio" name="by-answer" value="C" />
+                  <span class="by-option__tag">选项 C · 方言文化溯源注解</span>
+                  <span class="by-option__text" id="by-option-c"></span>
+                </label>
+              </form>
+
+              <div class="by-actions">
+                <button type="button" class="btn btn--ghost by-submit-btn" id="btn-by-submit">提交答案</button>
+                <button type="button" class="btn btn--primary by-next-btn" id="btn-by-next">下一关</button>
+              </div>
+            </div>
+          </section>
+        </div>
+      </div>
+    </div>
+
+    <div
       class="view-stack view-stack--duanzhang"
       id="view-duanzhang"
       hidden
@@ -410,48 +476,70 @@
       role="region"
       aria-label="断章寻韵"
     >
-      <div class="dz-page">
-        <div class="dz-page__bg" aria-hidden="true"></div>
-        <div class="dz-page__scrim" aria-hidden="true"></div>
-        <button type="button" class="dz-back" id="btn-dz-back">
-          <span aria-hidden="true">‹</span> 返回戏韵
-        </button>
-        <header class="dz-hero">
-          <div class="dz-title-plaque">
-            <h1 class="dz-title">断章寻韵·重连戏韵声段</h1>
-          </div>
-        </header>
-        <div class="dz-page__inner">
-          <div class="dz-scroll">
-            <div class="dz-panel">
-              <div class="dz-panel__subtitle">
-                <span class="dz-diamond" aria-hidden="true"></span>
-                <span>方言戏曲拆分拼接题</span>
-                <span class="dz-diamond" aria-hidden="true"></span>
-              </div>
-              <div class="dz-rows">
-                <div class="dz-row">
-                  <span class="dz-token">方言</span>
-                  <span class="dz-token dz-token--accent">戏曲</span>
-                  <span class="dz-token">拆</span>
-                  <span class="dz-hole" aria-hidden="true"></span>
-                  <span class="dz-token">接词</span>
-                </div>
-                <div class="dz-row">
-                  <span class="dz-token">戏曲</span>
-                  <span class="dz-token">唱</span>
-                  <span class="dz-hole dz-hole--wide" aria-hidden="true"></span>
-                  <span class="dz-token">词</span>
-                </div>
-              </div>
-              <button type="button" class="dz-refresh" id="btn-dz-refresh" title="刷新题目">
-                <span class="dz-refresh__glyph" aria-hidden="true">↻</span>
-                <span class="dz-refresh__text">刷新题目</span>
-              </button>
+      <div class="dz2-page">
+        <div class="dz2-page__inner">
+          <button type="button" class="dz2-back" id="btn-dz-back">
+            <span aria-hidden="true">‹</span> 返回戏韵
+          </button>
+
+          <header class="dz2-header">
+            <h1 class="dz2-title">断章寻韵 · 戏曲拼接</h1>
+            <p class="dz2-subtitle">将完整方言唱段拆分重排，凭听辨与语义线索重构原始顺序。</p>
+          </header>
+
+          <section class="dz2-panel">
+            <div class="dz2-info" id="dz2-info"></div>
+            <div class="dz2-ref" id="dz2-reference"></div>
+
+            <div class="dz2-block">
+              <h3 class="dz2-block__title">待拖拽语音片段区</h3>
+              <div class="dz2-source-list" id="dz2-source-list"></div>
             </div>
-          </div>
+
+            <div class="dz2-block">
+              <h3 class="dz2-block__title">拼接目标轨道区</h3>
+              <div class="dz2-track" id="dz2-track"></div>
+            </div>
+
+            <div class="dz2-actions">
+              <button type="button" class="btn btn--ghost dz2-btn dz2-btn--reset" id="btn-dz-reset">重置排序</button>
+              <button type="button" class="btn btn--primary dz2-btn" id="btn-dz-play-combined">播放拼接音频</button>
+              <button type="button" class="btn btn--primary dz2-btn dz2-btn--confirm" id="btn-dz-confirm">确认提交拼接</button>
+            </div>
+
+            <section class="dz2-result" id="dz2-result" hidden>
+              <div class="dz2-score-wrap" id="dz2-score-wrap"></div>
+              <div class="dz2-unlock">
+                <article class="dz2-wiki" id="dz2-wiki"></article>
+                <article class="dz2-media" id="dz2-media"></article>
+              </div>
+            </section>
+          </section>
+
+          <section class="dz2-levels">
+            <h3 class="dz2-levels__title">更多戏曲关卡</h3>
+            <div class="dz2-levels__list" id="dz2-levels"></div>
+          </section>
         </div>
       </div>
+    </div>
+
+    <div class="by-modal" id="by-modal" hidden aria-hidden="true">
+      <div class="by-modal__backdrop" id="by-modal-backdrop"></div>
+      <article class="by-modal__panel" role="dialog" aria-modal="true" aria-labelledby="by-modal-title">
+        <button type="button" class="by-modal__close" id="btn-by-modal-close" aria-label="关闭解析">×</button>
+        <h2 class="by-modal__title" id="by-modal-title">文化科普解析</h2>
+        <p class="by-modal__result" id="by-modal-result"></p>
+        <dl class="by-modal__list" id="by-modal-list">
+          <div><dt>唱段方言原文</dt><dd id="by-modal-original"></dd></div>
+          <div><dt>普通话释义</dt><dd id="by-modal-meaning"></dd></div>
+          <div><dt>戏曲出处</dt><dd id="by-modal-source"></dd></div>
+          <div><dt>剧种介绍</dt><dd id="by-modal-genre"></dd></div>
+          <div><dt>该方言特色</dt><dd id="by-modal-dialect"></dd></div>
+          <div><dt>古汉语文字演变</dt><dd id="by-modal-etymology"></dd></div>
+          <div><dt>戏曲用词文化内涵</dt><dd id="by-modal-culture"></dd></div>
+        </dl>
+      </article>
     </div>
     </div>
 
