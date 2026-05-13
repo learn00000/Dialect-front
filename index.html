@@ -56,30 +56,27 @@
         <div
           class="avatar-panel"
           id="digital-human-host"
+          data-live2d-model="./live2d/水墨/水墨.model3.json"
           role="button"
           tabindex="0"
           aria-label="数字人接入区域，点击切换演示状态"
         >
           <div class="avatar-panel__glow" aria-hidden="true"></div>
           <div class="avatar-panel__frame">
-            <img
-              class="avatar-panel__img"
-              src="assets/digital-demo.png"
-              alt="数字人「阿雅」演示画面，可替换为实时驱动模型"
-              width="560"
-              height="720"
-            />
-            <div class="avatar-panel__badge">
-              <span class="avatar-panel__badge-name">接入区</span>
-            </div>
-            <span class="avatar-panel__name-tag" aria-label="数字人名称">阿雅</span>
+            <canvas
+              id="live2d-canvas"
+              class="avatar-panel__canvas"
+              aria-label="Live2D 数字人画布"
+            ></canvas>
           </div>
-          <p class="avatar-panel__hint">
-            左侧预留 <strong>数字人 / 虚拟主播</strong> 容器，可对接 WebGL、Live2D、视频流或 RTC，用于方言讲解与互动引导。
-          </p>
-          <div class="avatar-panel__tech" role="status">
-            <span class="pulse-dot" aria-hidden="true"></span>
-            <span id="avatar-status">交互引擎待接入</span>
+          <div class="avatar-panel__aside">
+            <p class="avatar-panel__hint">
+              <strong>水墨</strong> Live2D 数字人已接入，可用于方言讲解与互动引导。
+            </p>
+            <div class="avatar-panel__tech" role="status">
+              <span class="pulse-dot" aria-hidden="true"></span>
+              <span id="avatar-status">交互引擎待接入</span>
+            </div>
           </div>
         </div>
       </section>
@@ -561,6 +558,9 @@
 
     <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 
+    <script src="https://cubism.live2d.com/sdk-web/cubismcore/live2dcubismcore.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/pixi.js@7.4.3/dist/pixi.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/gh/RaSan147/pixi-live2d-display@v0.5.0-ls-7/dist/cubism4.min.js" defer></script>
     <script src="js/main.js" defer></script>
   </body>
 </html>
