@@ -251,6 +251,7 @@ a.btn {
   min-height: 0;
   display: flex;
   flex-direction: column;
+  justify-content: center;
 }
 
 .avatar-panel {
@@ -259,7 +260,7 @@ a.btn {
   min-height: 0;
   display: flex;
   flex-direction: column;
-  padding: 0.25rem 0.35rem 0;
+  padding: 0 0 0 clamp(2.8rem, 4.6vw, 4.6rem);
   cursor: pointer;
   border-radius: var(--radius-lg);
 }
@@ -284,25 +285,19 @@ a.btn {
 .avatar-panel__frame {
   position: relative;
   z-index: 1;
-  flex: 1 1 0;
-  min-height: 0;
-  width: min(100%, 384px);
+  flex: 1 1 auto;
+  min-height: clamp(430px, 64vh, 720px);
+  width: 100%;
   margin-inline: auto;
-  border-radius: var(--radius-xl);
-  background: linear-gradient(165deg, rgba(255, 255, 255, 0.55) 0%, rgba(255, 255, 255, 0.2) 100%);
-  border: 1px solid var(--glass-border);
-  box-shadow: var(--shadow-soft), var(--shadow-card), 0 0 0 1px var(--glass-stroke);
-  overflow: hidden;
+  border-radius: 0;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  overflow: visible;
 }
 
 .avatar-panel__frame::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  pointer-events: none;
-  box-shadow: var(--shadow-inset);
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.35) 0%, transparent 42%);
+  content: none;
 }
 
 .avatar-panel__img {
@@ -315,12 +310,61 @@ a.btn {
   transition: transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
+.avatar-panel__canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.avatar-panel__loading {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.7rem;
+  font-size: 0.85rem;
+  color: var(--celadon-deep);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.78) 0%, rgba(244, 251, 250, 0.55) 100%);
+  backdrop-filter: blur(4px);
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+
+.avatar-panel__loading[hidden] {
+  display: none !important;
+}
+
+.avatar-panel__spinner {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 3px solid rgba(58, 143, 138, 0.18);
+  border-top-color: var(--celadon-deep);
+  animation: avatar-spin 1s linear infinite;
+}
+
+@keyframes avatar-spin {
+  to { transform: rotate(360deg); }
+}
+
+.avatar-panel__img--hidden {
+  opacity: 0;
+}
+
 .avatar-panel:hover .avatar-panel__img {
   transform: scale(1.05);
 }
 
 .avatar-panel__badge {
   position: absolute;
+  z-index: 2;
   left: 14px;
   top: 16px;
   writing-mode: vertical-rl;
@@ -359,15 +403,33 @@ a.btn {
   padding-top: 0.15em;
 }
 
+.avatar-panel__aside {
+  position: absolute;
+  left: clamp(0.2rem, 1vw, 0.85rem);
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 3;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: clamp(1rem, 2.4vw, 1.65rem);
+  pointer-events: none;
+}
+
 .avatar-panel__hint {
-  flex-shrink: 0;
-  margin: 0.4rem auto 0;
-  max-width: 340px;
-  font-size: 0.72rem;
-  line-height: 1.55;
+  position: relative;
+  left: auto;
+  top: auto;
+  transform: none;
+  max-height: min(46vh, 380px);
+  margin: 0;
+  font-size: 0.78rem;
+  line-height: 1.65;
   color: var(--muted);
-  text-align: center;
+  text-align: start;
   opacity: 0.95;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
 }
 
 .avatar-panel__hint strong {
@@ -376,16 +438,20 @@ a.btn {
 }
 
 .avatar-panel__tech {
-  flex-shrink: 0;
+  position: relative;
+  left: auto;
+  top: auto;
+  transform: none;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   gap: 0.45rem;
-  margin-top: 0.28rem;
-  margin-bottom: 0.12rem;
-  font-size: 0.73rem;
+  margin: 0;
+  font-size: 0.78rem;
   font-weight: 500;
   color: var(--celadon-deep);
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
 }
 
 .pulse-dot {
@@ -2822,9 +2888,9 @@ body:has(.app--duanzhang) .page-bg {
 
   .avatar-panel__frame {
     flex: 0 1 auto;
-    aspect-ratio: 4 / 5;
-    max-height: min(52vh, 480px);
-    width: min(100%, 380px);
+    aspect-ratio: 3 / 4;
+    max-height: min(64vh, 620px);
+    width: min(100%, 520px);
   }
 
   .cards {

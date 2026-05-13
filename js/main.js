@@ -138,10 +138,12 @@
     }
     closeBianyinModal();
     appRoot?.classList.remove("app--opera", "app--duanzhang");
+    restoreLive2DForVisibleHome();
   }
 
   function openOperaView() {
     if (!viewHome || !viewOpera) return;
+    prepareLive2DForHiddenView();
     if (viewNianbai) {
       viewNianbai.hidden = true;
       viewNianbai.setAttribute("aria-hidden", "true");
@@ -259,7 +261,10 @@
 
   // 首页功能卡入口：戏韵走视图切换，其他保留占位提示
   document.querySelectorAll(".feature-card__cta").forEach((btn) => {
-    if (btn.classList.contains("feature-card__cta--link")) return;
+    if (btn.classList.contains("feature-card__cta--link")) {
+      btn.addEventListener("click", prepareLive2DForHiddenView);
+      return;
+    }
     btn.addEventListener("click", () => {
       const action = btn.getAttribute("data-action");
       if (action === "opera") {
@@ -1131,14 +1136,391 @@
 
   cards.forEach(bindTilt);
 
-  /** 数字人区域：轻量「可交互」演示 */
+  /** 数字人区域：Live2D 接入与口型同步 */
   let engaged = false;
+  let live2dApp = null;
+  let live2dModel = null;
+  let avatarFacingFront = false;
+  let avatarBaseBounds = null;
+  let avatarResizeObserver = null;
+  let avatarReloadPromise = null;
+  let avatarReloadRequested = false;
+  const AVATAR_FIT_SCALE = 1.28;
+  const AVATAR_Y_RATIO = 0.56;
+  const SHUIMO_VISIBLE_PART_IDS = [
+    "Part",
+    "Part2",
+    "Part3",
+    "Part4",
+    "Part5",
+    "Part6",
+    "Part7",
+    "Part8",
+    "Part9",
+    "Part10",
+    "Part11",
+    "Part12",
+    "Part13",
+    "Part14",
+    "Part15",
+    "Part16",
+    "Part17",
+    "Part18",
+    "Part19",
+    "Part20",
+    "Part21"
+  ];
+
+  function setLive2DParameter(parameterId, value) {
+    if (!live2dModel?.internalModel?.coreModel) return;
+    const core = live2dModel.internalModel.coreModel;
+    try {
+      if (typeof core.setParameterValueById === "function") {
+        core.setParameterValueById(parameterId, value);
+        return;
+      }
+
+      const count = typeof core.getParameterCount === "function" ? core.getParameterCount() : 0;
+      for (let i = 0; i < count; i++) {
+        const id =
+          typeof core.getParameterId === "function"
+            ? core.getParameterId(i)
+            : typeof core.getParameterIds === "function"
+              ? core.getParameterIds()[i]
+              : null;
+        if (id === parameterId && typeof core.setParameterValueByIndex === "function") {
+          core.setParameterValueByIndex(i, value);
+          break;
+        }
+      }
+    } catch (_) {}
+  }
+
+  function setLive2DPartOpacity(partId, value) {
+    if (!live2dModel?.internalModel?.coreModel) return;
+    const core = live2dModel.internalModel.coreModel;
+    try {
+      if (typeof core.setPartOpacityById === "function") {
+        core.setPartOpacityById(partId, value);
+        return;
+      }
+
+      const count = typeof core.getPartCount === "function" ? core.getPartCount() : 0;
+      for (let i = 0; i < count; i++) {
+        const id =
+          typeof core.getPartId === "function"
+            ? core.getPartId(i)
+            : typeof core.getPartIds === "function"
+              ? core.getPartIds()[i]
+              : null;
+        if (id === partId && typeof core.setPartOpacityByIndex === "function") {
+          core.setPartOpacityByIndex(i, value);
+          break;
+        }
+      }
+    } catch (_) {}
+  }
+
+  function keepShuimoAvatarPartsVisible() {
+    SHUIMO_VISIBLE_PART_IDS.forEach((partId) => setLive2DPartOpacity(partId, 1));
+  }
+
+  /** 水墨模型自带预览水印，由参数 Param24「水印关闭」控制，需在每帧覆盖以免待机动作写回 */
+  function hideShuimoWatermark() {
+    setLive2DParameter("Param24", 1);
+  }
+
+  function keepAvatarFacingFront() {
+    if (!avatarFacingFront) return;
+    try {
+      live2dModel?.focus?.(live2dApp.renderer.width / 2, live2dApp.renderer.height / 2);
+      const focusController = live2dModel?.internalModel?.focusController || live2dModel?.focusController;
+      if (focusController) {
+        focusController.targetX = 0;
+        focusController.targetY = 0;
+        focusController.x = 0;
+        focusController.y = 0;
+      }
+    } catch (_) {}
+    setLive2DParameter("ParamAngleX", 0);
+    setLive2DParameter("ParamAngleY", 0);
+    setLive2DParameter("ParamAngleZ", 0);
+    setLive2DParameter("ParamBodyAngleX", 0);
+    setLive2DParameter("ParamBodyAngleY", 0);
+    setLive2DParameter("ParamBodyAngleZ", 0);
+    setLive2DParameter("ParamEyeBallX", 0);
+    setLive2DParameter("ParamEyeBallY", 0);
+  }
+
+  function isHomeViewVisible() {
+    return !viewHome?.hidden && viewHome?.getAttribute("aria-hidden") !== "true";
+  }
+
+  function scheduleLive2DRefit() {
+    if (!live2dApp || !live2dModel) return;
+
+    const refit = () => {
+      fitLive2DAvatar();
+      if (!avatarFacingFront) {
+        try {
+          live2dModel.focus?.(live2dApp.renderer.width / 2, live2dApp.renderer.height / 2);
+        } catch (_) {}
+      }
+    };
+
+    requestAnimationFrame(() => {
+      refit();
+      requestAnimationFrame(refit);
+    });
+    window.setTimeout(refit, 120);
+    window.setTimeout(refit, 360);
+  }
+
+  function restoreLive2DForVisibleHome() {
+    showAvatarLoading(false);
+    if (!live2dApp) {
+      initLive2DAvatar();
+      return;
+    }
+    if (live2dApp.ticker && !live2dApp.ticker.started) {
+      live2dApp.ticker.start();
+    }
+    reloadLive2DModel();
+  }
+
+  function prepareLive2DForHiddenView() {
+    avatarFacingFront = false;
+    avatarReloadRequested = true;
+    if (live2dModel) {
+      try { live2dModel.stopSpeaking?.(); } catch (_) {}
+    }
+  }
+
+  function showAvatarLoading(show) {
+    const el = document.getElementById("live2d-loading");
+    if (!el) return;
+    el.hidden = !show;
+  }
+
+  async function reloadLive2DModel() {
+    if (!live2dApp || !window.PIXI?.live2d?.Live2DModel) return;
+    if (!avatarReloadRequested) {
+      scheduleLive2DRefit();
+      return;
+    }
+    if (avatarReloadPromise) return avatarReloadPromise;
+
+    const modelUrl = digitalHost?.dataset?.live2dModel;
+    if (!modelUrl) return;
+
+    showAvatarLoading(true);
+    avatarReloadPromise = (async () => {
+      try {
+        const previous = live2dModel;
+        const Live2DModel = window.PIXI.live2d.Live2DModel;
+        const fresh = await Live2DModel.from(modelUrl);
+        live2dApp.stage.addChild(fresh);
+        if (previous) {
+          live2dApp.stage.removeChild(previous);
+          try { previous.destroy({ children: true, texture: false, baseTexture: false }); } catch (_) {}
+        }
+        live2dModel = fresh;
+        avatarBaseBounds = null;
+        avatarFacingFront = false;
+        fitLive2DAvatar();
+        keepShuimoAvatarPartsVisible();
+        hideShuimoWatermark();
+        scheduleLive2DRefit();
+        avatarReloadRequested = false;
+        if (avatarStatus) avatarStatus.textContent = "点击人物测试口型同步";
+      } catch (error) {
+        console.error("Live2D 模型重载失败:", error);
+        if (avatarStatus) avatarStatus.textContent = "数字人恢复失败，请刷新页面";
+      } finally {
+        showAvatarLoading(false);
+        avatarReloadPromise = null;
+      }
+    })();
+    return avatarReloadPromise;
+  }
+
+  async function initLive2DAvatar() {
+    const modelUrl = digitalHost?.dataset?.live2dModel;
+    const canvas = document.getElementById("live2d-canvas");
+    const fallbackImg = digitalHost?.querySelector(".avatar-panel__img");
+
+    if (!canvas || !modelUrl) {
+      if (avatarStatus) avatarStatus.textContent = "未配置模型路径（可先使用静态图）";
+      return;
+    }
+
+    if (!window.PIXI || !window.PIXI.live2d?.Live2DModel) {
+      if (avatarStatus) avatarStatus.textContent = "Live2D 运行时未加载成功";
+      return;
+    }
+
+    showAvatarLoading(true);
+    try {
+      const frame = canvas.parentElement;
+      const frameRect = frame.getBoundingClientRect();
+
+      live2dApp = new window.PIXI.Application({
+        view: canvas,
+        width: Math.max(1, Math.round(frameRect.width)),
+        height: Math.max(1, Math.round(frameRect.height)),
+        autoDensity: true,
+        resolution: Math.min(window.devicePixelRatio || 1, 2),
+        antialias: true,
+        backgroundAlpha: 0
+      });
+
+      const Live2DModel = window.PIXI.live2d.Live2DModel;
+      live2dModel = await Live2DModel.from(modelUrl);
+
+      live2dApp.stage.addChild(live2dModel);
+      avatarBaseBounds = null;
+      avatarReloadRequested = false;
+      fitLive2DAvatar();
+      window.addEventListener("resize", scheduleLive2DRefit);
+      avatarResizeObserver = new ResizeObserver(scheduleLive2DRefit);
+      avatarResizeObserver.observe(frame);
+      live2dApp.ticker.add(keepAvatarFacingFront, undefined, -1000);
+
+      if (modelUrl.includes("水墨")) {
+        hideShuimoWatermark();
+        keepShuimoAvatarPartsVisible();
+        live2dApp.ticker.add(hideShuimoWatermark, undefined, -1000);
+        live2dApp.ticker.add(keepShuimoAvatarPartsVisible, undefined, -999);
+      }
+
+      fallbackImg?.classList.add("avatar-panel__img--hidden");
+      if (avatarStatus) avatarStatus.textContent = "点击人物测试口型同步";
+    } catch (error) {
+      console.error("Live2D 初始化失败:", error);
+      if (avatarStatus) avatarStatus.textContent = "模型加载失败，当前使用静态图";
+    } finally {
+      showAvatarLoading(false);
+    }
+  }
+
+  function fitLive2DAvatar() {
+    const canvas = document.getElementById("live2d-canvas");
+    const frame = canvas?.parentElement;
+    if (!live2dApp || !live2dModel || !frame) return;
+    if (!isHomeViewVisible()) return;
+
+    const frameRect = frame.getBoundingClientRect();
+    const width = Math.max(1, Math.round(frameRect.width));
+    const height = Math.max(1, Math.round(frameRect.height));
+    if (width < 20 || height < 20) return;
+    live2dApp.renderer.resize(width, height);
+
+    live2dModel.scale.set(1);
+    live2dModel.pivot.set(0, 0);
+    if (!avatarBaseBounds) {
+      const bounds = live2dModel.getLocalBounds();
+      avatarBaseBounds = {
+        x: bounds.x,
+        y: bounds.y,
+        width: bounds.width,
+        height: bounds.height
+      };
+    }
+
+    const bounds = avatarBaseBounds;
+    const scale = Math.min((width * AVATAR_FIT_SCALE) / bounds.width, (height * AVATAR_FIT_SCALE) / bounds.height);
+
+    live2dModel.pivot.set(bounds.x + bounds.width / 2, bounds.y + bounds.height / 2);
+    live2dModel.scale.set(scale);
+    live2dModel.x = width / 2;
+    live2dModel.y = height * AVATAR_Y_RATIO;
+  }
+
+  function speakWithAvatar(audioUrl, options = {}) {
+    if (!live2dModel || !audioUrl) return;
+    avatarFacingFront = true;
+    keepAvatarFacingFront();
+    if (avatarStatus) avatarStatus.textContent = "数字人讲解中...";
+    return live2dModel.speak(audioUrl, {
+      volume: 1,
+      crossOrigin: "anonymous",
+      ...options,
+      onFinish: () => {
+        avatarFacingFront = false;
+        if (avatarStatus) avatarStatus.textContent = "讲解完成";
+        if (typeof options.onFinish === "function") options.onFinish();
+      },
+      onError: (err) => {
+        avatarFacingFront = false;
+        console.error("Live2D 语音播放失败:", err);
+        if (avatarStatus) avatarStatus.textContent = "语音播放失败";
+        if (typeof options.onError === "function") options.onError(err);
+      }
+    });
+  }
+
+  async function synthesizeAvatarSpeech(text, options = {}) {
+    const response = await fetch("/api/tts/synthesize", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        text,
+        voice: options.voice || "shuimo",
+        dialect: options.dialect || "demo"
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`TTS 接口请求失败：${response.status}`);
+    }
+
+    const result = await response.json();
+    if (result.code !== 0 || !result.data?.audioUrl) {
+      throw new Error(result.message || "TTS 接口未返回音频地址");
+    }
+
+    return result.data;
+  }
+
+  async function demoAvatarLipSync(text = "你好，我是水墨数字人。现在正在展示音频驱动的口型同步效果。") {
+    try {
+      if (avatarStatus) avatarStatus.textContent = "正在合成演示语音...";
+      const { audioUrl } = await synthesizeAvatarSpeech(text);
+      speakWithAvatar(audioUrl);
+    } catch (error) {
+      console.error("口型同步演示失败:", error);
+      if (avatarStatus) avatarStatus.textContent = "口型演示失败，请检查 TTS 接口";
+      showToast("口型同步演示失败，请查看控制台。");
+    }
+  }
+
+  function stopAvatarSpeaking() {
+    if (!live2dModel) return;
+    avatarFacingFront = false;
+    live2dModel.stopSpeaking();
+    if (avatarStatus) avatarStatus.textContent = "已停止讲解";
+  }
+
+  window.speakWithAvatar = speakWithAvatar;
+  window.synthesizeAvatarSpeech = synthesizeAvatarSpeech;
+  window.demoAvatarLipSync = demoAvatarLipSync;
+  window.stopAvatarSpeaking = stopAvatarSpeaking;
+
   function toggleDigitalHost() {
     engaged = !engaged;
-    if (avatarStatus) {
-      avatarStatus.textContent = engaged ? "演示：交互已唤醒（可接 RTC / 模型）" : "交互引擎待接入";
+    if (!engaged) {
+      stopAvatarSpeaking();
+      showToast("数字人已切换到待机状态。");
+      return;
     }
-    showToast(engaged ? "已模拟唤醒数字人宿主，可替换为真实管线。" : "数字人宿主处于待机。");
+
+    if (avatarStatus) {
+      avatarStatus.textContent = live2dModel ? "已唤醒，可播放语音" : "已唤醒（模型加载中）";
+    }
+    showToast("正在播放口型同步演示。");
+    demoAvatarLipSync();
   }
 
   digitalHost?.addEventListener("click", toggleDigitalHost);
@@ -1149,8 +1531,37 @@
     }
   });
 
+  window.addEventListener("pageshow", (event) => {
+    if (!isHomeViewVisible()) return;
 
-  digitalHost?.setAttribute("title", "点击切换演示状态（后续可接入数字人 SDK）");
+    if (event.persisted && live2dApp && live2dModel) {
+      // BFCache 恢复：模型实例仍在内存，不需要重新加载，直接恢复视觉状态
+      avatarReloadRequested = false;
+      avatarFacingFront = false;
+      if (live2dApp.ticker && !live2dApp.ticker.started) {
+        live2dApp.ticker.start();
+      }
+      keepShuimoAvatarPartsVisible();
+      hideShuimoWatermark();
+      scheduleLive2DRefit();
+      if (avatarStatus) avatarStatus.textContent = "点击人物测试口型同步";
+      return;
+    }
+
+    // 非 BFCache（页面重新加载等场景）走完整恢复流程
+    restoreLive2DForVisibleHome();
+  });
+
+  window.addEventListener("pagehide", prepareLive2DForHiddenView);
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) {
+      prepareLive2DForHiddenView();
+    } else if (isHomeViewVisible()) {
+      restoreLive2DForVisibleHome();
+    }
+  });
+
+  initLive2DAvatar();
 
   // 入戏念白功能实现
   let currentPlayingSource = null;
