@@ -7,6 +7,7 @@ const __dirname = fileURLToPath(new URL('.', import.meta.url))
 
 /** 开发环境 Mock：GET 点位、POST 上传（消费 multipart 体后返回成功） */
 function dialectMapMockPlugin() {
+  const MOCK_TTS_AUDIO = new Map()
   const MOCK_POINTS = [
     {
       id: '1',
@@ -84,12 +85,98 @@ function dialectMapMockPlugin() {
     { id: 's6', order: 6, name: '方音大师', theme: '综合挑战', difficulty: '困难' }
   ]
 
+  function readJsonBody(req) {
+    return new Promise((resolve) => {
+      let raw = ''
+      req.on('data', (chunk) => {
+        raw += chunk
+      })
+      req.on('end', () => {
+        try {
+          resolve(raw ? JSON.parse(raw) : {})
+        } catch {
+          resolve({})
+        }
+      })
+      req.on('error', () => resolve({}))
+    })
+  }
+
+  function createMockTtsWav(text = '') {
+    const sampleRate = 22050
+    const seconds = Math.min(7, Math.max(2.2, 1.6 + text.length * 0.08))
+    const samples = Math.floor(sampleRate * seconds)
+    const dataSize = samples * 2
+    const buffer = Buffer.alloc(44 + dataSize)
+
+    buffer.write('RIFF', 0)
+    buffer.writeUInt32LE(36 + dataSize, 4)
+    buffer.write('WAVE', 8)
+    buffer.write('fmt ', 12)
+    buffer.writeUInt32LE(16, 16)
+    buffer.writeUInt16LE(1, 20)
+    buffer.writeUInt16LE(1, 22)
+    buffer.writeUInt32LE(sampleRate, 24)
+    buffer.writeUInt32LE(sampleRate * 2, 28)
+    buffer.writeUInt16LE(2, 32)
+    buffer.writeUInt16LE(16, 34)
+    buffer.write('data', 36)
+    buffer.writeUInt32LE(dataSize, 40)
+
+    for (let i = 0; i < samples; i++) {
+      const t = i / sampleRate
+      const syllable = Math.sin(t * Math.PI * 7.2) > -0.18 ? 1 : 0.18
+      const envelope = Math.sin(Math.min(1, t / 0.08) * Math.PI * 0.5) * Math.sin(Math.min(1, (seconds - t) / 0.18) * Math.PI * 0.5)
+      const wave = Math.sin(2 * Math.PI * 180 * t) * 0.55 + Math.sin(2 * Math.PI * 360 * t) * 0.22
+      const sample = Math.max(-1, Math.min(1, wave * syllable * envelope * 0.5))
+      buffer.writeInt16LE(Math.floor(sample * 32767), 44 + i * 2)
+    }
+
+    return buffer
+  }
+
   return {
     name: 'dialect-map-mock-api',
     configureServer(server) {
       server.middlewares.use((req, res, next) => {
         const url = req.url || ''
         const cleanUrl = url.split('?')[0]
+
+        if (cleanUrl === '/api/tts/synthesize' && req.method === 'POST') {
+          readJsonBody(req).then((body) => {
+            const text = typeof body.text === 'string' ? body.text : '你好，我是水墨数字人，正在展示口型同步效果。'
+            const id = String(Date.now())
+            MOCK_TTS_AUDIO.set(id, createMockTtsWav(text))
+            res.setHeader('Content-Type', 'application/json; charset=utf-8')
+            res.statusCode = 200
+            res.end(
+              JSON.stringify({
+                code: 0,
+                data: {
+                  id,
+                  text,
+                  audioUrl: `/api/tts/audio/${id}.wav`
+                }
+              })
+            )
+          })
+          return
+        }
+
+        const ttsAudioMatch = cleanUrl.match(/^\/api\/tts\/audio\/([^/]+)\.wav$/)
+        if (ttsAudioMatch && req.method === 'GET') {
+          const audio = MOCK_TTS_AUDIO.get(ttsAudioMatch[1])
+          if (!audio) {
+            res.statusCode = 404
+            res.end('not found')
+            return
+          }
+          res.setHeader('Content-Type', 'audio/wav')
+          res.setHeader('Content-Length', String(audio.length))
+          res.statusCode = 200
+          res.end(audio)
+          return
+        }
 
         if (url.startsWith('/api/map/points') && req.method === 'GET') {
           res.setHeader('Content-Type', 'application/json; charset=utf-8')
