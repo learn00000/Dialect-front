@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>语韵东方 · 地方方言语音合成与交互体验</title>
-    <link rel="stylesheet" crossorigin href="./assets/style-DX_cSj4p.css">
+    <link rel="stylesheet" crossorigin href="./assets/style-DnF5l-z2.css">
   </head>
   <body>
     <div class="page-bg" aria-hidden="true">
@@ -56,30 +56,27 @@
         <div
           class="avatar-panel"
           id="digital-human-host"
+          data-live2d-model="./live2d/水墨/水墨.model3.json"
           role="button"
           tabindex="0"
           aria-label="数字人接入区域，点击切换演示状态"
         >
           <div class="avatar-panel__glow" aria-hidden="true"></div>
           <div class="avatar-panel__frame">
-            <img
-              class="avatar-panel__img"
-              src="./assets/digital-demo-DhruZKR0.png"
-              alt="数字人「阿雅」演示画面，可替换为实时驱动模型"
-              width="560"
-              height="720"
-            />
-            <div class="avatar-panel__badge">
-              <span class="avatar-panel__badge-name">接入区</span>
-            </div>
-            <span class="avatar-panel__name-tag" aria-label="数字人名称">阿雅</span>
+            <canvas
+              id="live2d-canvas"
+              class="avatar-panel__canvas"
+              aria-label="Live2D 数字人画布"
+            ></canvas>
           </div>
-          <p class="avatar-panel__hint">
-            左侧预留 <strong>数字人 / 虚拟主播</strong> 容器，可对接 WebGL、Live2D、视频流或 RTC，用于方言讲解与互动引导。
-          </p>
-          <div class="avatar-panel__tech" role="status">
-            <span class="pulse-dot" aria-hidden="true"></span>
-            <span id="avatar-status">交互引擎待接入</span>
+          <div class="avatar-panel__aside">
+            <p class="avatar-panel__hint">
+              <strong>水墨</strong> Live2D 数字人已接入，可用于方言讲解与互动引导。
+            </p>
+            <div class="avatar-panel__tech" role="status">
+              <span class="pulse-dot" aria-hidden="true"></span>
+              <span id="avatar-status">交互引擎待接入</span>
+            </div>
           </div>
         </div>
       </section>
@@ -109,9 +106,9 @@
             <p class="feature-card__desc">
               阶梯式学习与闯关：跟读、辨音、情境对话，配合合成语音示范，让「难学、少书面」的方言也能被循序渐进地掌握。
             </p>
-            <button type="button" class="btn btn--primary feature-card__cta" data-action="pick">
+            <a class="btn btn--primary feature-card__cta feature-card__cta--link" href="study.html">
               进入拾级
-            </button>
+            </a>
           </article>
 
           <article class="feature-card" data-tilt data-card="map">
@@ -561,6 +558,9 @@
 
     <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 
+    <script src="https://cubism.live2d.com/sdk-web/cubismcore/live2dcubismcore.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/pixi.js@7.4.3/dist/pixi.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/gh/RaSan147/pixi-live2d-display@v0.5.0-ls-7/dist/cubism4.min.js" defer></script>
     <script src="js/main.js" defer></script>
   </body>
 </html>
