@@ -56,7 +56,7 @@
         <div
           class="avatar-panel"
           id="digital-human-host"
-          data-live2d-model="/live2d/水墨/水墨.model3.json"
+          data-live2d-model="./live2d/水墨/水墨.model3.json"
           role="button"
           tabindex="0"
           aria-label="数字人接入区域，点击切换演示状态"
@@ -425,7 +425,7 @@
           <section class="by-shell" aria-label="辨音解意互动区">
             <aside class="by-wall" aria-label="戏曲图标墙">
               <h2 class="by-wall__title">戏曲图鉴</h2>
-              <p class="by-wall__desc">点亮剧种图标，逐级解锁更多地域唱段。</p>
+              <p class="by-wall__desc">点亮剧种图标，逐级解锁更多地域唱段。当前已接入广东粤剧四段原声，其余剧种筹备中。</p>
               <div class="by-level-grid" id="by-level-grid"></div>
             </aside>
 
@@ -441,23 +441,25 @@
                 <p class="by-audio-tip" id="by-audio-tip">提示：先听音，再作答。</p>
               </div>
 
-              <form class="by-options" id="by-options">
-                <label class="by-option by-option--a">
-                  <input type="radio" name="by-answer" value="A" />
-                  <span class="by-option__tag">选项 A · 现代通俗白话释义</span>
+              <div
+                class="by-options"
+                id="by-options"
+                role="radiogroup"
+                aria-label="答题选项"
+              >
+                <button type="button" class="by-option by-option--a" data-by-value="A" aria-pressed="false">
+                  <span class="by-option__tag" id="by-option-tag-a">选项 A</span>
                   <span class="by-option__text" id="by-option-a"></span>
-                </label>
-                <label class="by-option by-option--b">
-                  <input type="radio" name="by-answer" value="B" />
-                  <span class="by-option__tag">选项 B · 戏曲原文文辞</span>
+                </button>
+                <button type="button" class="by-option by-option--b" data-by-value="B" aria-pressed="false">
+                  <span class="by-option__tag" id="by-option-tag-b">选项 B</span>
                   <span class="by-option__text" id="by-option-b"></span>
-                </label>
-                <label class="by-option by-option--c">
-                  <input type="radio" name="by-answer" value="C" />
-                  <span class="by-option__tag">选项 C · 方言文化溯源注解</span>
+                </button>
+                <button type="button" class="by-option by-option--c" data-by-value="C" aria-pressed="false">
+                  <span class="by-option__tag" id="by-option-tag-c">选项 C</span>
                   <span class="by-option__text" id="by-option-c"></span>
-                </label>
-              </form>
+                </button>
+              </div>
 
               <div class="by-actions">
                 <button type="button" class="btn btn--ghost by-submit-btn" id="btn-by-submit">提交答案</button>
@@ -565,6 +567,8 @@
     <script src="libs/live2dcubismcore.min.js"></script>
     <script src="libs/pixi.min.js"></script>
     <script src="libs/cubism4.min.js"></script>
+    <script src="js/duanzhang-data.js" defer></script>
+    <script src="js/bianyin-data.js" defer></script>
     <script src="js/main.js" defer></script>
   </body>
 </html>

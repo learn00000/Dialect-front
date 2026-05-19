@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
-import { resolve } from 'node:path'
+import { cpSync, createReadStream, existsSync, mkdirSync, statSync } from 'node:fs'
+import { extname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const __dirname = fileURLToPath(new URL('.', import.meta.url))
@@ -276,9 +277,63 @@ function dialectMapMockPlugin() {
   }
 }
 
+const VIDEO_STITCH_MIME = {
+  '.m4a': 'audio/mp4',
+  '.mp4': 'video/mp4',
+  '.txt': 'text/plain; charset=utf-8'
+}
+
+function createMediaStaticPlugin(route, folderName) {
+  const root = resolve(__dirname, folderName)
+  return {
+    name: `${route}-static`,
+    configureServer(server) {
+      server.middlewares.use(`/${route}`, (req, res, next) => {
+        const urlPath = decodeURIComponent((req.url || '').split('?')[0])
+        const filePath = join(root, urlPath.replace(/^\//, ''))
+        try {
+          const st = statSync(filePath)
+          if (!st.isFile()) return next()
+          const ext = extname(filePath).toLowerCase()
+          res.setHeader('Content-Type', VIDEO_STITCH_MIME[ext] || 'application/octet-stream')
+          createReadStream(filePath).pipe(res)
+        } catch {
+          next()
+        }
+      })
+    },
+    closeBundle() {
+      const distDir = resolve(__dirname, 'dist')
+      if (existsSync(root)) {
+        mkdirSync(distDir, { recursive: true })
+        cpSync(root, join(distDir, route), { recursive: true })
+      }
+    }
+  }
+}
+
+/** 开发 / 预览时提供 video-stitch、video-learn 静态资源；构建时复制到 dist */
+const videoStitchStaticPlugin = () => createMediaStaticPlugin('video-stitch', 'video-stitch')
+const videoLearnStaticPlugin = () => createMediaStaticPlugin('video-learn', 'video-learn')
+
+/** 首页脚本在 js/（非 module），构建时需复制到 dist */
+function copyHomeStaticAssetsPlugin() {
+  return {
+    name: 'copy-home-static-assets',
+    closeBundle() {
+      const distDir = resolve(__dirname, 'dist')
+      const jsSrc = resolve(__dirname, 'js')
+      if (existsSync(jsSrc)) {
+        mkdirSync(distDir, { recursive: true })
+        cpSync(jsSrc, join(distDir, 'js'), { recursive: true })
+      }
+    }
+  }
+}
+
 export default defineConfig({
   base: './',
-  plugins: [vue(), dialectMapMockPlugin()],
+  plugins: [vue(), dialectMapMockPlugin(), videoStitchStaticPlugin(), videoLearnStaticPlugin(), copyHomeStaticAssetsPlugin()],
   server: { port: 5173 },
   build: {
     rollupOptions: {

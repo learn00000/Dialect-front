@@ -50,6 +50,9 @@
   const byOptionA = document.getElementById("by-option-a");
   const byOptionB = document.getElementById("by-option-b");
   const byOptionC = document.getElementById("by-option-c");
+  const byOptionTagA = document.getElementById("by-option-tag-a");
+  const byOptionTagB = document.getElementById("by-option-tag-b");
+  const byOptionTagC = document.getElementById("by-option-tag-c");
   const byOptions = document.getElementById("by-options");
   const byAudioTip = document.getElementById("by-audio-tip");
   const btnByPlay = document.getElementById("btn-by-play");
@@ -283,6 +286,7 @@
     showHomeView();
   });
   btnDzBack?.addEventListener("click", () => {
+    if (typeof stopDzAudio === "function") stopDzAudio();
     closeDuanzhangView();
   });
   btnNbBack?.addEventListener("click", () => {
@@ -292,105 +296,79 @@
     closeBianyinView();
   });
 
-  const byLevels = [
-    {
-      id: "mnx",
-      icon: "🎭",
-      genreName: "闽南戏",
-      dialectName: "闽南语",
-      question: "聆听本段方言戏韵，选出对应的文辞与文化内涵（本题请选：戏曲原文文辞）",
-      audioLine: "腹内饥肠辘辘，怎生耐得今宵长夜。",
-      options: {
-        A: "我现在肚子很饿，夜里更难熬。",
-        B: "腹内饥肠辘辘，怎生耐得今宵长夜。",
-        C: "“腹内”“怎生”属闽南语保留的古汉语表达层，体现文白并行的口传传统。"
-      },
-      answer: "B",
-      explain: {
-        original: "腹内饥肠辘辘，怎生耐得今宵长夜。",
-        meaning: "肚子饿得厉害，今夜漫长实在难以熬过。",
-        source: "闽南传统戏曲常见行腔句式（示例唱段）",
-        genre: "闽南戏重口传与南音声腔，保留大量古词与文言句式。",
-        dialect: "声调抑扬明显，入声保留较多，语汇中“腹内”“怎生”具古意。",
-        etymology: "“腹内”见于中古书面语，“怎生”源自古汉语疑问副词结构，沿海方言中存续。",
-        culture: "用词不直接说“饿”，而借文辞渲染境况，体现戏曲“辞情并重”的审美。"
-      }
-    },
-    {
-      id: "yueju",
-      icon: "🪭",
-      genreName: "越剧",
-      dialectName: "吴语",
-      question: "聆听唱段后，选出最贴合该句文化溯源的一项（本题请选：方言文化溯源注解）",
-      audioLine: "月下侬心似水，且把旧梦细细分陈。",
-      options: {
-        A: "月光下我的心很平静，我慢慢讲起往事。",
-        B: "月下侬心似水，且把旧梦细细分陈。",
-        C: "“侬”是吴语第一人称系统古层遗存，和“分陈”并用形成书面雅语与方音共存的越剧念白风格。"
-      },
-      answer: "C",
-      explain: {
-        original: "月下侬心似水，且把旧梦细细分陈。",
-        meaning: "月下我的心如水般平静，慢慢把旧日心事讲给你听。",
-        source: "越剧抒情板式常见句法（示例唱段）",
-        genre: "越剧以婉转细腻著称，擅长人物情感层层递进。",
-        dialect: "吴语词“侬”与柔化语调并行，形成亲近、绵密的听感。",
-        etymology: "“分陈”见于古汉语“分而陈之”表达，后在戏曲唱词中延展为“细述”。",
-        culture: "越剧常以生活口语承接文雅辞章，折射江南日常美学与文人语感。"
-      }
-    },
-    {
-      id: "kunqu",
-      icon: "🎐",
-      genreName: "昆曲",
-      dialectName: "中州韵系",
-      question: "听辨后，请选出现代口语直译项（本题请选：现代通俗白话释义）",
-      audioLine: "一寸丹心寄远，愿随雁字到天涯。",
-      options: {
-        A: "我把真心托付远方，希望像大雁传书那样把心意带到天边。",
-        B: "一寸丹心寄远，愿随雁字到天涯。",
-        C: "“丹心”在古汉语中指赤诚之心，“雁字”承接鸿雁传书意象，属于典故化词组。"
-      },
-      answer: "A",
-      explain: {
-        original: "一寸丹心寄远，愿随雁字到天涯。",
-        meaning: "将赤诚心意寄往远方，盼它像鸿雁书信一样传到天边。",
-        source: "昆曲抒情唱段常用意象句法（示例唱段）",
-        genre: "昆曲曲词讲究声律与典故，语义含蓄而层次丰富。",
-        dialect: "念白虽趋雅音，但在行腔中保留区域语音特征与古典吐字法。",
-        etymology: "“丹心”见《史记》等古籍，“雁字”由“鸿雁传书”文化母题发展而来。",
-        culture: "昆曲重“意在言外”，借典故与意象把私人情感提升为可共鸣的文化意蕴。"
-      }
-    },
-    {
-      id: "yue",
-      icon: "🥁",
-      genreName: "粤剧",
-      dialectName: "粤语",
-      question: "请根据唱段选择对应的戏曲原文文辞（本题请选：戏曲原文文辞）",
-      audioLine: "花前听雨落，心事欲同君细讲。",
-      options: {
-        A: "我在花前听雨，想把心里话慢慢告诉你。",
-        B: "花前听雨落，心事欲同君细讲。",
-        C: "“同君”属古典尊称语法，粤剧中常见文言词与粤语语气词并置，形成雅俗并举表达。"
-      },
-      answer: "B",
-      explain: {
-        original: "花前听雨落，心事欲同君细讲。",
-        meaning: "在花前听雨，想把心事慢慢讲给你听。",
-        source: "粤剧慢板抒情段式（示例唱段）",
-        genre: "粤剧兼具市民叙事与文雅唱词，文武场面并重。",
-        dialect: "粤语保留古入声尾与丰富语气层次，唱腔节拍感鲜明。",
-        etymology: "“同君”沿袭古汉语敬称宾语结构，戏曲中常用于情感表达的礼貌化书写。",
-        culture: "粤剧用词在“雅”与“俗”之间转换自如，反映岭南城市文化的开放兼容。"
-      }
-    }
+  const byWall = window.BIANYIN_WALL || [];
+  const byQuestions = window.BIANYIN_QUESTIONS || [];
+  const byQuestionIndexById = new Map(byQuestions.map((q, i) => [q.id, i]));
+
+  let byUnlockedQuestionCount = 1;
+  let byCurrentIndex = -1;
+  const byClearedQuestionIds = new Set();
+  let byLastCorrect = false;
+  let byActiveAudio = null;
+  let byOptionsRevealed = true;
+  let bySelectedAnswer = "";
+
+  const BY_OPTION_TEXT_ELS = [
+    { key: "A", text: byOptionA, tag: byOptionTagA },
+    { key: "B", text: byOptionB, tag: byOptionTagB },
+    { key: "C", text: byOptionC, tag: byOptionTagC }
   ];
 
-  let byUnlockedCount = 1;
-  let byCurrentIndex = -1;
-  const byClearedSet = new Set();
-  let byLastCorrect = false;
+  function applyBianyinOptionTags() {
+    BY_OPTION_TEXT_ELS.forEach(({ key, tag }) => {
+      if (tag) tag.textContent = `选项 ${key}`;
+    });
+  }
+
+  function getBianyinOptionButtons() {
+    return byOptions ? [...byOptions.querySelectorAll(".by-option[data-by-value]")] : [];
+  }
+
+  function clearBianyinSelection() {
+    bySelectedAnswer = "";
+    getBianyinOptionButtons().forEach((btn) => {
+      btn.classList.remove("by-option--picked");
+      btn.setAttribute("aria-pressed", "false");
+    });
+  }
+
+  function selectBianyinAnswer(value) {
+    const level = byQuestions[byCurrentIndex];
+    if (!level || !value) return;
+    if (level.hideOptionsUntilListen && !byOptionsRevealed) {
+      showToast("请先播放唱段，待选项显示后再选择。");
+      return;
+    }
+    bySelectedAnswer = value;
+    getBianyinOptionButtons().forEach((btn) => {
+      const picked = btn.dataset.byValue === value;
+      btn.classList.toggle("by-option--picked", picked);
+      btn.setAttribute("aria-pressed", picked ? "true" : "false");
+    });
+  }
+
+  function applyBianyinOptionTexts(level, revealed) {
+    const masked = level.hideOptionsUntilListen && !revealed;
+    BY_OPTION_TEXT_ELS.forEach(({ key, text }) => {
+      if (!text) return;
+      text.textContent = masked ? "听完唱段后显示" : level.options[key];
+    });
+    if (byOptions) {
+      byOptions.classList.toggle("by-options--masked", masked);
+    }
+    getBianyinOptionButtons().forEach((btn) => {
+      btn.disabled = masked;
+    });
+    if (btnBySubmit) btnBySubmit.disabled = masked;
+    if (!masked) clearBianyinSelection();
+  }
+
+  function revealBianyinOptions() {
+    const level = byQuestions[byCurrentIndex];
+    if (!level || byOptionsRevealed) return;
+    byOptionsRevealed = true;
+    applyBianyinOptionTexts(level, true);
+  }
 
   function closeBianyinModal() {
     if (!byModal) return;
@@ -404,29 +382,65 @@
     byModal.setAttribute("aria-hidden", "false");
   }
 
+  function stopByAudio() {
+    if (byActiveAudio) {
+      byActiveAudio.pause();
+      byActiveAudio.currentTime = 0;
+      byActiveAudio.onended = null;
+      byActiveAudio.onerror = null;
+      byActiveAudio = null;
+    }
+  }
+
+  function isWallItemCleared(wallItem) {
+    if (wallItem.placeholder) return false;
+    const ids = wallItem.questionIds || [];
+    return ids.length > 0 && ids.every((id) => byClearedQuestionIds.has(id));
+  }
+
+  function getWallItemProgress(wallItem) {
+    const ids = wallItem.questionIds || [];
+    if (!ids.length) return "";
+    const done = ids.filter((id) => byClearedQuestionIds.has(id)).length;
+    return `（${done}/${ids.length}）`;
+  }
+
+  function findFirstOpenQuestionIndex(wallItem) {
+    const ids = wallItem.questionIds || [];
+    for (const id of ids) {
+      const idx = byQuestionIndexById.get(id);
+      if (idx === undefined) continue;
+      if (!byClearedQuestionIds.has(id)) return idx;
+    }
+    return byQuestionIndexById.get(ids[0]);
+  }
+
   function updateBianyinProgress() {
     if (!byProgress) return;
-    byProgress.textContent = `已点亮 ${byClearedSet.size} / ${byLevels.length}`;
+    const clearedWall = byWall.filter((item) => isWallItemCleared(item)).length;
+    byProgress.textContent = `已点亮 ${clearedWall} / ${byWall.length}`;
   }
 
   function renderBianyinWall() {
     if (!byLevelGrid) return;
     byLevelGrid.innerHTML = "";
-    byLevels.forEach((level, index) => {
-      const isLocked = index >= byUnlockedCount;
-      const isActive = index === byCurrentIndex;
-      const isCleared = byClearedSet.has(level.id);
+    const currentQuestion = byQuestions[byCurrentIndex];
+    byWall.forEach((wallItem, wallIndex) => {
+      const isPlaceholder = Boolean(wallItem.placeholder);
+      const isLocked = isPlaceholder;
+      const isActive = currentQuestion?.wallId === wallItem.id;
+      const isCleared = isWallItemCleared(wallItem);
       const btn = document.createElement("button");
       btn.type = "button";
       btn.className = "by-level-item";
       if (isLocked) btn.classList.add("by-level-item--locked");
       if (isActive) btn.classList.add("by-level-item--active");
       if (isCleared) btn.classList.add("by-level-item--cleared");
-      btn.dataset.index = String(index);
+      btn.dataset.wallIndex = String(wallIndex);
       btn.disabled = isLocked;
       btn.innerHTML = `
-        <span class="by-level-item__icon">${level.icon}</span>
-        <span class="by-level-item__name">${level.genreName}</span>
+        <span class="by-level-item__icon">${wallItem.icon}</span>
+        <span class="by-level-item__name">${wallItem.genreName}${getWallItemProgress(wallItem)}</span>
       `;
       byLevelGrid.appendChild(btn);
     });
@@ -434,77 +448,72 @@
   }
 
   function setBianyinLevel(index) {
-    const level = byLevels[index];
+    const level = byQuestions[index];
     if (!level) return;
+    stopByAudio();
     byCurrentIndex = index;
     byLastCorrect = false;
+    byOptionsRevealed = !level.hideOptionsUntilListen;
     if (byLevelName) {
-      byLevelName.textContent = `当前关卡：${level.genreName} · ${level.dialectName}`;
+      const seq = byQuestions.findIndex((q) => q.id === level.id) + 1;
+      const titlePart = level.hidePlayTitle
+        ? `听辨第 ${seq} 题`
+        : level.playTitle || `第 ${seq} 题`;
+      byLevelName.textContent = `当前关卡：${titlePart} · ${level.genreName} · ${level.dialectName}`;
     }
     if (byQuestion) byQuestion.textContent = level.question;
-    if (byOptionA) byOptionA.textContent = level.options.A;
-    if (byOptionB) byOptionB.textContent = level.options.B;
-    if (byOptionC) byOptionC.textContent = level.options.C;
-    if (byAudioTip) byAudioTip.textContent = "提示：先听音，再作答。";
-    if (byOptions) {
-      byOptions.querySelectorAll('input[name="by-answer"]').forEach((input) => {
-        input.checked = false;
-      });
+    applyBianyinOptionTags();
+    applyBianyinOptionTexts(level, byOptionsRevealed);
+    if (byAudioTip) {
+      byAudioTip.textContent = level.hideOptionsUntilListen
+        ? "提示：先播放唱段，选项将在播放结束后显示。"
+        : "提示：先听音，再作答。";
     }
+    clearBianyinSelection();
+    if (btnByPlay) btnByPlay.disabled = false;
     if (btnByNext) btnByNext.disabled = true;
     renderBianyinWall();
   }
 
   function playBianyinAudio() {
-    const level = byLevels[byCurrentIndex];
+    const level = byQuestions[byCurrentIndex];
     if (!level) {
-      showToast("请先从图标墙选择一个可解锁的剧种关卡。");
+      showToast("请先从左侧「粤剧」图标开启关卡。");
+      return;
+    }
+    if (!level.audioUrl) {
+      showToast("本题暂无音频资源。");
       return;
     }
     if (byAudioTip) {
-      byAudioTip.textContent = `正在播放：${level.genreName}唱段示例`;
+      byAudioTip.textContent = level.hidePlayTitle
+        ? "正在播放原声唱段…"
+        : `正在播放：${level.playTitle || level.genreName} 原声唱段…`;
     }
-    audioContext.resume().catch(() => {});
-    if ("speechSynthesis" in window) {
-      window.speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(level.audioLine);
-      utterance.lang = "zh-CN";
-      utterance.rate = 0.82;
-      utterance.pitch = 1.02;
-      utterance.onend = () => {
-        if (byAudioTip) byAudioTip.textContent = "已播放完成，可开始作答。";
-      };
-      window.speechSynthesis.speak(utterance);
-      return;
-    }
-    const osc = audioContext.createOscillator();
-    const gain = audioContext.createGain();
-    osc.type = "triangle";
-    osc.frequency.value = 280;
-    gain.gain.value = 0.0001;
-    osc.connect(gain);
-    gain.connect(audioContext.destination);
-    const now = audioContext.currentTime;
-    gain.gain.setValueAtTime(0.0001, now);
-    gain.gain.linearRampToValueAtTime(0.05, now + 0.02);
-    gain.gain.linearRampToValueAtTime(0.0001, now + 1.4);
-    osc.start(now);
-    osc.stop(now + 1.45);
-    window.setTimeout(() => {
+    stopByAudio();
+    const audio = new Audio(level.audioUrl);
+    byActiveAudio = audio;
+    audio.onended = () => {
+      revealBianyinOptions();
       if (byAudioTip) byAudioTip.textContent = "已播放完成，可开始作答。";
-    }, 1450);
+    };
+    audio.onerror = () => {
+      console.error("辨音解意音频加载失败:", level.audioUrl);
+      if (byAudioTip) byAudioTip.textContent = "音频加载失败，请检查 video-learn 资源。";
+      showToast("音频加载失败，请确认已构建或启动开发服务。");
+    };
+    audio.play().catch((err) => {
+      console.error(err);
+      showToast("无法播放音频，请检查浏览器自动播放策略。");
+    });
   }
 
   function fillBianyinModal(level, isCorrect) {
-    const answerLabelMap = {
-      A: "选项 A · 现代通俗白话释义",
-      B: "选项 B · 戏曲原文文辞",
-      C: "选项 C · 方言文化溯源注解"
-    };
+    const answerText = level.options[level.answer] || "";
     if (byModalResult) {
       byModalResult.textContent = isCorrect
-        ? `回答正确，已点亮「${level.genreName}」图标。该题标准答案为：${answerLabelMap[level.answer]}。`
-        : `本次未答对。该题标准答案为：${answerLabelMap[level.answer]}，可结合下方文化解析再听一遍。`;
+        ? `回答正确，已点亮「${level.genreName}」图标。标准答案：选项 ${level.answer}（${answerText}）`
+        : `本次未答对。标准答案：选项 ${level.answer}（${answerText}），可结合下方文化解析再听一遍。`;
     }
     if (byModalOriginal) byModalOriginal.textContent = level.explain.original;
     if (byModalMeaning) byModalMeaning.textContent = level.explain.meaning;
@@ -516,23 +525,34 @@
   }
 
   function submitBianyinAnswer() {
-    const level = byLevels[byCurrentIndex];
+    const level = byQuestions[byCurrentIndex];
     if (!level || !byOptions) {
       showToast("请先开启一个关卡。");
       return;
     }
-    const selected = byOptions.querySelector('input[name="by-answer"]:checked');
-    if (!selected) {
+    if (level.hideOptionsUntilListen && !byOptionsRevealed) {
+      showToast("请先播放唱段，待选项显示后再提交。");
+      return;
+    }
+    if (!bySelectedAnswer) {
       showToast("请选择 A/B/C 中的一项后再提交。");
       return;
     }
-    const isCorrect = selected.value === level.answer;
+    const isCorrect = bySelectedAnswer === level.answer;
     byLastCorrect = isCorrect;
     if (isCorrect) {
-      byClearedSet.add(level.id);
-      byUnlockedCount = Math.min(byLevels.length, Math.max(byUnlockedCount, byCurrentIndex + 2));
+      byClearedQuestionIds.add(level.id);
+      byUnlockedQuestionCount = Math.min(
+        byQuestions.length,
+        Math.max(byUnlockedQuestionCount, byCurrentIndex + 2)
+      );
       if (btnByNext) btnByNext.disabled = false;
-      showToast("答对了，已点亮该剧种图标并解锁下一关。");
+      const wallItem = byWall.find((w) => w.id === level.wallId);
+      if (wallItem && isWallItemCleared(wallItem)) {
+        showToast(`答对了，「${wallItem.genreName}」图鉴已点亮。`);
+      } else {
+        showToast("答对了，可进入下一题。");
+      }
     } else {
       if (btnByNext) btnByNext.disabled = true;
       showToast("答案暂不正确，先看解析再试一次。");
@@ -548,11 +568,11 @@
       return;
     }
     const nextIndex = byCurrentIndex + 1;
-    if (nextIndex >= byUnlockedCount || nextIndex >= byLevels.length) {
-      if (byClearedSet.size === byLevels.length) {
-        showToast("恭喜完成全戏曲图鉴收集。");
+    if (nextIndex >= byUnlockedQuestionCount || nextIndex >= byQuestions.length) {
+      if (byClearedQuestionIds.size === byQuestions.length) {
+        showToast("恭喜完成全部粤剧听辨关卡，其余剧种素材筹备中。");
       } else {
-        showToast("当前已是已解锁关卡的最后一题。");
+        showToast("当前已是已解锁的最后一题。");
       }
       return;
     }
@@ -563,13 +583,29 @@
   byLevelGrid?.addEventListener("click", (e) => {
     const target = e.target.closest(".by-level-item");
     if (!target) return;
-    const index = Number(target.dataset.index);
-    if (Number.isNaN(index)) return;
-    if (index >= byUnlockedCount) {
-      showToast("该剧种尚未解锁，请先通关前一关。");
+    const wallIndex = Number(target.dataset.wallIndex);
+    if (Number.isNaN(wallIndex)) return;
+    const wallItem = byWall[wallIndex];
+    if (!wallItem) return;
+    if (wallItem.placeholder) {
+      showToast(`${wallItem.genreName}关卡筹备中，敬请期待。`);
       return;
     }
-    setBianyinLevel(index);
+    const questionIndex = findFirstOpenQuestionIndex(wallItem);
+    if (questionIndex === undefined) {
+      showToast(`「${wallItem.genreName}」已全部通关，可重听解析。`);
+      const lastId = wallItem.questionIds?.[wallItem.questionIds.length - 1];
+      const lastIndex = byQuestionIndexById.get(lastId);
+      if (lastIndex !== undefined) setBianyinLevel(lastIndex);
+      return;
+    }
+    setBianyinLevel(questionIndex);
+  });
+
+  byOptions?.addEventListener("click", (e) => {
+    const btn = e.target.closest(".by-option[data-by-value]");
+    if (!btn || btn.disabled) return;
+    selectBianyinAnswer(btn.dataset.byValue);
   });
 
   btnByPlay?.addEventListener("click", playBianyinAudio);
@@ -579,184 +615,67 @@
   byModalBackdrop?.addEventListener("click", closeBianyinModal);
 
   renderBianyinWall();
-  if (byLevels.length > 0) {
+  if (byQuestions.length > 0) {
     setBianyinLevel(0);
   }
 
-  // 断章寻韵功能实现（重制版）
-  const dzLibrary = [
-    {
-      id: "mnx-001",
-      name: "《月夜思乡》",
-      dialect: "闽南语",
-      genre: "闽南戏",
-      intro: "乡愁题材唱段，语气婉转，常用于离乡人物独白。",
-      fullReference:
-        "月照古厝风过廊，我问归舟几时靠。旧巷炊烟仍在否，梦里阿母唤阿兄。",
-      fullAudioText:
-        "月照古厝风过廊，我问归舟几时靠。旧巷炊烟仍在否，梦里阿母唤阿兄。",
-      fullVideoUrl: "https://www.youtube.com/embed/8l4u9qQv8D8",
-      subtitle:
-        "方言：月照古厝风过廊 ｜ 普通话：月光照着老宅，风掠过走廊。\n方言：我问归舟几时靠 ｜ 普通话：我问归来的船何时靠岸。\n方言：旧巷炊烟仍在否 ｜ 普通话：旧巷里的炊烟还在吗。\n方言：梦里阿母唤阿兄 ｜ 普通话：梦里母亲在呼唤我。",
-      wiki: {
-        background: "该段常见于乡情戏，借夜景推进人物内心独白。",
-        dialectFeature: "闽南语保留古语词和连读韵味，句尾拖腔明显。",
-        source: "地方戏改编唱本常用段式（教学示例）。",
-        history: "闽南戏源流深厚，兼具民间口传与文人写作传统。",
-        glossary: "“古厝”指旧宅；“归舟”指回乡之船。"
-      },
-      segments: [
-        {
-          id: "mnx-1",
-          order: 1,
-          text: "月光照着老宅，风掠过走廊。",
-          audioText: "月照古厝风过廊"
-        },
-        {
-          id: "mnx-2",
-          order: 2,
-          text: "我问归来的船何时靠岸。",
-          audioText: "我问归舟几时靠"
-        },
-        {
-          id: "mnx-3",
-          order: 3,
-          text: "旧巷里的炊烟还在吗。",
-          audioText: "旧巷炊烟仍在否"
-        },
-        {
-          id: "mnx-4",
-          order: 4,
-          text: "梦里母亲还在呼唤我。",
-          audioText: "梦里阿母唤阿兄"
-        }
-      ]
-    },
-    {
-      id: "yueju-001",
-      name: "《花窗听雨》",
-      dialect: "吴语",
-      genre: "越剧",
-      intro: "以雨夜叙情为线索，唱词细腻，适合作听辨练习。",
-      fullReference:
-        "花窗细雨一更深，纸伞未收人未归。旧约写在青灯下，怕听晨钟断梦魂。",
-      fullAudioText:
-        "花窗细雨一更深，纸伞未收人未归。旧约写在青灯下，怕听晨钟断梦魂。",
-      fullVideoUrl: "https://www.youtube.com/embed/fx3Y3nR5P9g",
-      subtitle:
-        "方言：花窗细雨一更深 ｜ 普通话：花窗外细雨愈发深沉。\n方言：纸伞未收人未归 ｜ 普通话：纸伞未收，人也未归。\n方言：旧约写在青灯下 ｜ 普通话：旧日约定写在青灯旁。\n方言：怕听晨钟断梦魂 ｜ 普通话：最怕晨钟响起，惊断梦魂。",
-      wiki: {
-        background: "越剧常借日常景物承载人物情绪转折。",
-        dialectFeature: "吴语语流柔和，叙情段落中停连节奏鲜明。",
-        source: "越剧抒情慢板结构（教学示例）。",
-        history: "越剧发端于江南，擅长细腻心理刻画。",
-        glossary: "“青灯”多指夜读灯火；“断梦魂”用于表达惊醒与失落。"
-      },
-      segments: [
-        {
-          id: "yueju-1",
-          order: 1,
-          text: "花窗外细雨一夜更深。",
-          audioText: "花窗细雨一更深"
-        },
-        {
-          id: "yueju-2",
-          order: 2,
-          text: "纸伞未收，他还没有回来。",
-          audioText: "纸伞未收人未归"
-        },
-        {
-          id: "yueju-3",
-          order: 3,
-          text: "旧日约定写在灯下。",
-          audioText: "旧约写在青灯下"
-        },
-        {
-          id: "yueju-4",
-          order: 4,
-          text: "最怕清晨钟声打断梦魂。",
-          audioText: "怕听晨钟断梦魂"
-        }
-      ]
-    },
-    {
-      id: "yue-001",
-      name: "《南国秋声》",
-      dialect: "粤语",
-      genre: "粤剧",
-      intro: "岭南秋景唱段，句式短促有力，节拍感明显。",
-      fullReference:
-        "江风入袖月临台，旧曲新翻寄酒杯。谁道此身无归处，一腔乡语向南来。",
-      fullAudioText:
-        "江风入袖月临台，旧曲新翻寄酒杯。谁道此身无归处，一腔乡语向南来。",
-      fullVideoUrl: "https://www.youtube.com/embed/H8VjF3h4f3M",
-      subtitle:
-        "方言：江风入袖月临台 ｜ 普通话：江风吹进衣袖，明月照上高台。\n方言：旧曲新翻寄酒杯 ｜ 普通话：旧曲新唱，都寄在酒杯里。\n方言：谁道此身无归处 ｜ 普通话：谁说我此身没有归处。\n方言：一腔乡语向南来 ｜ 普通话：一腔乡音，正向南而来。",
-      wiki: {
-        background: "常见于抒怀场景，先景后情，层层推进。",
-        dialectFeature: "粤语入声和短促节拍让唱段更具铿锵感。",
-        source: "粤剧板式变换段（教学示例）。",
-        history: "粤剧融合南北声腔，形成岭南特色舞台语言。",
-        glossary: "“寄酒杯”借酒言志；“乡语”即乡音。"
-      },
-      segments: [
-        {
-          id: "yue-1",
-          order: 1,
-          text: "江风吹进衣袖，明月照上高台。",
-          audioText: "江风入袖月临台"
-        },
-        {
-          id: "yue-2",
-          order: 2,
-          text: "旧曲新唱，都寄在酒杯里。",
-          audioText: "旧曲新翻寄酒杯"
-        },
-        {
-          id: "yue-3",
-          order: 3,
-          text: "谁说我没有归去的地方。",
-          audioText: "谁道此身无归处"
-        },
-        {
-          id: "yue-4",
-          order: 4,
-          text: "一腔乡音正向南而来。",
-          audioText: "一腔乡语向南来"
-        }
-      ]
-    }
-  ];
+  // 断章寻韵功能实现（数据来自 /video-stitch，见 js/duanzhang-data.js）
+  const dzLibrary = window.DUANZHANG_LIBRARY || [];
 
   let dzCurrentLevelIndex = 0;
   let dzSourceSegments = [];
   let dzTrackSegments = [];
+  let dzActiveAudio = null;
+  let dzCombinedPlayToken = 0;
 
   function shuffleArray(arr) {
     return [...arr].sort(() => Math.random() - 0.5);
   }
 
-  function speakLine(line) {
-    audioContext.resume().catch(() => {});
-    if (!("speechSynthesis" in window)) return;
-    window.speechSynthesis.cancel();
-    const utterance = new SpeechSynthesisUtterance(line);
-    utterance.lang = "zh-CN";
-    utterance.rate = 0.82;
-    utterance.pitch = 1.02;
-    window.speechSynthesis.speak(utterance);
+  function stopDzAudio() {
+    dzCombinedPlayToken += 1;
+    if (dzActiveAudio) {
+      dzActiveAudio.pause();
+      dzActiveAudio.currentTime = 0;
+      dzActiveAudio.onended = null;
+      dzActiveAudio.onerror = null;
+      dzActiveAudio = null;
+    }
+  }
+
+  function playDzSegmentAudio(segment) {
+    if (!segment?.audioUrl) {
+      showToast("该片段暂无音频文件。");
+      return null;
+    }
+    stopDzAudio();
+    const audio = new Audio(segment.audioUrl);
+    dzActiveAudio = audio;
+    audio.play().catch((err) => {
+      console.error("片段音频播放失败:", err);
+      showToast("音频播放失败，请确认 video-stitch 资源可访问。");
+    });
+    return audio;
   }
 
   function renderDzInfo(level) {
     if (!dzInfo || !dzReference) return;
+    const wikiTitle = level.wiki?.title ? `<p class="dz2-info__wiki-title">${level.wiki.title}</p>` : "";
     dzInfo.innerHTML = `
       <h2>${level.name}</h2>
       <p><strong>所属方言：</strong>${level.dialect} ｜ <strong>剧种：</strong>${level.genre}</p>
       <small>${level.intro}</small>
+      ${wikiTitle}
     `;
+    const segCount = level.segments.length;
     dzReference.innerHTML = `
-      <h3>原文参考区（普通话对照）</h3>
-      <p>${level.fullReference}</p>
+      <h3>听辨提示</h3>
+      <ul class="dz2-hint-list">
+        <li>本关共 <strong>${segCount}</strong> 句唱词，已打乱在下方「待拖拽语音片段区」。</li>
+        <li>点击各片段「播放」听方言原声，结合唱腔情绪与句意逻辑判断先后。</li>
+        <li>拖入「拼接目标轨道区」后可调整顺序，并用「播放拼接音频」预听效果。</li>
+        <li>全部片段入轨后再提交；正确顺序与完整视频将在提交后解锁展示。</li>
+      </ul>
     `;
   }
 
@@ -768,6 +687,7 @@
     item.dataset.zone = zone;
     item.innerHTML = `
       <div class="dz2-seg__body">
+        <span class="dz2-seg__badge">片段</span>
         <p class="dz2-seg__text">${segment.text}</p>
       </div>
       <div class="dz2-seg__actions">
@@ -827,37 +747,44 @@
         <p>${analysis}</p>
       </div>
     `;
+    const wiki = level.wiki || {};
     dzWiki.innerHTML = `
-      <h4>戏曲文化百科介绍</h4>
+      <h4>${wiki.title || "戏曲文化百科介绍"}</h4>
       <ul>
-        <li><strong>剧目背景：</strong>${level.wiki.background}</li>
-        <li><strong>方言特色：</strong>${level.wiki.dialectFeature}</li>
-        <li><strong>唱段出处：</strong>${level.wiki.source}</li>
-        <li><strong>历史科普：</strong>${level.wiki.history}</li>
-        <li><strong>词句释义：</strong>${level.wiki.glossary}</li>
+        <li><strong>剧目背景：</strong>${wiki.background || ""}</li>
+        <li><strong>方言特色：</strong>${wiki.dialectFeature || ""}</li>
+        <li><strong>唱段出处：</strong>${wiki.source || ""}</li>
+        <li><strong>历史科普：</strong>${wiki.history || ""}</li>
+        <li><strong>词句释义：</strong>${wiki.glossary || ""}</li>
       </ul>
     `;
+    const lyricLines = [...level.segments]
+      .sort((a, b) => a.order - b.order)
+      .map((seg) => `${seg.order}. ${seg.text}`)
+      .join("\n");
     dzMedia.innerHTML = `
-      <h4>完整原声播放区</h4>
-      <audio controls preload="none" class="dz2-audio">
-        <source src="" type="audio/mpeg" />
-      </audio>
-      <button type="button" class="dz2-play-full" id="btn-dz-play-full">播放完整唱段（语音示意）</button>
+      <h4>完整选段视频</h4>
       <div class="dz2-video">
-        <iframe src="${level.fullVideoUrl}" title="${level.name}完整片段视频" loading="lazy" allowfullscreen></iframe>
+        <video
+          class="dz2-video__player"
+          controls
+          playsinline
+          preload="metadata"
+          src="${level.fullVideoUrl}"
+          title="${level.name} 完整片段"
+        ></video>
       </div>
-      <pre class="dz2-subtitle">${level.subtitle}</pre>
+      <h4 class="dz2-media__subtitle-title">唱词全文（与音频编号一致）</h4>
+      <pre class="dz2-subtitle">${lyricLines}</pre>
     `;
     dzResult.hidden = false;
     dzResult.scrollIntoView({ behavior: "smooth", block: "nearest" });
-    document.getElementById("btn-dz-play-full")?.addEventListener("click", () => {
-      speakLine(level.fullAudioText);
-    });
   }
 
   function resetDuanzhangGame() {
     const level = dzLibrary[dzCurrentLevelIndex];
     if (!level) return;
+    stopDzAudio();
     dzSourceSegments = shuffleArray(level.segments);
     dzTrackSegments = [];
     if (dzResult) dzResult.hidden = true;
@@ -895,22 +822,41 @@
     renderDzTrack();
   }
 
-  function playDzTrack() {
+  async function playDzTrack() {
     if (dzTrackSegments.length === 0) {
       showToast("轨道为空，请先拖拽片段。");
       return;
     }
-    dzTrackSegments.forEach((seg, idx) => {
-      window.setTimeout(() => {
-        speakLine(seg.audioText);
-      }, idx * 1600);
-    });
+    stopDzAudio();
+    const token = dzCombinedPlayToken;
+    for (const seg of dzTrackSegments) {
+      if (token !== dzCombinedPlayToken) return;
+      await new Promise((resolve) => {
+        const audio = new Audio(seg.audioUrl);
+        dzActiveAudio = audio;
+        audio.onended = () => resolve();
+        audio.onerror = () => {
+          console.error("拼接播放失败:", seg.audioUrl);
+          showToast(`片段「${seg.text}」播放失败`);
+          resolve();
+        };
+        audio.play().catch((err) => {
+          console.error(err);
+          showToast(`片段「${seg.text}」无法播放`);
+          resolve();
+        });
+      });
+    }
   }
 
   function submitDzTrack() {
     const level = dzLibrary[dzCurrentLevelIndex];
     if (!level || dzTrackSegments.length === 0) {
       showToast("请先完成片段拼接。");
+      return;
+    }
+    if (dzTrackSegments.length !== level.segments.length) {
+      showToast(`请将全部 ${level.segments.length} 个片段拖入轨道后再提交。`);
       return;
     }
     const expected = level.segments.map((seg) => seg.id);
@@ -944,7 +890,7 @@
     const seg = dzSourceSegments.find((item) => item.id === id);
     const action = e.target.closest("button")?.dataset.action;
     if (action === "play" && seg) {
-      speakLine(seg.audioText);
+      playDzSegmentAudio(seg);
       return;
     }
     moveToTrack(id);
@@ -957,7 +903,7 @@
     const seg = dzTrackSegments.find((item) => item.id === id);
     const action = e.target.closest("button")?.dataset.action;
     if (action === "play" && seg) {
-      speakLine(seg.audioText);
+      playDzSegmentAudio(seg);
       return;
     }
     if (action === "remove") {
