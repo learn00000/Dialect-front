@@ -286,14 +286,14 @@ a.btn {
   position: relative;
   z-index: 1;
   flex: 1 1 auto;
-  min-height: clamp(430px, 64vh, 720px);
+  min-height: clamp(460px, 68vh, 760px);
   width: 100%;
   margin-inline: auto;
   border-radius: 0;
   background: transparent;
   border: 0;
   box-shadow: none;
-  overflow: visible;
+  overflow: hidden;
 }
 
 .avatar-panel__frame::after {
@@ -4789,6 +4789,7 @@ body:has(.app--duanzhang) .page-bg {
   border-radius: 10px;
   overflow: hidden;
   background: #000;
+  pointer-events: auto;
 }
 
 .dz2-video iframe,
@@ -4799,6 +4800,8 @@ body:has(.app--duanzhang) .page-bg {
   max-height: min(52vh, 420px);
   border: 0;
   background: #000;
+  pointer-events: auto;
+  object-fit: contain;
 }
 
 .dz2-info__wiki-title {

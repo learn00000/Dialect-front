@@ -10,14 +10,32 @@
     <!-- 非 module：避免参与 Vite 打包入口分析；file 协议下直接提示 -->
     <script>
       (function () {
-        if (location.protocol !== "file:") return;
         var el = document.getElementById("app");
         if (!el) return;
-        el.innerHTML =
-          '<div style="font-family:system-ui,-apple-system,sans-serif;padding:clamp(1rem,4vw,2rem);max-width:32rem;margin:0 auto;line-height:1.65;color:#152322">' +
-          '<h1 style="font-size:1.15rem;margin:0 0 0.75rem">地图页需要通过 Vite 开发服务器打开</h1>' +
-          '<p style="margin:0 0 0.75rem">不能双击用 <code>file://</code> 打开本页。请在项目目录执行 <code>npm run dev</code> 后访问 <strong>http://localhost:5173/map.html</strong>，或先 <code>npm run build</code> 再 <code>npm run preview</code>。</p>' +
-          "</div>";
+        function showNeedViteHint() {
+          el.innerHTML =
+            '<div style="font-family:system-ui,-apple-system,sans-serif;padding:clamp(1rem,4vw,2rem);max-width:36rem;margin:0 auto;line-height:1.65;color:#152322">' +
+            '<h1 style="font-size:1.15rem;margin:0 0 0.75rem">声绘山河页不能只用静态服务器打开</h1>' +
+            '<p style="margin:0 0 0.75rem">本页使用 Vue 组件，<code>npx serve .</code> 无法编译 <code>.vue</code> 文件，因此会白屏。</p>' +
+            '<p style="margin:0 0 0.5rem"><strong>开发调试：</strong>在项目目录执行 <code>npm run dev</code>，访问 <strong>http://localhost:5173/map.html</strong></p>' +
+            '<p style="margin:0"><strong>静态预览：</strong>先 <code>npm run build</code>，再 <code>npx serve dist -l 3000</code>，访问 <strong>http://localhost:3000/map.html</strong></p>' +
+            "</div>";
+        }
+        if (location.protocol === "file:") {
+          showNeedViteHint();
+          return;
+        }
+        window.addEventListener(
+          "error",
+          function (e) {
+            var msg = String((e && e.message) || "");
+            if (msg.indexOf(".vue") !== -1 || msg.indexOf("MIME") !== -1) showNeedViteHint();
+          },
+          true
+        );
+        window.setTimeout(function () {
+          if (!el.children.length && !String(el.textContent || "").trim()) showNeedViteHint();
+        }, 2800);
       })();
     </script>
     <script type="module" src="./src/main.js"></script>

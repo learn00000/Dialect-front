@@ -213,6 +213,7 @@
 
   function closeBianyinView() {
     if (!viewOpera || !viewBianyin) return;
+    stopByAudio();
     viewBianyin.hidden = true;
     viewBianyin.setAttribute("aria-hidden", "true");
     viewOpera.hidden = false;
@@ -372,6 +373,14 @@
     byModal.setAttribute("aria-hidden", "false");
   }
 
+  function isMediaPlaying(audio) {
+    return Boolean(audio && !audio.paused && !audio.ended);
+  }
+
+  function updateByPlayButton(playing) {
+    if (btnByPlay) btnByPlay.textContent = playing ? "停止播放" : "播放唱段";
+  }
+
   function stopByAudio() {
     if (byActiveAudio) {
       byActiveAudio.pause();
@@ -380,6 +389,7 @@
       byActiveAudio.onerror = null;
       byActiveAudio = null;
     }
+    updateByPlayButton(false);
   }
 
   function isWallItemCleared(wallItem) {
@@ -475,6 +485,15 @@
       showToast("本题暂无音频资源。");
       return;
     }
+    if (isMediaPlaying(byActiveAudio)) {
+      stopByAudio();
+      if (byAudioTip) {
+        byAudioTip.textContent = level.hideOptionsUntilListen
+          ? "已停止播放，可再次点击播放唱段。"
+          : "已停止播放，可再次点击播放唱段。";
+      }
+      return;
+    }
     if (byAudioTip) {
       byAudioTip.textContent = level.hidePlayTitle
         ? "正在播放原声唱段…"
@@ -483,17 +502,21 @@
     stopByAudio();
     const audio = new Audio(level.audioUrl);
     byActiveAudio = audio;
+    updateByPlayButton(true);
     audio.onended = () => {
+      stopByAudio();
       revealBianyinOptions();
       if (byAudioTip) byAudioTip.textContent = "已播放完成，可开始作答。";
     };
     audio.onerror = () => {
       console.error("辨音解意音频加载失败:", level.audioUrl);
+      stopByAudio();
       if (byAudioTip) byAudioTip.textContent = "音频加载失败，请检查 video-learn 资源。";
       showToast("音频加载失败，请确认已构建或启动开发服务。");
     };
     audio.play().catch((err) => {
       console.error(err);
+      stopByAudio();
       showToast("无法播放音频，请检查浏览器自动播放策略。");
     });
   }
@@ -617,12 +640,36 @@
   let dzTrackSegments = [];
   let dzActiveAudio = null;
   let dzCombinedPlayToken = 0;
+  let dzCombinedPlaying = false;
+  let dzPlayingSegmentId = null;
 
   function shuffleArray(arr) {
     return [...arr].sort(() => Math.random() - 0.5);
   }
 
-  function stopDzAudio() {
+  function updateDzCombinedButton(playing) {
+    if (btnDzPlayCombined) {
+      btnDzPlayCombined.textContent = playing ? "停止播放" : "播放拼接音频";
+    }
+  }
+
+  function resetDzSegmentPlayLabels() {
+    document.querySelectorAll(".dz2-play").forEach((btn) => {
+      btn.textContent = "播放";
+    });
+    dzPlayingSegmentId = null;
+  }
+
+  function setDzSegmentPlayLabel(segmentId) {
+    resetDzSegmentPlayLabels();
+    if (!segmentId) return;
+    dzPlayingSegmentId = segmentId;
+    document.querySelectorAll(`.dz2-seg[data-id="${segmentId}"] .dz2-play`).forEach((btn) => {
+      btn.textContent = "停止";
+    });
+  }
+
+  function stopDzAudioPlayback() {
     dzCombinedPlayToken += 1;
     if (dzActiveAudio) {
       dzActiveAudio.pause();
@@ -633,16 +680,35 @@
     }
   }
 
+  function stopDzAudio() {
+    stopDzAudioPlayback();
+    dzCombinedPlaying = false;
+    updateDzCombinedButton(false);
+    resetDzSegmentPlayLabels();
+  }
+
   function playDzSegmentAudio(segment) {
     if (!segment?.audioUrl) {
       showToast("该片段暂无音频文件。");
       return null;
     }
+    if (dzPlayingSegmentId === segment.id && isMediaPlaying(dzActiveAudio)) {
+      stopDzAudio();
+      return null;
+    }
     stopDzAudio();
     const audio = new Audio(segment.audioUrl);
     dzActiveAudio = audio;
+    setDzSegmentPlayLabel(segment.id);
+    audio.onended = () => stopDzAudio();
+    audio.onerror = () => {
+      console.error("片段音频播放失败:", segment.audioUrl);
+      stopDzAudio();
+      showToast("音频播放失败，请确认 video-stitch 资源可访问。");
+    };
     audio.play().catch((err) => {
       console.error("片段音频播放失败:", err);
+      stopDzAudio();
       showToast("音频播放失败，请确认 video-stitch 资源可访问。");
     });
     return audio;
@@ -662,7 +728,7 @@
       <h3>听辨提示</h3>
       <ul class="dz2-hint-list">
         <li>本关共 <strong>${segCount}</strong> 句唱词，已打乱在下方「待拖拽语音片段区」。</li>
-        <li>点击各片段「播放」听方言原声，结合唱腔情绪与句意逻辑判断先后。</li>
+        <li>点击各片段「播放」听方言原声，再次点击可停止；结合唱腔情绪与句意逻辑判断先后。</li>
         <li>拖入「拼接目标轨道区」后可调整顺序，并用「播放拼接音频」预听效果。</li>
         <li>全部片段入轨后再提交；正确顺序与完整视频将在提交后解锁展示。</li>
       </ul>
@@ -817,7 +883,14 @@
       showToast("轨道为空，请先拖拽片段。");
       return;
     }
-    stopDzAudio();
+    if (dzCombinedPlaying) {
+      stopDzAudio();
+      return;
+    }
+    stopDzAudioPlayback();
+    resetDzSegmentPlayLabels();
+    dzCombinedPlaying = true;
+    updateDzCombinedButton(true);
     const token = dzCombinedPlayToken;
     for (const seg of dzTrackSegments) {
       if (token !== dzCombinedPlayToken) return;
@@ -836,6 +909,11 @@
           resolve();
         });
       });
+    }
+    if (token === dzCombinedPlayToken) {
+      dzCombinedPlaying = false;
+      updateDzCombinedButton(false);
+      dzActiveAudio = null;
     }
   }
 
@@ -1081,8 +1159,9 @@
   let avatarResizeObserver = null;
   let avatarReloadPromise = null;
   let avatarReloadRequested = false;
-  const AVATAR_FIT_SCALE = 1.28;
-  const AVATAR_Y_RATIO = 0.56;
+  const AVATAR_FIT_SCALE = 1.78;
+  const AVATAR_PIVOT_Y_RATIO = 0.36;
+  const AVATAR_Y_RATIO = 0.48;
   const SHUIMO_VISIBLE_PART_IDS = [
     "Part",
     "Part2",
@@ -1366,7 +1445,10 @@
     const bounds = avatarBaseBounds;
     const scale = Math.min((width * AVATAR_FIT_SCALE) / bounds.width, (height * AVATAR_FIT_SCALE) / bounds.height);
 
-    live2dModel.pivot.set(bounds.x + bounds.width / 2, bounds.y + bounds.height / 2);
+    live2dModel.pivot.set(
+      bounds.x + bounds.width / 2,
+      bounds.y + bounds.height * AVATAR_PIVOT_Y_RATIO
+    );
     live2dModel.scale.set(scale);
     live2dModel.x = width / 2;
     live2dModel.y = height * AVATAR_Y_RATIO;

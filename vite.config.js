@@ -1,12 +1,14 @@
 import { defineConfig, loadEnv } from 'vite'
 import vue from '@vitejs/plugin-vue'
-import { cpSync, createReadStream, existsSync, mkdirSync, statSync } from 'node:fs'
+import { cpSync, createReadStream, existsSync, mkdirSync, statSync, unlinkSync } from 'node:fs'
 import { extname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { buildStorybookResponse } from './js/storybook-mock.mjs'
 import { generateStorybookWithBailian, getBailianConfig } from './js/storybook-bailian.mjs'
+import { handleMapUpload, serveMapUploadAudio } from './js/map-mock-upload.mjs'
 
 const __dirname = fileURLToPath(new URL('.', import.meta.url))
+const MAP_UPLOAD_DIR = resolve(__dirname, '.data', 'map-uploads')
 
 /** 开发环境 Mock / 百炼代理：GET 点位、POST 上传、戏曲绘本生成 */
 function dialectMapMockPlugin(env = {}) {
@@ -223,29 +225,43 @@ function dialectMapMockPlugin(env = {}) {
           return
         }
 
-        if (url.startsWith('/api/map/upload') && req.method === 'POST') {
-          const drain = () =>
-            new Promise((resolve) => {
-              req.on('data', () => {})
-              req.on('end', resolve)
-              req.on('error', resolve)
-            })
-          drain().then(() => {
-            const id = String(Date.now())
-            MOCK_POINTS.push({
-              id,
-              location: { lng: 120.15 + Math.random() * 0.02, lat: 30.25 + Math.random() * 0.02 },
-              area: '浙江省/杭州市/西湖区',
-              dialect: '新上传样本',
-              type: '方言',
-              audioUrl: './video-stitch/wenzhou/wenzhou003.m4a',
-              content: '（Mock 已接收上传）',
-              nickname: '访客',
-              time: new Date().toISOString().slice(0, 19).replace('T', ' ')
-            })
+        const mapPointDeleteMatch = cleanUrl.match(/^\/api\/map\/points\/([^/]+)$/)
+        if (mapPointDeleteMatch && req.method === 'DELETE') {
+          const id = mapPointDeleteMatch[1]
+          const idx = MOCK_POINTS.findIndex((p) => String(p.id) === id)
+          if (idx === -1) {
+            res.statusCode = 404
             res.setHeader('Content-Type', 'application/json; charset=utf-8')
-            res.statusCode = 200
-            res.end(JSON.stringify({ code: 0, message: 'ok', data: { id } }))
+            res.end(JSON.stringify({ code: 1, message: '点位不存在' }))
+            return
+          }
+          const [removed] = MOCK_POINTS.splice(idx, 1)
+          const audioName = removed.audioUrl?.match(/\/api\/map\/audio\/([^/]+)$/)?.[1]
+          if (audioName) {
+            try {
+              unlinkSync(join(MAP_UPLOAD_DIR, audioName))
+            } catch {
+              /* 文件可能已手动删除 */
+            }
+          }
+          res.setHeader('Content-Type', 'application/json; charset=utf-8')
+          res.statusCode = 200
+          res.end(JSON.stringify({ code: 0, message: 'ok' }))
+          return
+        }
+
+        const mapAudioMatch = cleanUrl.match(/^\/api\/map\/audio\/([^/]+)$/)
+        if (mapAudioMatch && req.method === 'GET') {
+          serveMapUploadAudio(req, res, MAP_UPLOAD_DIR, mapAudioMatch[1])
+          return
+        }
+
+        if (url.startsWith('/api/map/upload') && req.method === 'POST') {
+          handleMapUpload(req, MAP_UPLOAD_DIR, { res, mockPoints: MOCK_POINTS }).catch((err) => {
+            console.error('[map] upload failed:', err)
+            res.statusCode = 500
+            res.setHeader('Content-Type', 'application/json; charset=utf-8')
+            res.end(JSON.stringify({ code: 1, message: '上传处理失败' }))
           })
           return
         }
@@ -320,25 +336,65 @@ const VIDEO_STITCH_MIME = {
   '.txt': 'text/plain; charset=utf-8'
 }
 
+/** 支持 Range 请求，否则浏览器无法拖动 video/mp4 进度条 */
+function serveMediaFile(req, res, filePath) {
+  const st = statSync(filePath)
+  const ext = extname(filePath).toLowerCase()
+  const contentType = VIDEO_STITCH_MIME[ext] || 'application/octet-stream'
+  const fileSize = st.size
+  const range = req.headers.range
+
+  res.setHeader('Accept-Ranges', 'bytes')
+  res.setHeader('Content-Type', contentType)
+
+  if (range) {
+    const match = /^bytes=(\d*)-(\d*)$/.exec(range)
+    if (!match) {
+      res.statusCode = 416
+      res.setHeader('Content-Range', `bytes */${fileSize}`)
+      res.end()
+      return
+    }
+    let start = match[1] ? parseInt(match[1], 10) : 0
+    let end = match[2] ? parseInt(match[2], 10) : fileSize - 1
+    if (Number.isNaN(start) || Number.isNaN(end) || start > end || start >= fileSize) {
+      res.statusCode = 416
+      res.setHeader('Content-Range', `bytes */${fileSize}`)
+      res.end()
+      return
+    }
+    end = Math.min(end, fileSize - 1)
+    const chunkSize = end - start + 1
+    res.statusCode = 206
+    res.setHeader('Content-Range', `bytes ${start}-${end}/${fileSize}`)
+    res.setHeader('Content-Length', chunkSize)
+    createReadStream(filePath, { start, end }).pipe(res)
+    return
+  }
+
+  res.setHeader('Content-Length', fileSize)
+  createReadStream(filePath).pipe(res)
+}
+
 function createMediaStaticPlugin(route, folderName) {
   const root = resolve(__dirname, folderName)
+  const attach = (server) => {
+    server.middlewares.use(`/${route}`, (req, res, next) => {
+      const urlPath = decodeURIComponent((req.url || '').split('?')[0])
+      const filePath = join(root, urlPath.replace(/^\//, ''))
+      try {
+        const st = statSync(filePath)
+        if (!st.isFile()) return next()
+        serveMediaFile(req, res, filePath)
+      } catch {
+        next()
+      }
+    })
+  }
   return {
     name: `${route}-static`,
-    configureServer(server) {
-      server.middlewares.use(`/${route}`, (req, res, next) => {
-        const urlPath = decodeURIComponent((req.url || '').split('?')[0])
-        const filePath = join(root, urlPath.replace(/^\//, ''))
-        try {
-          const st = statSync(filePath)
-          if (!st.isFile()) return next()
-          const ext = extname(filePath).toLowerCase()
-          res.setHeader('Content-Type', VIDEO_STITCH_MIME[ext] || 'application/octet-stream')
-          createReadStream(filePath).pipe(res)
-        } catch {
-          next()
-        }
-      })
-    },
+    configureServer: attach,
+    configurePreviewServer: attach,
     closeBundle() {
       const distDir = resolve(__dirname, 'dist')
       if (existsSync(root)) {
@@ -377,7 +433,7 @@ export default defineConfig(({ mode }) => {
   return {
   base: './',
   plugins: [vue(), dialectMapMockPlugin(env), videoStitchStaticPlugin(), videoLearnStaticPlugin(), copyHomeStaticAssetsPlugin()],
-  server: { port: 5173 },
+  server: { port: 5173, host: true },
   build: {
     rollupOptions: {
       input: {

@@ -39,6 +39,8 @@
     const sbThumbWrap = document.getElementById("sb-thumb-wrap");
     const sbThumbImage = document.getElementById("sb-thumb-image");
     const sbThumbCaption = document.getElementById("sb-thumb-caption");
+    const sbQrcodePlaceholder = document.getElementById("sb-qrcode-placeholder");
+    const sbQrcodeCanvas = document.getElementById("sb-qrcode-canvas");
 
     if (!sbDialect || !btnSbGenerate) return;
 
@@ -100,6 +102,91 @@
       if (sbStateLoading) sbStateLoading.hidden = status !== "loading";
       if (sbStateError) sbStateError.hidden = status !== "error";
       if (sbStateSuccess) sbStateSuccess.hidden = status !== "success";
+      if (status !== "success") clearQrcode();
+    }
+
+    function buildShareUrl() {
+      const url = new URL(location.href);
+      url.hash = "storybook";
+      const form = readForm();
+      if (validateForm(form)) {
+        url.searchParams.set("dialect", form.dialect);
+        url.searchParams.set("opera", form.opera);
+        url.searchParams.set("role", form.role);
+      }
+      return url.toString();
+    }
+
+    function clearQrcode() {
+      if (sbQrcodePlaceholder) sbQrcodePlaceholder.hidden = false;
+      if (sbQrcodeCanvas) {
+        sbQrcodeCanvas.hidden = true;
+        sbQrcodeCanvas.setAttribute("aria-hidden", "true");
+        const ctx = sbQrcodeCanvas.getContext("2d");
+        if (ctx) ctx.clearRect(0, 0, sbQrcodeCanvas.width, sbQrcodeCanvas.height);
+      }
+    }
+
+    function updateQrcode() {
+      if (state.status !== "success" || !state.pages.length) {
+        clearQrcode();
+        return;
+      }
+      const QRCode = window.QRCode;
+      if (!QRCode || !sbQrcodeCanvas) return;
+
+      const shareUrl = buildShareUrl();
+      QRCode.toCanvas(
+        sbQrcodeCanvas,
+        shareUrl,
+        {
+          width: 128,
+          margin: 1,
+          errorCorrectionLevel: "M",
+          color: { dark: "#1d5d56", light: "#ffffff" },
+        },
+        (err) => {
+          if (err) {
+            console.warn("[storybook] qrcode render failed:", err);
+            clearQrcode();
+            return;
+          }
+          if (sbQrcodePlaceholder) sbQrcodePlaceholder.hidden = true;
+          sbQrcodeCanvas.hidden = false;
+          sbQrcodeCanvas.setAttribute("aria-hidden", "false");
+        }
+      );
+    }
+
+    function applyShareParamsFromUrl() {
+      const params = new URLSearchParams(location.search);
+      const dialect = params.get("dialect");
+      const opera = params.get("opera");
+      const role = params.get("role");
+      let applied = false;
+
+      if (dialect && opts.dialects.includes(dialect)) {
+        sbDialect.value = dialect;
+        applied = true;
+      }
+      if (opera && opts.operas.includes(opera)) {
+        sbOpera.value = opera;
+        const roles = getRolesForOpera(opera);
+        fillSelect(sbRole, roles, role && roles.includes(role) ? role : roles[0]);
+        applied = true;
+      } else if (role) {
+        const roles = getRolesForOpera(sbOpera.value);
+        if (roles.includes(role)) {
+          sbRole.value = role;
+          applied = true;
+        }
+      }
+      if (applied) updateConfigPreview();
+
+      if (location.hash.replace(/^#/, "") === "storybook" && typeof window.openNianbaiView === "function") {
+        window.openNianbaiView();
+        if (applied) showToast("已根据分享链接填入参数，点击「生成戏曲绘本」即可。");
+      }
     }
 
     function scrollToPlayer() {
@@ -176,6 +263,7 @@
         setGenerateDisabled(false);
         setPlayerStatus("success");
         renderPage(0);
+        updateQrcode();
         showToast("戏曲绘本已生成，请翻阅欣赏。");
         scrollToPlayer();
       } catch (err) {
@@ -253,21 +341,19 @@
     });
 
     btnSbCopyLink?.addEventListener("click", async () => {
-      const url = new URL(location.href);
-      url.hash = "storybook";
-      const form = readForm();
-      if (validateForm(form)) {
-        url.searchParams.set("dialect", form.dialect);
-        url.searchParams.set("opera", form.opera);
-        url.searchParams.set("role", form.role);
+      if (state.status !== "success" || !state.pages.length) {
+        showToast("请先生成绘本，再复制分享链接。");
+        return;
       }
       try {
-        await navigator.clipboard.writeText(url.toString());
+        await navigator.clipboard.writeText(buildShareUrl());
         showToast("分享链接已复制。");
       } catch {
         showToast("复制失败，请手动复制地址栏链接。");
       }
     });
+
+    applyShareParamsFromUrl();
   }
 
   window.initStorybookApp = initStorybookApp;

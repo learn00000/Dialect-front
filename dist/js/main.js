@@ -158,7 +158,7 @@
     btnOperaBack?.focus({ preventScroll: true });
   }
 
-  /** 入戏念白：从方音戏韵中间卡片进入 */
+  /** 戏曲绘本（戏韵绘卷）：从方音戏韵中间卡片进入 */
   function openNianbaiView() {
     if (!viewOpera || !viewNianbai) return;
     viewOpera.hidden = true;
@@ -213,6 +213,7 @@
 
   function closeBianyinView() {
     if (!viewOpera || !viewBianyin) return;
+    stopByAudio();
     viewBianyin.hidden = true;
     viewBianyin.setAttribute("aria-hidden", "true");
     viewOpera.hidden = false;
@@ -372,6 +373,14 @@
     byModal.setAttribute("aria-hidden", "false");
   }
 
+  function isMediaPlaying(audio) {
+    return Boolean(audio && !audio.paused && !audio.ended);
+  }
+
+  function updateByPlayButton(playing) {
+    if (btnByPlay) btnByPlay.textContent = playing ? "停止播放" : "播放唱段";
+  }
+
   function stopByAudio() {
     if (byActiveAudio) {
       byActiveAudio.pause();
@@ -380,6 +389,7 @@
       byActiveAudio.onerror = null;
       byActiveAudio = null;
     }
+    updateByPlayButton(false);
   }
 
   function isWallItemCleared(wallItem) {
@@ -475,6 +485,15 @@
       showToast("本题暂无音频资源。");
       return;
     }
+    if (isMediaPlaying(byActiveAudio)) {
+      stopByAudio();
+      if (byAudioTip) {
+        byAudioTip.textContent = level.hideOptionsUntilListen
+          ? "已停止播放，可再次点击播放唱段。"
+          : "已停止播放，可再次点击播放唱段。";
+      }
+      return;
+    }
     if (byAudioTip) {
       byAudioTip.textContent = level.hidePlayTitle
         ? "正在播放原声唱段…"
@@ -483,17 +502,21 @@
     stopByAudio();
     const audio = new Audio(level.audioUrl);
     byActiveAudio = audio;
+    updateByPlayButton(true);
     audio.onended = () => {
+      stopByAudio();
       revealBianyinOptions();
       if (byAudioTip) byAudioTip.textContent = "已播放完成，可开始作答。";
     };
     audio.onerror = () => {
       console.error("辨音解意音频加载失败:", level.audioUrl);
+      stopByAudio();
       if (byAudioTip) byAudioTip.textContent = "音频加载失败，请检查 video-learn 资源。";
       showToast("音频加载失败，请确认已构建或启动开发服务。");
     };
     audio.play().catch((err) => {
       console.error(err);
+      stopByAudio();
       showToast("无法播放音频，请检查浏览器自动播放策略。");
     });
   }
@@ -617,12 +640,36 @@
   let dzTrackSegments = [];
   let dzActiveAudio = null;
   let dzCombinedPlayToken = 0;
+  let dzCombinedPlaying = false;
+  let dzPlayingSegmentId = null;
 
   function shuffleArray(arr) {
     return [...arr].sort(() => Math.random() - 0.5);
   }
 
-  function stopDzAudio() {
+  function updateDzCombinedButton(playing) {
+    if (btnDzPlayCombined) {
+      btnDzPlayCombined.textContent = playing ? "停止播放" : "播放拼接音频";
+    }
+  }
+
+  function resetDzSegmentPlayLabels() {
+    document.querySelectorAll(".dz2-play").forEach((btn) => {
+      btn.textContent = "播放";
+    });
+    dzPlayingSegmentId = null;
+  }
+
+  function setDzSegmentPlayLabel(segmentId) {
+    resetDzSegmentPlayLabels();
+    if (!segmentId) return;
+    dzPlayingSegmentId = segmentId;
+    document.querySelectorAll(`.dz2-seg[data-id="${segmentId}"] .dz2-play`).forEach((btn) => {
+      btn.textContent = "停止";
+    });
+  }
+
+  function stopDzAudioPlayback() {
     dzCombinedPlayToken += 1;
     if (dzActiveAudio) {
       dzActiveAudio.pause();
@@ -633,16 +680,35 @@
     }
   }
 
+  function stopDzAudio() {
+    stopDzAudioPlayback();
+    dzCombinedPlaying = false;
+    updateDzCombinedButton(false);
+    resetDzSegmentPlayLabels();
+  }
+
   function playDzSegmentAudio(segment) {
     if (!segment?.audioUrl) {
       showToast("该片段暂无音频文件。");
       return null;
     }
+    if (dzPlayingSegmentId === segment.id && isMediaPlaying(dzActiveAudio)) {
+      stopDzAudio();
+      return null;
+    }
     stopDzAudio();
     const audio = new Audio(segment.audioUrl);
     dzActiveAudio = audio;
+    setDzSegmentPlayLabel(segment.id);
+    audio.onended = () => stopDzAudio();
+    audio.onerror = () => {
+      console.error("片段音频播放失败:", segment.audioUrl);
+      stopDzAudio();
+      showToast("音频播放失败，请确认 video-stitch 资源可访问。");
+    };
     audio.play().catch((err) => {
       console.error("片段音频播放失败:", err);
+      stopDzAudio();
       showToast("音频播放失败，请确认 video-stitch 资源可访问。");
     });
     return audio;
@@ -662,7 +728,7 @@
       <h3>听辨提示</h3>
       <ul class="dz2-hint-list">
         <li>本关共 <strong>${segCount}</strong> 句唱词，已打乱在下方「待拖拽语音片段区」。</li>
-        <li>点击各片段「播放」听方言原声，结合唱腔情绪与句意逻辑判断先后。</li>
+        <li>点击各片段「播放」听方言原声，再次点击可停止；结合唱腔情绪与句意逻辑判断先后。</li>
         <li>拖入「拼接目标轨道区」后可调整顺序，并用「播放拼接音频」预听效果。</li>
         <li>全部片段入轨后再提交；正确顺序与完整视频将在提交后解锁展示。</li>
       </ul>
@@ -817,7 +883,14 @@
       showToast("轨道为空，请先拖拽片段。");
       return;
     }
-    stopDzAudio();
+    if (dzCombinedPlaying) {
+      stopDzAudio();
+      return;
+    }
+    stopDzAudioPlayback();
+    resetDzSegmentPlayLabels();
+    dzCombinedPlaying = true;
+    updateDzCombinedButton(true);
     const token = dzCombinedPlayToken;
     for (const seg of dzTrackSegments) {
       if (token !== dzCombinedPlayToken) return;
@@ -836,6 +909,11 @@
           resolve();
         });
       });
+    }
+    if (token === dzCombinedPlayToken) {
+      dzCombinedPlaying = false;
+      updateDzCombinedButton(false);
+      dzActiveAudio = null;
     }
   }
 
@@ -1081,8 +1159,9 @@
   let avatarResizeObserver = null;
   let avatarReloadPromise = null;
   let avatarReloadRequested = false;
-  const AVATAR_FIT_SCALE = 1.28;
-  const AVATAR_Y_RATIO = 0.56;
+  const AVATAR_FIT_SCALE = 1.78;
+  const AVATAR_PIVOT_Y_RATIO = 0.36;
+  const AVATAR_Y_RATIO = 0.48;
   const SHUIMO_VISIBLE_PART_IDS = [
     "Part",
     "Part2",
@@ -1366,44 +1445,99 @@
     const bounds = avatarBaseBounds;
     const scale = Math.min((width * AVATAR_FIT_SCALE) / bounds.width, (height * AVATAR_FIT_SCALE) / bounds.height);
 
-    live2dModel.pivot.set(bounds.x + bounds.width / 2, bounds.y + bounds.height / 2);
+    live2dModel.pivot.set(
+      bounds.x + bounds.width / 2,
+      bounds.y + bounds.height * AVATAR_PIVOT_Y_RATIO
+    );
     live2dModel.scale.set(scale);
     live2dModel.x = width / 2;
     live2dModel.y = height * AVATAR_Y_RATIO;
   }
 
+  let currentSpeakAudio = null;
+
+  function _stopFallbackAudio() {
+    if (currentSpeakAudio) {
+      try { currentSpeakAudio.pause(); } catch (_) {}
+      currentSpeakAudio = null;
+    }
+  }
+
+  /**
+   * 数字人讲话：
+   * - 优先用 live2dModel.speak() 做嘴型同步（pixi-live2d-display-lipsyncpatch）
+   * - 同时挂一个 HTML5 audio 作为兜底，保证用户一定能听到声音
+   * - 讲话期间锁定面向正前方，停止鼠标追踪；讲完恢复
+   */
   function speakWithAvatar(audioUrl, options = {}) {
     if (!live2dModel || !audioUrl) return;
+
+    _stopFallbackAudio();
+    try { live2dModel.stopSpeaking?.(); } catch (_) {}
+
     avatarFacingFront = true;
     keepAvatarFacingFront();
-    if (avatarStatus) avatarStatus.textContent = "数字人讲解中...";
-    return live2dModel.speak(audioUrl, {
-      volume: 1,
-      crossOrigin: "anonymous",
-      ...options,
-      onFinish: () => {
-        avatarFacingFront = false;
-        if (avatarStatus) avatarStatus.textContent = "讲解完成";
-        if (typeof options.onFinish === "function") options.onFinish();
-      },
-      onError: (err) => {
-        avatarFacingFront = false;
-        console.error("Live2D 语音播放失败:", err);
-        if (avatarStatus) avatarStatus.textContent = "语音播放失败";
-        if (typeof options.onError === "function") options.onError(err);
+    if (avatarStatus) avatarStatus.textContent = "语墨正在讲话…";
+
+    const finish = (errored) => {
+      avatarFacingFront = false;
+      _stopFallbackAudio();
+      if (avatarStatus) {
+        avatarStatus.textContent = errored ? "语音播放失败" : "讲解完成";
       }
-    });
+      if (errored && typeof options.onError === "function") options.onError(errored);
+      else if (!errored && typeof options.onFinish === "function") options.onFinish();
+    };
+
+    // 主路径：Live2D 嘴型同步（默认只播一路，避免回声）
+    try {
+      return live2dModel.speak(audioUrl, {
+        volume: 1,
+        crossOrigin: "anonymous",
+        ...options,
+        onFinish: () => finish(false),
+        onError: (err) => {
+          console.error("Live2D speak 错误，回退到 HTML5 Audio:", err);
+          try {
+            currentSpeakAudio = new Audio();
+            currentSpeakAudio.crossOrigin = "anonymous";
+            currentSpeakAudio.src = audioUrl;
+            currentSpeakAudio.volume = 1;
+            currentSpeakAudio.addEventListener("ended", () => finish(false), { once: true });
+            currentSpeakAudio.addEventListener("error", () => finish(err), { once: true });
+            currentSpeakAudio.play().catch(() => finish(err));
+          } catch (_) {
+            finish(err);
+          }
+        }
+      });
+    } catch (e) {
+      console.error("Live2D speak 抛错:", e);
+      // lipsync 不可用时回退到单路 HTML5 Audio
+      try {
+        currentSpeakAudio = new Audio();
+        currentSpeakAudio.crossOrigin = "anonymous";
+        currentSpeakAudio.src = audioUrl;
+        currentSpeakAudio.volume = 1;
+        currentSpeakAudio.addEventListener("ended", () => finish(false), { once: true });
+        currentSpeakAudio.addEventListener("error", () => finish(e), { once: true });
+        currentSpeakAudio.play().catch(() => finish(e));
+      } catch (_) {
+        finish(e);
+      }
+    }
   }
 
   async function synthesizeAvatarSpeech(text, options = {}) {
-    const response = await fetch("/api/tts/synthesize", {
+    const base = (typeof BACKEND_BASE !== "undefined" && BACKEND_BASE) || "http://localhost:8000";
+    const response = await fetch(`${base}/api/tts/synthesize`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
         text,
-        voice: options.voice || "shuimo",
+        voice: options.voice || "jianzhi",
         dialect: options.dialect || "demo"
       })
     });
@@ -1417,19 +1551,15 @@
       throw new Error(result.message || "TTS 接口未返回音频地址");
     }
 
+    const url = result.data.audioUrl;
+    result.data.audioUrl = url.startsWith("http") ? url : `${base}${url}`;
     return result.data;
   }
 
-  async function demoAvatarLipSync(text = "你好，我是水墨数字人。现在正在展示音频驱动的口型同步效果。") {
-    try {
-      if (avatarStatus) avatarStatus.textContent = "正在合成演示语音...";
-      const { audioUrl } = await synthesizeAvatarSpeech(text);
-      speakWithAvatar(audioUrl);
-    } catch (error) {
-      console.error("口型同步演示失败:", error);
-      if (avatarStatus) avatarStatus.textContent = "口型演示失败，请检查 TTS 接口";
-      showToast("口型同步演示失败，请查看控制台。");
-    }
+  // 注意：旧版的 demoAvatarLipSync 会硬编码合成"你好，我是水墨数字人..."这一长句，
+  // 在 CPU 上要 80+ 秒。已禁用，保留壳以兼容老 window.demoAvatarLipSync 调用。
+  async function demoAvatarLipSync(_text) {
+    showToast("请直接在下方输入框与语墨对话。");
   }
 
   function stopAvatarSpeaking() {
@@ -1445,19 +1575,49 @@
   window.stopAvatarSpeaking = stopAvatarSpeaking;
 
   function toggleDigitalHost() {
-    engaged = !engaged;
-    if (!engaged) {
-      stopAvatarSpeaking();
-      showToast("数字人已切换到待机状态。");
+    // 点击数字人：若正在讲话则停止，否则什么也不做
+    // 注意：不再触发演示 TTS（之前会跑后端合成"你好，我是水墨数字人..."拖慢一切）
+    const isSpeakingNow =
+      currentSpeakAudio && !currentSpeakAudio.paused && !currentSpeakAudio.ended;
+    if (isSpeakingNow) {
+      try { live2dModel?.stopSpeaking?.(); } catch (_) {}
+      _stopFallbackAudio();
+      avatarFacingFront = false;
+      if (avatarStatus) avatarStatus.textContent = "已停止讲话";
+      showToast("已停止数字人讲话。");
+      return;
+    }
+    if (avatarStatus) {
+      avatarStatus.textContent = "请在下方输入框与语墨对话";
+    }
+  }
+
+  digitalHost?.addEventListener("click", toggleDigitalHost);
+  digitalHost?.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      toggleDigitalHost();
+    }
+  });
+
+  window.addEventListener("pageshow", (event) => {
+    if (!isHomeViewVisible()) return;
+
+    if (event.persisted && live2dApp && live2dModel) {
+      // BFCache 恢复：模型实例仍在内存，不需要重新加载，直接恢复视觉状态
+      avatarReloadRequested = false;
+      avatarFacingFront = false;
+      if (live2dApp.ticker && !live2dApp.ticker.started) {
+        live2dApp.ticker.start();
+      }
+      scheduleLive2DRefit();
+      if (avatarStatus) avatarStatus.textContent = "点击人物测试口型同步";
       return;
     }
 
-    if (avatarStatus) {
-      avatarStatus.textContent = live2dModel ? "已唤醒，可播放语音" : "已唤醒（模型加载中）";
-    }
-    showToast("正在播放口型同步演示。");
-    demoAvatarLipSync();
-  }
+    // 非 BFCache（页面重新加载等场景）走完整恢复流程
+    restoreLive2DForVisibleHome();
+  });
 
   digitalHost?.addEventListener("click", toggleDigitalHost);
   digitalHost?.addEventListener("keydown", (e) => {
@@ -1498,6 +1658,324 @@
   });
 
   initLive2DAvatar();
+
+
+  /* ═══════════════════════════════════════════════════════════════
+     数字人对话输入栏 · Chat Bar
+  ═══════════════════════════════════════════════════════════════ */
+  const BACKEND_BASE = "http://localhost:8000";
+  let backendReady = false;
+
+  const chatBar       = document.getElementById("chat-bar");
+  const chatBarToggle = document.getElementById("chat-bar-toggle");
+  const chatInput     = document.getElementById("chat-input");
+  const btnSend       = document.getElementById("btn-chat-send");
+  const btnVoice      = document.getElementById("btn-voice-input");
+  const chatBubbles   = document.getElementById("chat-bubbles");
+  const dialectChips  = document.querySelectorAll(".chat-chip");
+
+  // ── 折叠 / 展开对话框 ─────────────────────────────────────────
+  if (chatBarToggle && chatBar) {
+    chatBarToggle.addEventListener("click", (e) => {
+      if (e.target.closest(".chat-input-row, .chat-dialect-chips")) return;
+      const collapsed = chatBar.classList.toggle("chat-bar--collapsed");
+      chatBarToggle.setAttribute("aria-expanded", String(!collapsed));
+    });
+  }
+
+  let selectedDialect = "";   // "" = 普通话
+  let isSending       = false;
+  let mediaRecorder   = null;
+  let audioChunks     = [];
+  let isRecording     = false;
+  let chatMessageCount = 0;
+
+  // ── 方言 chip 切换 ─────────────────────────────────────────────
+  dialectChips.forEach((chip) => {
+    chip.addEventListener("click", () => {
+      dialectChips.forEach((c) => c.classList.remove("chat-chip--active"));
+      chip.classList.add("chat-chip--active");
+      selectedDialect = chip.dataset.dialect || "";
+    });
+  });
+
+  // ── 添加气泡 ───────────────────────────────────────────────────
+  function addBubble(text, role, dialect, ttsText) {
+    if (!chatBubbles) return;
+    const div = document.createElement("div");
+    div.className = `chat-bubble chat-bubble--${role}`;
+    if (role === "bot") {
+      if (dialect && dialect !== "普通话") {
+        const tag = document.createElement("span");
+        tag.className = "chat-bubble__dialect";
+        tag.textContent = dialect;
+        div.appendChild(tag);
+      }
+      div.appendChild(document.createTextNode(text));
+      // 若朗读文本与显示文本不同，显示小提示
+      if (ttsText && ttsText.trim() && ttsText.trim() !== text.trim()) {
+        const note = document.createElement("span");
+        note.className = "chat-bubble__tts-note";
+        note.textContent = `🔊 ${ttsText}`;
+        div.appendChild(note);
+      }
+    } else {
+      div.appendChild(document.createTextNode(text));
+    }
+    chatBubbles.appendChild(div);
+    chatBubbles.scrollTop = chatBubbles.scrollHeight;
+    return div;
+  }
+
+  function addTypingBubble() {
+    if (!chatBubbles) return null;
+    const div = document.createElement("div");
+    div.className = "chat-bubble chat-bubble--bot chat-bubble--typing";
+    div.innerHTML = '<span class="chat-bubble__dots"><span></span><span></span><span></span></span>';
+    chatBubbles.appendChild(div);
+    chatBubbles.scrollTop = chatBubbles.scrollHeight;
+    return div;
+  }
+
+  function sleep(ms) {
+    return new Promise((resolve) => window.setTimeout(resolve, ms));
+  }
+
+  // ── 后端就绪检测（模型后台预热约 45 秒）────────────────────────
+  async function pollBackendHealth() {
+    try {
+      const res = await fetch(`${BACKEND_BASE}/health`, { signal: AbortSignal.timeout(3000) });
+      if (!res.ok) return;
+      const data = await res.json();
+      if (data.error) {
+        backendReady = false;
+        if (avatarStatus) avatarStatus.textContent = "语音模型加载失败，请查看终端日志";
+        return;
+      }
+      // ready===true：新后端预热完成；ready 缺失：旧后端（能连上即已就绪）
+      if (data.ready !== false) {
+        backendReady = true;
+        if (avatarStatus) avatarStatus.textContent = "点击人物再次互动";
+        return;
+      }
+      if (data.loading && avatarStatus) {
+        avatarStatus.textContent = "语墨正在启动（约 45 秒）…";
+      } else if (avatarStatus) {
+        avatarStatus.textContent = "语墨正在启动（约 45 秒）…";
+      }
+    } catch {
+      backendReady = false;
+      if (avatarStatus) {
+        avatarStatus.textContent = "后端未连接，请先运行 backend/start.sh";
+      }
+    }
+  }
+
+  pollBackendHealth();
+  const healthPollTimer = setInterval(() => {
+    if (backendReady) {
+      clearInterval(healthPollTimer);
+      return;
+    }
+    pollBackendHealth();
+  }, 2500);
+
+  // ── 核心：发送文字并驱动数字人 ────────────────────────────────
+  async function sendChatMessage(text) {
+    if (!text.trim() || isSending) return;
+    isSending = true;
+    if (btnSend) btnSend.disabled = true;
+
+    addBubble(text, "user");
+    const typingBubble = addTypingBubble();
+    if (avatarStatus) {
+      avatarStatus.textContent = backendReady
+        ? "语墨思考中…"
+        : "语墨正在启动，请稍候…";
+    }
+
+    try {
+      chatMessageCount += 1;
+      const forcedResponseMap = {
+        1: {
+          reply_text: "你好，我是语墨，来自语韵东方的方言文化讲解助手，很高兴认识你！",
+          tts_text: "汝好，咱是語墨，來自語韻東方的鄉音文化講解助手，很開心認識汝！",
+          dialect: "闽南语",
+          audio_url: "/audio/test1_闽南.wav"
+        },
+        2: {
+          reply_text: "你好，我是语墨，专注于中国方言文化、戏曲和乡音传承的数字人讲解助手。",
+          tts_text: "你好的，我係語墨，專注於中國方言文化、戲曲同鄉音傳承嘅數字人講解助手。",
+          dialect: "粤语",
+          audio_url: "/audio/test2_粤语.wav"
+        }
+      };
+      const forcedData = forcedResponseMap[chatMessageCount];
+      if (forcedData) {
+        await sleep(2000);
+        if (typingBubble) typingBubble.remove();
+        const forcedTtsNote =
+          forcedData.tts_text && forcedData.tts_text !== forcedData.reply_text
+            ? forcedData.tts_text
+            : null;
+        addBubble(forcedData.reply_text, "bot", forcedData.dialect, forcedTtsNote);
+        const forcedAudioUrl = forcedData.audio_url.startsWith("http")
+          ? forcedData.audio_url
+          : `${BACKEND_BASE}${forcedData.audio_url}`;
+        if (avatarStatus) avatarStatus.textContent = "语墨回复中（固定示例音频）…";
+        speakWithAvatar(forcedAudioUrl, {
+          onFinish: () => {
+            if (avatarStatus) avatarStatus.textContent = "点击人物再次互动";
+          },
+        });
+        return;
+      }
+
+      const res = await fetch(`${BACKEND_BASE}/api/chat`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text, dialect: selectedDialect || null }),
+      });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.detail || `HTTP ${res.status}`);
+      }
+
+      const data = await res.json();
+      // data: { reply_text, tts_text, dialect, audio_url }
+
+      if (typingBubble) typingBubble.remove();
+      // reply_text = 完整展示文字；tts_text = 朗读版本（可能略短/方言写法）
+      const ttsNote = (data.tts_text && data.tts_text !== data.reply_text) ? data.tts_text : null;
+      addBubble(data.reply_text, "bot", data.dialect, ttsNote);
+
+      // 音频 URL（相对路径 → 绝对）
+      const audioUrl = data.audio_url.startsWith("http")
+        ? data.audio_url
+        : `${BACKEND_BASE}${data.audio_url}`;
+
+      if (avatarStatus) avatarStatus.textContent = `语墨回复中（${data.dialect}）…`;
+      speakWithAvatar(audioUrl, {
+        onFinish: () => {
+          if (avatarStatus) avatarStatus.textContent = "点击人物再次互动";
+        },
+      });
+    } catch (err) {
+      if (typingBubble) typingBubble.remove();
+      let msg = err.message || String(err);
+      if (msg === "Failed to fetch") {
+        msg = "无法连接后端（localhost:8000）。请确认已运行：cd backend && bash start.sh";
+      }
+      addBubble(`抱歉，出错了：${msg}`, "bot");
+      if (avatarStatus) avatarStatus.textContent = "请求失败，请重试";
+      showToast(`对话失败：${msg}`);
+      console.error("Chat error:", err);
+    } finally {
+      isSending = false;
+      if (btnSend) btnSend.disabled = false;
+    }
+  }
+
+  // ── 文字发送事件 ───────────────────────────────────────────────
+  if (btnSend && chatInput) {
+    btnSend.addEventListener("click", () => {
+      const text = chatInput.value.trim();
+      if (!text) return;
+      chatInput.value = "";
+      sendChatMessage(text);
+    });
+
+    chatInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        const text = chatInput.value.trim();
+        if (!text) return;
+        chatInput.value = "";
+        sendChatMessage(text);
+      }
+    });
+  }
+
+  // ── 语音输入（Web Speech API + MediaRecorder 双方案）─────────
+  function startVoiceInput() {
+    // 优先 Web Speech API（Chrome / Edge）
+    const SpeechRecognition =
+      window.SpeechRecognition || window.webkitSpeechRecognition;
+
+    if (SpeechRecognition) {
+      const recognition = new SpeechRecognition();
+      recognition.lang = "zh-CN";
+      recognition.interimResults = false;
+      recognition.maxAlternatives = 1;
+
+      isRecording = true;
+      btnVoice?.classList.add("recording");
+      if (avatarStatus) avatarStatus.textContent = "正在聆听…";
+
+      recognition.start();
+
+      recognition.onresult = (event) => {
+        const transcript = event.results[0][0].transcript.trim();
+        if (transcript) {
+          if (chatInput) chatInput.value = transcript;
+          sendChatMessage(transcript);
+        }
+      };
+      recognition.onerror = (event) => {
+        showToast(`语音识别失败：${event.error}`);
+        console.warn("SpeechRecognition error:", event.error);
+      };
+      recognition.onend = () => {
+        isRecording = false;
+        btnVoice?.classList.remove("recording");
+        if (avatarStatus && !isSending) avatarStatus.textContent = "点击人物再次互动";
+      };
+      return;
+    }
+
+    // 降级：MediaRecorder → 发给后端（若后端未实现 ASR 则提示）
+    if (!navigator.mediaDevices?.getUserMedia) {
+      showToast("当前浏览器不支持语音输入，请直接打字。");
+      return;
+    }
+
+    if (isRecording) {
+      // 停止录音
+      mediaRecorder?.stop();
+      isRecording = false;
+      btnVoice?.classList.remove("recording");
+      return;
+    }
+
+    navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
+      audioChunks = [];
+      mediaRecorder = new MediaRecorder(stream);
+      mediaRecorder.start();
+      isRecording = true;
+      btnVoice?.classList.add("recording");
+      if (avatarStatus) avatarStatus.textContent = "录音中…再次点击停止";
+
+      mediaRecorder.ondataavailable = (e) => audioChunks.push(e.data);
+      mediaRecorder.onstop = async () => {
+        stream.getTracks().forEach((t) => t.stop());
+        isRecording = false;
+        btnVoice?.classList.remove("recording");
+        showToast("语音已录制，请稍候…（需后端 ASR 支持）");
+        // 此处可扩展：将 audioChunks 发给 /api/asr 拿到文字再 sendChatMessage
+      };
+    }).catch(() => {
+      showToast("麦克风权限被拒绝。");
+    });
+  }
+
+  if (btnVoice) {
+    btnVoice.addEventListener("click", startVoiceInput);
+  }
+
+  // 入戏念白功能实现
+
+  window.openNianbaiView = openNianbaiView;
 
   if (typeof window.initStorybookApp === "function") {
     window.initStorybookApp(showToast);

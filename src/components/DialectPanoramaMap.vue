@@ -252,136 +252,189 @@
     <teleport to="body">
       <div
         v-if="recordPanelOpen"
-        class="fixed inset-0 z-[60] flex items-center justify-center bg-[#152322]/45 p-4 backdrop-blur-sm"
+        class="upload-modal-backdrop fixed inset-0 z-[60] flex items-end justify-center bg-[#152322]/50 p-0 sm:items-center sm:p-4"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="upload-modal-title"
         @click.self="closeRecordPanel"
       >
         <div
-          class="w-full max-w-lg rounded-[1.25rem] border border-[rgba(58,143,138,0.15)] bg-gradient-to-b from-white/98 to-mist/90 p-6 shadow-card ring-1 ring-[rgba(58,143,138,0.08)]"
+          class="upload-modal flex max-h-[min(92dvh,680px)] w-full max-w-xl flex-col overflow-hidden rounded-t-[1.35rem] border border-[rgba(58,143,138,0.14)] bg-white shadow-[0_24px_60px_rgba(22,88,85,0.18)] sm:max-w-2xl sm:rounded-[1.35rem]"
           @click.stop
         >
-          <div class="mb-4 flex items-center justify-between">
-            <h3 class="text-lg font-semibold text-[#174a47]">方言录音上传</h3>
+          <header class="flex shrink-0 items-start justify-between gap-3 border-b border-[rgba(58,143,138,0.1)] px-5 py-4">
+            <div>
+              <h3 id="upload-modal-title" class="text-lg font-semibold tracking-tight text-[#174a47]">上传乡音</h3>
+              <p class="mt-0.5 text-xs leading-relaxed text-[#5d6e6d]">录一段方言原声，标注地区与类型后提交到地图</p>
+            </div>
             <button
               type="button"
-              class="rounded-full border border-[rgba(58,143,138,0.2)] px-2 py-1 text-sm text-[#5d6e6d] transition hover:border-brand hover:text-brand-deep"
+              class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-[#5d6e6d] transition hover:bg-mist/80 hover:text-[#174a47]"
+              aria-label="关闭"
               @click="closeRecordPanel"
             >
-              关闭
+              <span class="text-xl leading-none" aria-hidden="true">×</span>
             </button>
-          </div>
+          </header>
 
-          <div class="space-y-4 text-sm text-[#152322]">
-            <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              <label class="block">
-                <span class="mb-1 block text-xs text-[#5d6e6d]">省</span>
-                <select
-                  v-model="uploadProvince"
-                  class="w-full rounded-xl border border-[rgba(58,143,138,0.2)] bg-white/90 px-3 py-2 text-[#152322] outline-none focus:border-brand focus:ring-2 focus:ring-brand/20"
-                  @change="onUploadProvinceChange"
-                >
-                  <option value="">请选择</option>
-                  <option v-for="p in regionTree" :key="'u-' + p.name" :value="p.name">{{ p.name }}</option>
-                </select>
+          <div class="min-h-0 flex-1 overflow-y-auto px-5 py-4 text-sm text-[#152322]">
+            <section class="mb-5">
+              <h4 class="mb-2.5 text-xs font-semibold uppercase tracking-wider text-[#1a5c58]">所在地区</h4>
+              <div class="grid grid-cols-3 gap-2">
+                <label class="block min-w-0">
+                  <span class="mb-1 block text-[11px] text-[#5d6e6d]">省</span>
+                  <select
+                    v-model="uploadProvince"
+                    class="upload-field w-full"
+                    @change="onUploadProvinceChange"
+                  >
+                    <option value="">请选择</option>
+                    <option v-for="p in regionTree" :key="'u-' + p.name" :value="p.name">{{ p.name }}</option>
+                  </select>
+                </label>
+                <label class="block min-w-0">
+                  <span class="mb-1 block text-[11px] text-[#5d6e6d]">市</span>
+                  <select
+                    v-model="uploadCity"
+                    class="upload-field w-full"
+                    :disabled="!uploadProvince"
+                    @change="onUploadCityChange"
+                  >
+                    <option value="">请选择</option>
+                    <option v-for="c in uploadCityOptions" :key="'u-' + c.name" :value="c.name">{{ c.name }}</option>
+                  </select>
+                </label>
+                <label class="block min-w-0">
+                  <span class="mb-1 block text-[11px] text-[#5d6e6d]">区县</span>
+                  <select v-model="uploadDistrict" class="upload-field w-full" :disabled="!uploadCity">
+                    <option value="">请选择</option>
+                    <option v-for="d in uploadDistrictOptions" :key="'u-' + d" :value="d">{{ d }}</option>
+                  </select>
+                </label>
+              </div>
+              <p v-if="uploadAreaPreview" class="mt-2 text-xs text-brand-deep">
+                将标记为：<span class="font-medium">{{ uploadAreaPreview }}</span>
+              </p>
+              <p v-else class="mt-2 text-xs text-rose-600">请完整选择省、市、区县后再提交</p>
+            </section>
+
+            <section class="mb-5 grid gap-3 sm:grid-cols-2">
+              <label class="block sm:col-span-2">
+                <span class="mb-1 block text-[11px] text-[#5d6e6d]">方言类型 / 片区</span>
+                <input
+                  v-model="uploadDialect"
+                  type="text"
+                  placeholder="例如：吴语·杭州小片"
+                  class="upload-field w-full"
+                />
               </label>
               <label class="block">
-                <span class="mb-1 block text-xs text-[#5d6e6d]">市</span>
-                <select
-                  v-model="uploadCity"
-                  class="w-full rounded-xl border border-[rgba(58,143,138,0.2)] bg-white/90 px-3 py-2 text-[#152322] outline-none focus:border-brand focus:ring-2 focus:ring-brand/20 disabled:opacity-40"
-                  :disabled="!uploadProvince"
-                  @change="onUploadCityChange"
-                >
-                  <option value="">请选择</option>
-                  <option v-for="c in uploadCityOptions" :key="'u-' + c.name" :value="c.name">{{ c.name }}</option>
+                <span class="mb-1 block text-[11px] text-[#5d6e6d]">内容类型</span>
+                <select v-model="uploadContentType" class="upload-field w-full">
+                  <option v-for="t in contentTypes" :key="'ut-' + t" :value="t">{{ t }}</option>
                 </select>
               </label>
               <label class="block sm:col-span-2">
-                <span class="mb-1 block text-xs text-[#5d6e6d]">区县</span>
-                <select
-                  v-model="uploadDistrict"
-                  class="w-full rounded-xl border border-[rgba(58,143,138,0.2)] bg-white/90 px-3 py-2 text-[#152322] outline-none focus:border-brand focus:ring-2 focus:ring-brand/20 disabled:opacity-40"
-                  :disabled="!uploadCity"
-                >
-                  <option value="">请选择</option>
-                  <option v-for="d in uploadDistrictOptions" :key="'u-' + d" :value="d">{{ d }}</option>
-                </select>
+                <span class="mb-1 block text-[11px] text-[#5d6e6d]">文字说明（可选）</span>
+                <textarea
+                  v-model="uploadText"
+                  rows="2"
+                  class="upload-field w-full resize-none"
+                  placeholder="唱词、释义、场景说明等"
+                />
               </label>
-            </div>
+            </section>
 
-            <label class="block">
-              <span class="mb-1 block text-xs text-[#5d6e6d]">方言类型 / 片区</span>
-              <input
-                v-model="uploadDialect"
-                type="text"
-                placeholder="例如：吴语·杭州小片"
-                class="w-full rounded-xl border border-[rgba(58,143,138,0.2)] bg-white/90 px-3 py-2 text-[#152322] outline-none placeholder:text-[#7a8a89] focus:border-brand focus:ring-2 focus:ring-brand/20"
-              />
-            </label>
-
-            <label class="block">
-              <span class="mb-1 block text-xs text-[#5d6e6d]">内容类型</span>
-              <select
-                v-model="uploadContentType"
-                class="w-full rounded-xl border border-[rgba(58,143,138,0.2)] bg-white/90 px-3 py-2 text-[#152322] outline-none focus:border-brand focus:ring-2 focus:ring-brand/20"
-              >
-                <option v-for="t in contentTypes" :key="'ut-' + t" :value="t">{{ t }}</option>
-              </select>
-            </label>
-
-            <label class="block">
-              <span class="mb-1 block text-xs text-[#5d6e6d]">文字说明（可选）</span>
-              <textarea
-                v-model="uploadText"
-                rows="2"
-                class="w-full resize-none rounded-xl border border-[rgba(58,143,138,0.2)] bg-white/90 px-3 py-2 text-[#152322] outline-none placeholder:text-[#7a8a89] focus:border-brand focus:ring-2 focus:ring-brand/20"
-                placeholder="补充说明、注音或翻译等"
-              />
-            </label>
-
-            <div class="rounded-2xl border border-[rgba(58,143,138,0.12)] bg-white/80 p-4">
-              <div class="mb-2 text-xs text-[#5d6e6d]">录音控制</div>
-              <div class="flex flex-wrap gap-2">
-                <button
-                  type="button"
-                  class="rounded-xl bg-gradient-to-br from-[#7ed4ce] to-brand px-4 py-2 text-xs font-semibold text-white shadow-[0_6px_18px_rgba(26,92,88,0.22)] disabled:opacity-40"
-                  :disabled="isRecording"
-                  @click="startRecording"
+            <section
+              class="rounded-2xl border border-[rgba(58,143,138,0.14)] bg-gradient-to-b from-mist/50 to-white p-4"
+            >
+              <div class="mb-3 flex items-center justify-between gap-2">
+                <h4 class="text-xs font-semibold uppercase tracking-wider text-[#1a5c58]">录制音频</h4>
+                <span
+                  class="rounded-full px-2.5 py-0.5 text-[11px] font-medium"
+                  :class="
+                    isRecording
+                      ? 'bg-rose-50 text-rose-700 ring-1 ring-rose-200/80'
+                      : recordBlob
+                        ? 'bg-emerald-50 text-emerald-800 ring-1 ring-emerald-200/80'
+                        : 'bg-white text-[#5d6e6d] ring-1 ring-[rgba(58,143,138,0.12)]'
+                  "
                 >
-                  开始录音
-                </button>
+                  {{ recordStatusLabel }}
+                </span>
+              </div>
+
+              <div class="flex flex-col items-center py-2">
                 <button
                   type="button"
-                  class="rounded-xl border border-rose-400/55 bg-white/60 px-4 py-2 text-xs text-rose-700 disabled:opacity-40"
-                  :disabled="!isRecording"
-                  @click="stopRecording"
+                  class="record-mic-btn relative flex h-[4.5rem] w-[4.5rem] items-center justify-center rounded-full transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+                  :class="isRecording ? 'record-mic-btn--active' : recordBlob ? 'record-mic-btn--done' : 'record-mic-btn--idle'"
+                  :aria-label="isRecording ? '结束录音' : '开始录音'"
+                  @click="toggleMainRecord"
                 >
-                  结束录音
+                  <svg
+                    v-if="!isRecording"
+                    class="h-7 w-7 text-white"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    aria-hidden="true"
+                  >
+                    <path d="M12 14a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v5a3 3 0 0 0 3 3z" />
+                    <path d="M19 10v1a7 7 0 0 1-14 0v-1M12 18v3M8 21h8" />
+                  </svg>
+                  <span v-else class="h-5 w-5 rounded-sm bg-white" aria-hidden="true" />
                 </button>
+                <p class="mt-3 text-center text-sm text-[#3a4a49]">
+                  {{ isRecording ? '正在录音，点击按钮结束' : recordBlob ? '录音已就绪，可试听或重新录制' : '点击麦克风开始录制' }}
+                </p>
+                <p v-if="isRecording && recordDurationLabel" class="mt-1 font-mono text-xs tabular-nums text-rose-600">
+                  {{ recordDurationLabel }}
+                </p>
+              </div>
+
+              <div v-if="recordBlob && !isRecording" class="mt-1 flex justify-center gap-2 border-t border-[rgba(58,143,138,0.08)] pt-3">
                 <button
                   type="button"
-                  class="rounded-xl border border-[rgba(58,143,138,0.25)] bg-white/70 px-4 py-2 text-xs text-[#3a4a49] disabled:opacity-40"
-                  :disabled="!previewUrl"
+                  class="rounded-lg border border-[rgba(58,143,138,0.22)] bg-white px-4 py-2 text-xs font-medium text-[#1a5c58] transition hover:border-brand hover:bg-mist/60"
                   @click="togglePreviewPlayback"
                 >
                   {{ previewPlaying ? '停止试听' : '播放试听' }}
                 </button>
+                <button
+                  type="button"
+                  class="rounded-lg px-4 py-2 text-xs text-[#5d6e6d] transition hover:bg-white/80 hover:text-[#174a47]"
+                  @click="discardRecording"
+                >
+                  重新录制
+                </button>
               </div>
-              <p v-if="recordError" class="mt-2 text-xs text-rose-600">{{ recordError }}</p>
-              <p v-else class="mt-2 text-[11px] text-[#5d6e6d]">
-                使用浏览器 MediaRecorder 采集音频；结束录音后可试听再上传。
-              </p>
-              <audio v-show="false" ref="previewAudioRef" :src="previewUrl || undefined" @ended="previewPlaying = false" />
-            </div>
 
+              <p v-if="recordError" class="mt-3 text-center text-xs text-rose-600">{{ recordError }}</p>
+              <audio v-show="false" ref="previewAudioRef" :src="previewUrl || undefined" @ended="previewPlaying = false" />
+            </section>
+          </div>
+
+          <footer class="flex shrink-0 gap-3 border-t border-[rgba(58,143,138,0.1)] bg-white/95 px-5 py-4">
             <button
               type="button"
-              class="flex w-full items-center justify-center rounded-xl bg-gradient-to-r from-[#7ed4ce] via-brand to-[#2a726d] py-2.5 text-sm font-semibold text-white shadow-[0_8px_24px_rgba(26,92,88,0.28)] disabled:cursor-not-allowed disabled:opacity-40"
+              class="rounded-xl border border-[rgba(58,143,138,0.22)] px-5 py-2.5 text-sm font-medium text-[#3a4a49] transition hover:border-brand hover:bg-mist/50"
+              :disabled="uploading"
+              @click="closeRecordPanel"
+            >
+              取消
+            </button>
+            <button
+              type="button"
+              class="flex flex-1 items-center justify-center rounded-xl bg-gradient-to-r from-[#7ed4ce] via-brand to-[#2a726d] py-2.5 text-sm font-semibold text-white shadow-[0_8px_22px_rgba(26,92,88,0.25)] transition hover:brightness-[1.03] disabled:cursor-not-allowed disabled:opacity-45"
               :disabled="uploading || !recordBlob"
               @click="submitUpload"
             >
-              {{ uploading ? '上传中…' : '上传录音' }}
+              {{ uploading ? '提交中…' : '提交到地图' }}
             </button>
-          </div>
+          </footer>
         </div>
       </div>
     </teleport>
@@ -390,45 +443,15 @@
 
 <script setup>
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, shallowRef, watch } from 'vue'
+import { MAP_REGION_TREE, buildAreaString } from '../data/map-regions.js'
 
 /** 高德 Key（可按需替换为环境变量） */
 const AMAP_KEY = 'c7c2b7231fb6ed1d7ac88eb83c7d86c2'
 
 const contentTypes = ['方言', '戏曲', '民谣', '童谣', '民俗']
 
-/** 省市区三级示例数据（可按项目扩展为完整行政区划） */
-const regionTree = [
-  {
-    name: '浙江省',
-    cities: [
-      { name: '杭州市', districts: ['上城区', '拱墅区', '西湖区', '滨江区', '余杭区'] },
-      { name: '宁波市', districts: ['海曙区', '江北区', '鄞州区'] }
-    ]
-  },
-  {
-    name: '上海市',
-    cities: [{ name: '上海市', districts: ['黄浦区', '徐汇区', '浦东新区', '静安区'] }]
-  },
-  {
-    name: '北京市',
-    cities: [{ name: '北京市', districts: ['东城区', '西城区', '朝阳区', '海淀区'] }]
-  },
-  {
-    name: '广东省',
-    cities: [
-      { name: '广州市', districts: ['越秀区', '荔湾区', '天河区'] },
-      { name: '深圳市', districts: ['福田区', '南山区', '罗湖区'] }
-    ]
-  },
-  {
-    name: '四川省',
-    cities: [{ name: '成都市', districts: ['锦江区', '青羊区', '武侯区', '高新区'] }]
-  },
-  {
-    name: '江苏省',
-    cities: [{ name: '苏州市', districts: ['姑苏区', '虎丘区', '吴中区'] }]
-  }
-]
+/** 与侧栏筛选、上传表单共用（完整省市区） */
+const regionTree = MAP_REGION_TREE
 
 const sidebarCollapsed = ref(false)
 const selProvince = ref('')
@@ -504,10 +527,35 @@ const previewAudioRef = ref(null)
 const previewPlaying = ref(false)
 const recordError = ref('')
 const uploading = ref(false)
+const recordDurationSec = ref(0)
 
 let mediaRecorder = null
 let mediaChunks = []
 let recordStream = null
+let recordTimerId = null
+
+const uploadAreaPreview = computed(() => {
+  const p = uploadProvince.value
+  const c = uploadCity.value
+  const d = uploadDistrict.value
+  if (p && c && d) return `${p} / ${c} / ${d}`
+  if (p && c) return `${p} / ${c}`
+  if (p) return p
+  return ''
+})
+
+const recordStatusLabel = computed(() => {
+  if (isRecording.value) return '录音中'
+  if (recordBlob.value) return '已录制'
+  return '待录制'
+})
+
+const recordDurationLabel = computed(() => {
+  const s = recordDurationSec.value
+  const m = Math.floor(s / 60)
+  const r = s % 60
+  return `${String(m).padStart(2, '0')}:${String(r).padStart(2, '0')}`
+})
 
 const filteredPoints = computed(() => {
   const list = allPoints.value
@@ -650,9 +698,8 @@ function renderMarkers() {
   markers.value = ms
 }
 
-function onMarkerClicked(pt) {
-  selectedPoint.value = pt
-  panelOpen.value = true
+function playPointAudio(pt) {
+  if (!pt?.audioUrl) return
   void nextTick(() => {
     const el = detailAudioRef.value
     if (!el) return
@@ -662,6 +709,33 @@ function onMarkerClicked(pt) {
     const p = el.play()
     if (p && typeof p.catch === 'function') p.catch(() => {})
   })
+}
+
+function onMarkerClicked(pt) {
+  selectedPoint.value = pt
+  panelOpen.value = true
+  playPointAudio(pt)
+}
+
+/** 上传成功后：同步侧栏筛选、地图定位到新标点并播放 */
+function focusUploadedPoint(point) {
+  if (!point?.location) return
+  const parts = String(point.area || '').split('/')
+  if (parts[0]) {
+    selProvince.value = parts[0]
+    selCity.value = parts[1] || ''
+    selDistrict.value = parts[2] || ''
+  }
+  if (point.type && !selectedTypes.value.includes(point.type)) {
+    selectedTypes.value = []
+  }
+  renderMarkers()
+  const map = mapInstance.value
+  const { lng, lat } = point.location
+  if (map && typeof lng === 'number' && typeof lat === 'number') {
+    map.setZoomAndCenter(11, [lng, lat], true)
+  }
+  onMarkerClicked(point)
 }
 
 function closeDetailPanel() {
@@ -767,11 +841,37 @@ function revokePreview() {
   }
 }
 
+function clearRecordTimer() {
+  if (recordTimerId != null) {
+    window.clearInterval(recordTimerId)
+    recordTimerId = null
+  }
+  recordDurationSec.value = 0
+}
+
+function discardRecording() {
+  if (isRecording.value) stopRecording()
+  revokePreview()
+  recordBlob.value = null
+  previewPlaying.value = false
+  recordError.value = ''
+  clearRecordTimer()
+}
+
+function toggleMainRecord() {
+  if (isRecording.value) {
+    stopRecording()
+    return
+  }
+  startRecording()
+}
+
 async function startRecording() {
   recordError.value = ''
   revokePreview()
   recordBlob.value = null
   previewPlaying.value = false
+  clearRecordTimer()
   if (!navigator.mediaDevices?.getUserMedia) {
     recordError.value = '当前浏览器不支持录音。'
     return
@@ -799,13 +899,19 @@ async function startRecording() {
     }
     mediaRecorder.start()
     isRecording.value = true
+    recordDurationSec.value = 0
+    recordTimerId = window.setInterval(() => {
+      recordDurationSec.value += 1
+    }, 1000)
   } catch (e) {
     console.error(e)
     recordError.value = '无法访问麦克风，请授予权限后重试。'
+    clearRecordTimer()
   }
 }
 
 function stopRecording() {
+  clearRecordTimer()
   if (!mediaRecorder || mediaRecorder.state === 'inactive') {
     isRecording.value = false
     return
@@ -836,6 +942,9 @@ function openRecordPanel() {
 function closeRecordPanel() {
   recordPanelOpen.value = false
   if (isRecording.value) stopRecording()
+  previewPlaying.value = false
+  const a = previewAudioRef.value
+  if (a) a.pause()
 }
 
 function syncUploadRegionFromFilter() {
@@ -850,14 +959,14 @@ async function submitUpload() {
     return
   }
   if (!uploadProvince.value || !uploadCity.value || !uploadDistrict.value) {
-    window.alert('请完整选择省 / 市 / 区县。')
+    window.alert('请完整选择省、市、区县。')
     return
   }
   if (!uploadDialect.value.trim()) {
     window.alert('请填写方言类型 / 片区。')
     return
   }
-  const area = `${uploadProvince.value}/${uploadCity.value}/${uploadDistrict.value}`
+  const area = buildAreaString(uploadProvince.value, uploadCity.value, uploadDistrict.value)
   const fd = new FormData()
   const ext = recordBlob.value.type.includes('webm') ? 'webm' : recordBlob.value.type.includes('mp4') ? 'm4a' : 'dat'
   fd.append('file', recordBlob.value, `dialect-${Date.now()}.${ext}`)
@@ -865,6 +974,7 @@ async function submitUpload() {
   fd.append('dialect', uploadDialect.value.trim())
   fd.append('type', uploadContentType.value)
   fd.append('content', uploadText.value.trim())
+  fd.append('nickname', '我')
   uploading.value = true
   try {
     const res = await fetch('/api/map/upload', { method: 'POST', body: fd })
@@ -872,12 +982,20 @@ async function submitUpload() {
     if (!res.ok || (json.code !== undefined && json.code !== 0)) {
       throw new Error(json.message || `上传失败（${res.status}）`)
     }
-    window.alert('上传成功')
+    const newPoint = json.data?.point
     closeRecordPanel()
     revokePreview()
     recordBlob.value = null
     await fetchMapPoints()
-    renderMarkers()
+    const point =
+      newPoint ||
+      allPoints.value.find((p) => p.id === json.data?.id) ||
+      allPoints.value[allPoints.value.length - 1]
+    if (point) {
+      focusUploadedPoint(point)
+    } else {
+      renderMarkers()
+    }
   } catch (e) {
     console.error(e)
     window.alert(e.message || '上传失败')
@@ -896,6 +1014,7 @@ onBeforeUnmount(() => {
     mapInstance.value.destroy()
     mapInstance.value = null
   }
+  clearRecordTimer()
   revokePreview()
   if (recordStream) {
     recordStream.getTracks().forEach((t) => t.stop())
@@ -905,6 +1024,60 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
+.upload-field {
+  border-radius: 0.75rem;
+  border: 1px solid rgba(58, 143, 138, 0.2);
+  background: rgba(255, 255, 255, 0.95);
+  padding: 0.5rem 0.75rem;
+  color: #152322;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.upload-field:focus {
+  border-color: #3a8f8a;
+  box-shadow: 0 0 0 3px rgba(58, 143, 138, 0.18);
+}
+
+.upload-field:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.upload-field::placeholder {
+  color: #7a8a89;
+}
+
+.record-mic-btn--idle {
+  background: linear-gradient(145deg, #7ed4ce 0%, #3a8f8a 55%, #2a726d 100%);
+  box-shadow: 0 10px 28px rgba(26, 92, 88, 0.32);
+}
+
+.record-mic-btn--idle:hover {
+  filter: brightness(1.05);
+}
+
+.record-mic-btn--active {
+  background: linear-gradient(145deg, #f87171 0%, #e11d48 100%);
+  box-shadow: 0 0 0 6px rgba(244, 63, 94, 0.2), 0 10px 28px rgba(225, 29, 72, 0.35);
+  animation: record-pulse 1.4s ease-in-out infinite;
+}
+
+.record-mic-btn--done {
+  background: linear-gradient(145deg, #6ee7b7 0%, #3a8f8a 100%);
+  box-shadow: 0 8px 22px rgba(58, 143, 138, 0.28);
+}
+
+@keyframes record-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.04);
+  }
+}
+
 .slide-fade-enter-active,
 .slide-fade-leave-active {
   transition: transform 0.28s ease, opacity 0.28s ease;
