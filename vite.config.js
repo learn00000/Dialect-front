@@ -144,7 +144,7 @@ function dialectMapMockPlugin() {
 
         if (cleanUrl === '/api/tts/synthesize' && req.method === 'POST') {
           readJsonBody(req).then((body) => {
-            const text = typeof body.text === 'string' ? body.text : '你好，我是水墨数字人，正在展示口型同步效果。'
+            const text = typeof body.text === 'string' ? body.text : '你好，我是语墨，正在展示口型同步效果。'
             const id = String(Date.now())
             MOCK_TTS_AUDIO.set(id, createMockTtsWav(text))
             res.setHeader('Content-Type', 'application/json; charset=utf-8')

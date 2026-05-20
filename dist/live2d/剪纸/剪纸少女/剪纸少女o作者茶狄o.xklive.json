@@ -1,0 +1,424 @@
+﻿{
+  "Version": 0,
+  "Name": "剪纸少女o作者茶狄o",
+  "FileReference": {
+    "Icon": "https://xk-live-cn-1302951512.cos.ap-guangzhou.myqcloud.com/xk_client/XKBC_AVATAR/RELEASE/29263/579876ee0e2bb26f55189347c81264e6.png",
+    "Model": "G:\\我的建模作品们\\￥￥￥出售模型￥￥￥\\剪纸女孩\\模型文件包\\剪纸少女o作者茶狄o\\剪纸少女o作者茶狄o.model3.json"
+  },
+  "Transform": {
+    "Position": {
+      "X": 0.0,
+      "Y": 0.0,
+      "Z": 0.0
+    },
+    "Rotation": {
+      "X": 0.0,
+      "Y": 0.0,
+      "Z": 0.0
+    },
+    "Scale": {
+      "X": 0.0,
+      "Y": 0.0,
+      "Z": 0.0
+    }
+  },
+  "PhysicsSetting": {
+    "Enable": true,
+    "Strength": 50
+  },
+  "CollideSetting": {
+    "Collides": [
+      {
+        "Position": {
+          "X": 0.0,
+          "Y": 0.0,
+          "Z": 0.0
+        },
+        "Radius": 0.2,
+        "Height": 1.0
+      }
+    ]
+  },
+  "PosMovementSetting": {
+    "Enable": false,
+    "X": 50,
+    "Y": 50,
+    "Z": 50
+  },
+  "CaptureSetting": {
+    "BlinkSensitivity": 100,
+    "BrowSensitivity": 99,
+    "SmileSensitivity": 100,
+    "OpenMouthSensitivity": 100,
+    "HeadRotationSensitivity": 100,
+    "BodyRotationSensitivity": 100,
+    "EyeBlinkMirror": false,
+    "BrowMirror": false,
+    "AutoEyeBlink": false
+  },
+  "ExpressionSetting": {
+    "ResetHotKey": "",
+    "Expressions": [
+      {
+        "Name": "刘海",
+        "ExpFile": "刘海.exp3.json",
+        "HotKey": ""
+      },
+      {
+        "Name": "发髻1",
+        "ExpFile": "发髻1.exp3.json",
+        "HotKey": ""
+      },
+      {
+        "Name": "发髻2",
+        "ExpFile": "发髻2.exp3.json",
+        "HotKey": ""
+      },
+      {
+        "Name": "发髻3",
+        "ExpFile": "发髻3.exp3.json",
+        "HotKey": ""
+      },
+      {
+        "Name": "变大小",
+        "ExpFile": "变大小.exp3.json",
+        "HotKey": ""
+      },
+      {
+        "Name": "召唤蝴蝶",
+        "ExpFile": "召唤蝴蝶.exp3.json",
+        "HotKey": ""
+      },
+      {
+        "Name": "后发",
+        "ExpFile": "后发.exp3.json",
+        "HotKey": ""
+      },
+      {
+        "Name": "呆毛",
+        "ExpFile": "呆毛.exp3.json",
+        "HotKey": ""
+      },
+      {
+        "Name": "头饰",
+        "ExpFile": "头饰.exp3.json",
+        "HotKey": ""
+      },
+      {
+        "Name": "小辫子 ",
+        "ExpFile": "小辫子 .exp3.json",
+        "HotKey": ""
+      },
+      {
+        "Name": "抱猫咪",
+        "ExpFile": "抱猫咪.exp3.json",
+        "HotKey": ""
+      },
+      {
+        "Name": "拿扇子",
+        "ExpFile": "拿扇子.exp3.json",
+        "HotKey": ""
+      },
+      {
+        "Name": "斗篷",
+        "ExpFile": "斗篷.exp3.json",
+        "HotKey": ""
+      },
+      {
+        "Name": "眼睛",
+        "ExpFile": "眼睛.exp3.json",
+        "HotKey": ""
+      },
+      {
+        "Name": "鬓发4",
+        "ExpFile": "鬓发4.exp3.json",
+        "HotKey": ""
+      }
+    ]
+  },
+  "MotionSetting": {
+    "IdleMotionFile": "",
+    "NoCaptureMotionFile": "",
+    "Motions": [
+      {
+        "Name": "蝴蝶",
+        "MotionFile": "蝴蝶.motion3.json",
+        "IsLoop": false,
+        "HotKey": "",
+        "IsKeepEndingFrame": false
+      }
+    ]
+  },
+  "Parameters": [
+    {
+      "Enable": true,
+      "Input": "FaceAngleX",
+      "InputMin": -1.0,
+      "InputMax": 1.0,
+      "InputClamp": true,
+      "Output": "ParamAngleX",
+      "OutputMin": -30.0,
+      "OutputMax": 30.0,
+      "OutputClamp": true,
+      "Smooth": 50,
+      "OutputInvert": false
+    },
+    {
+      "Enable": true,
+      "Input": "FaceAngleY",
+      "InputMin": -1.0,
+      "InputMax": 1.0,
+      "InputClamp": true,
+      "Output": "ParamAngleY",
+      "OutputMin": -30.0,
+      "OutputMax": 30.0,
+      "OutputClamp": true,
+      "Smooth": 50,
+      "OutputInvert": false
+    },
+    {
+      "Enable": true,
+      "Input": "FaceAngleZ",
+      "InputMin": -1.0,
+      "InputMax": 1.0,
+      "InputClamp": true,
+      "Output": "ParamAngleZ",
+      "OutputMin": -30.0,
+      "OutputMax": 30.0,
+      "OutputClamp": true,
+      "Smooth": 50,
+      "OutputInvert": false
+    },
+    {
+      "Enable": true,
+      "Input": "FaceAngleX",
+      "InputMin": -1.0,
+      "InputMax": 1.0,
+      "InputClamp": true,
+      "Output": "ParamBodyAngleX",
+      "OutputMin": -10.0,
+      "OutputMax": 10.0,
+      "OutputClamp": true,
+      "Smooth": 50,
+      "OutputInvert": false
+    },
+    {
+      "Enable": true,
+      "Input": "FaceAngleY",
+      "InputMin": -1.0,
+      "InputMax": 1.0,
+      "InputClamp": true,
+      "Output": "ParamBodyAngleY",
+      "OutputMin": -10.0,
+      "OutputMax": 10.0,
+      "OutputClamp": true,
+      "Smooth": 50,
+      "OutputInvert": false
+    },
+    {
+      "Enable": true,
+      "Input": "FaceAngleZ",
+      "InputMin": -1.0,
+      "InputMax": 1.0,
+      "InputClamp": true,
+      "Output": "ParamBodyAngleZ",
+      "OutputMin": -10.0,
+      "OutputMax": 10.0,
+      "OutputClamp": true,
+      "Smooth": 50,
+      "OutputInvert": false
+    },
+    {
+      "Enable": true,
+      "Input": "EyeLOpen",
+      "InputMin": -1.0,
+      "InputMax": 1.0,
+      "InputClamp": true,
+      "Output": "ParamEyeLOpen",
+      "OutputMin": 0.0,
+      "OutputMax": 1.0,
+      "OutputClamp": true,
+      "Smooth": 50,
+      "OutputInvert": false
+    },
+    {
+      "Enable": true,
+      "Input": "EyeROpen",
+      "InputMin": -1.0,
+      "InputMax": 1.0,
+      "InputClamp": true,
+      "Output": "ParamEyeROpen",
+      "OutputMin": 0.0,
+      "OutputMax": 1.0,
+      "OutputClamp": true,
+      "Smooth": 50,
+      "OutputInvert": false
+    },
+    {
+      "Enable": true,
+      "Input": "EyeBallX",
+      "InputMin": -1.0,
+      "InputMax": 1.0,
+      "InputClamp": true,
+      "Output": "ParamEyeBallX",
+      "OutputMin": -1.0,
+      "OutputMax": 1.0,
+      "OutputClamp": true,
+      "Smooth": 50,
+      "OutputInvert": false
+    },
+    {
+      "Enable": true,
+      "Input": "EyeBallY",
+      "InputMin": -1.0,
+      "InputMax": 1.0,
+      "InputClamp": true,
+      "Output": "ParamEyeBallY",
+      "OutputMin": -1.0,
+      "OutputMax": 1.0,
+      "OutputClamp": true,
+      "Smooth": 50,
+      "OutputInvert": false
+    },
+    {
+      "Enable": true,
+      "Input": "BrowLY",
+      "InputMin": -1.0,
+      "InputMax": 1.0,
+      "InputClamp": true,
+      "Output": "ParamBrowLY",
+      "OutputMin": -1.0,
+      "OutputMax": 1.0,
+      "OutputClamp": true,
+      "Smooth": 50,
+      "OutputInvert": false
+    },
+    {
+      "Enable": true,
+      "Input": "BrowRY",
+      "InputMin": -1.0,
+      "InputMax": 1.0,
+      "InputClamp": true,
+      "Output": "ParamBrowRY",
+      "OutputMin": -1.0,
+      "OutputMax": 1.0,
+      "OutputClamp": true,
+      "Smooth": 50,
+      "OutputInvert": false
+    },
+    {
+      "Enable": true,
+      "Input": "BrowLForm",
+      "InputMin": -1.0,
+      "InputMax": 1.0,
+      "InputClamp": true,
+      "Output": "ParamBrowLForm",
+      "OutputMin": -1.0,
+      "OutputMax": 1.0,
+      "OutputClamp": true,
+      "Smooth": 50,
+      "OutputInvert": false
+    },
+    {
+      "Enable": true,
+      "Input": "BrowRForm",
+      "InputMin": -1.0,
+      "InputMax": 1.0,
+      "InputClamp": true,
+      "Output": "ParamBrowRForm",
+      "OutputMin": -1.0,
+      "OutputMax": 1.0,
+      "OutputClamp": true,
+      "Smooth": 50,
+      "OutputInvert": false
+    },
+    {
+      "Enable": true,
+      "Input": "MouthOpen",
+      "InputMin": -1.0,
+      "InputMax": 1.0,
+      "InputClamp": true,
+      "Output": "ParamMouthOpenY",
+      "OutputMin": 0.0,
+      "OutputMax": 1.0,
+      "OutputClamp": true,
+      "Smooth": 50,
+      "OutputInvert": false
+    },
+    {
+      "Enable": true,
+      "Input": "MouthSmile",
+      "InputMin": -1.0,
+      "InputMax": 1.0,
+      "InputClamp": true,
+      "Output": "ParamMouthForm",
+      "OutputMin": -1.0,
+      "OutputMax": 1.0,
+      "OutputClamp": true,
+      "Smooth": 50,
+      "OutputInvert": false
+    },
+    {
+      "Enable": true,
+      "Input": "MouthSmile",
+      "InputMin": -1.0,
+      "InputMax": 0.0,
+      "InputClamp": true,
+      "Output": "ParamEyeLSmile",
+      "OutputMin": 0.0,
+      "OutputMax": 1.0,
+      "OutputClamp": true,
+      "Smooth": 50,
+      "OutputInvert": false
+    },
+    {
+      "Enable": true,
+      "Input": "MouthSmile",
+      "InputMin": -1.0,
+      "InputMax": 0.0,
+      "InputClamp": true,
+      "Output": "ParamEyeRSmile",
+      "OutputMin": 0.0,
+      "OutputMax": 1.0,
+      "OutputClamp": true,
+      "Smooth": 50,
+      "OutputInvert": false
+    },
+    {
+      "Enable": true,
+      "Input": "Breath",
+      "InputMin": -1.0,
+      "InputMax": 1.0,
+      "InputClamp": true,
+      "Output": "ParamBreath",
+      "OutputMin": 0.0,
+      "OutputMax": 1.0,
+      "OutputClamp": true,
+      "Smooth": 50,
+      "OutputInvert": false
+    },
+    {
+      "Enable": true,
+      "Input": "CheekPuff",
+      "InputMin": -1.0,
+      "InputMax": 1.0,
+      "InputClamp": true,
+      "Output": "ParamCheek",
+      "OutputMin": 0.0,
+      "OutputMax": 1.0,
+      "OutputClamp": true,
+      "Smooth": 50,
+      "OutputInvert": false
+    }
+  ],
+  "DecorationSettings": {
+    "CurrentScheme": 0,
+    "DecorationSchemes": [
+      {
+        "Name": "默认方案",
+        "HotKey": "",
+        "Decorations": []
+      }
+    ]
+  }
+}

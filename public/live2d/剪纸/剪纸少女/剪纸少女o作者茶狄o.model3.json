@@ -1,0 +1,96 @@
+{
+	"Version": 3,
+	"FileReferences": {
+		"Moc": "剪纸少女o作者茶狄o.moc3",
+		"Textures": [
+			"剪纸少女.4096/texture_00.jpg"
+		],
+		"Physics": "剪纸少女o作者茶狄o.physics3.json",
+		"DisplayInfo": "剪纸少女o作者茶狄o.cdi3.json",
+		"Expressions": [
+			{
+				"Name": "刘海",
+				"File": "刘海.exp3.json"
+			},
+			{
+				"Name": "发髻1",
+				"File": "发髻1.exp3.json"
+			},
+			{
+				"Name": "发髻2",
+				"File": "发髻2.exp3.json"
+			},
+			{
+				"Name": "发髻3",
+				"File": "发髻3.exp3.json"
+			},
+			{
+				"Name": "变大小",
+				"File": "变大小.exp3.json"
+			},
+			{
+				"Name": "召唤蝴蝶",
+				"File": "召唤蝴蝶.exp3.json"
+			},
+			{
+				"Name": "后发",
+				"File": "后发.exp3.json"
+			},
+			{
+				"Name": "呆毛",
+				"File": "呆毛.exp3.json"
+			},
+			{
+				"Name": "头饰",
+				"File": "头饰.exp3.json"
+			},
+			{
+				"Name": "小辫子 ",
+				"File": "小辫子 .exp3.json"
+			},
+			{
+				"Name": "抱猫咪",
+				"File": "抱猫咪.exp3.json"
+			},
+			{
+				"Name": "拿扇子",
+				"File": "拿扇子.exp3.json"
+			},
+			{
+				"Name": "斗篷",
+				"File": "斗篷.exp3.json"
+			},
+			{
+				"Name": "眼睛",
+				"File": "眼睛.exp3.json"
+			},
+			{
+				"Name": "鬓发4",
+				"File": "鬓发4.exp3.json"
+			}
+		],
+		"Motions": {
+			"": [
+				{
+					"File": "蝴蝶.motion3.json"
+				}
+			]
+		}
+	},
+	"Groups": [
+		{
+			"Target": "Parameter",
+			"Name": "EyeBlink",
+			"Ids": [
+				"ParamEyeLOpen",
+				"ParamEyeROpen"
+			]
+		},
+		{
+			"Target": "Parameter",
+			"Name": "LipSync",
+			"Ids": []
+		}
+	],
+	"HitAreas": []
+}
