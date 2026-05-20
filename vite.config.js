@@ -1,13 +1,25 @@
-import { defineConfig } from 'vite'
+import { defineConfig, loadEnv } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import { cpSync, createReadStream, existsSync, mkdirSync, statSync } from 'node:fs'
 import { extname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { buildStorybookResponse } from './js/storybook-mock.mjs'
+import { generateStorybookWithBailian, getBailianConfig } from './js/storybook-bailian.mjs'
 
 const __dirname = fileURLToPath(new URL('.', import.meta.url))
 
-/** 开发环境 Mock：GET 点位、POST 上传（消费 multipart 体后返回成功） */
-function dialectMapMockPlugin() {
+/** 开发环境 Mock / 百炼代理：GET 点位、POST 上传、戏曲绘本生成 */
+function dialectMapMockPlugin(env = {}) {
+  const bailian = getBailianConfig(env)
+  if (bailian.useFixtures) {
+    console.log('[storybook] 测试模式：粤剧·牡丹亭 优先使用 assets/storybook-test/mudanting 缓存')
+  } else if (bailian.apiKey) {
+    console.log(
+      `[storybook] 百炼已启用：文本 ${bailian.chatModel}，图像 ${bailian.imageModel}`
+    )
+  } else {
+    console.log('[storybook] 未配置 DASHSCOPE_API_KEY，使用本地 Mock')
+  }
   const MOCK_TTS_AUDIO = new Map()
   const MOCK_POINTS = [
     {
@@ -142,6 +154,31 @@ function dialectMapMockPlugin() {
       server.middlewares.use((req, res, next) => {
         const url = req.url || ''
         const cleanUrl = url.split('?')[0]
+
+        if (cleanUrl === '/api/storybook/generate' && req.method === 'POST') {
+          readJsonBody(req)
+            .then(async (body) => {
+              const dialect = typeof body.dialect === 'string' ? body.dialect : '粤语'
+              const opera = typeof body.opera === 'string' ? body.opera : '粤剧《牡丹亭》'
+              const role = typeof body.role === 'string' ? body.role : '杜丽娘（闺门旦）'
+              res.setHeader('Content-Type', 'application/json; charset=utf-8')
+              try {
+                const payload = await generateStorybookWithBailian(env, { dialect, opera, role })
+                res.statusCode = 200
+                res.end(JSON.stringify(payload))
+              } catch (err) {
+                console.error('[storybook] generate failed, fallback mock:', err)
+                res.statusCode = 200
+                res.end(JSON.stringify(buildStorybookResponse(dialect, opera, role)))
+              }
+            })
+            .catch((err) => {
+              console.error('[storybook] request error:', err)
+              res.statusCode = 500
+              res.end(JSON.stringify({ success: false, message: '服务器处理失败' }))
+            })
+          return
+        }
 
         if (cleanUrl === '/api/tts/synthesize' && req.method === 'POST') {
           readJsonBody(req).then((body) => {
@@ -327,13 +364,19 @@ function copyHomeStaticAssetsPlugin() {
         mkdirSync(distDir, { recursive: true })
         cpSync(jsSrc, join(distDir, 'js'), { recursive: true })
       }
+      const storybookTest = resolve(__dirname, 'assets', 'storybook-test')
+      if (existsSync(storybookTest)) {
+        cpSync(storybookTest, join(distDir, 'assets', 'storybook-test'), { recursive: true })
+      }
     }
   }
 }
 
-export default defineConfig({
+export default defineConfig(({ mode }) => {
+  const env = loadEnv(mode, process.cwd(), '')
+  return {
   base: './',
-  plugins: [vue(), dialectMapMockPlugin(), videoStitchStaticPlugin(), videoLearnStaticPlugin(), copyHomeStaticAssetsPlugin()],
+  plugins: [vue(), dialectMapMockPlugin(env), videoStitchStaticPlugin(), videoLearnStaticPlugin(), copyHomeStaticAssetsPlugin()],
   server: { port: 5173 },
   build: {
     rollupOptions: {
@@ -346,4 +389,5 @@ export default defineConfig({
   }
   // 生产环境或接入真实后端时：删除 dialectMapMockPlugin，并在 server 中配置 proxy，例如：
   // server: { port: 5173, proxy: { '/api': 'http://127.0.0.1:8080' } }
+  }
 })
