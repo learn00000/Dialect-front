@@ -1,0 +1,10 @@
+{
+	"Type": "Live2D Expression",
+	"Parameters": [
+		{
+			"Id": "ParamBreath4",
+			"Value": 1,
+			"Blend": "Add"
+		}
+	]
+}
