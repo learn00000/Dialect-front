@@ -1216,6 +1216,366 @@
     showAvatarLoading(false);
     if (!live2dApp) {
       initLive2DAvatar();
+      return;
+    }
+    if (live2dApp.ticker && !live2dApp.ticker.started) {
+      live2dApp.ticker.start();
+    }
+    reloadLive2DModel();
+  }
+
+  function prepareLive2DForHiddenView() {
+    avatarFacingFront = false;
+    avatarReloadRequested = true;
+    if (live2dModel) {
+      try { live2dModel.stopSpeaking?.(); } catch (_) {}
+    }
+  }
+
+  function showAvatarLoading(show) {
+    const el = document.getElementById("live2d-loading");
+    if (!el) return;
+    el.hidden = !show;
+  }
+
+  async function reloadLive2DModel() {
+    if (!live2dApp || !window.PIXI?.live2d?.Live2DModel) return;
+    if (!avatarReloadRequested) {
+      scheduleLive2DRefit();
+      return;
+    }
+    if (avatarReloadPromise) return avatarReloadPromise;
+
+    const modelUrl = digitalHost?.dataset?.live2dModel;
+    if (!modelUrl) return;
+
+    showAvatarLoading(true);
+    avatarReloadPromise = (async () => {
+      try {
+        const previous = live2dModel;
+        const Live2DModel = window.PIXI.live2d.Live2DModel;
+        const fresh = await Live2DModel.from(modelUrl);
+        live2dApp.stage.addChild(fresh);
+        if (previous) {
+          live2dApp.stage.removeChild(previous);
+          try { previous.destroy({ children: true, texture: false, baseTexture: false }); } catch (_) {}
+        }
+        live2dModel = fresh;
+        avatarBaseBounds = null;
+        avatarFacingFront = false;
+        fitLive2DAvatar();
+        keepShuimoAvatarPartsVisible();
+        hideShuimoWatermark();
+        scheduleLive2DRefit();
+        avatarReloadRequested = false;
+        if (avatarStatus) avatarStatus.textContent = "点击人物测试口型同步";
+      } catch (error) {
+        console.error("Live2D 模型重载失败:", error);
+        if (avatarStatus) avatarStatus.textContent = "数字人恢复失败，请刷新页面";
+      } finally {
+        showAvatarLoading(false);
+        avatarReloadPromise = null;
+      }
+    })();
+    return avatarReloadPromise;
+  }
+
+  async function initLive2DAvatar() {
+    const modelUrl = digitalHost?.dataset?.live2dModel;
+    const canvas = document.getElementById("live2d-canvas");
+    const fallbackImg = digitalHost?.querySelector(".avatar-panel__img");
+
+    if (!canvas || !modelUrl) {
+      if (avatarStatus) avatarStatus.textContent = "未配置模型路径（可先使用静态图）";
+      return;
+    }
+
+    if (!window.PIXI || !window.PIXI.live2d?.Live2DModel) {
+      if (avatarStatus) avatarStatus.textContent = "Live2D 运行时未加载成功";
+      return;
+    }
+
+    showAvatarLoading(true);
+    try {
+      const frame = canvas.parentElement;
+      const frameRect = frame.getBoundingClientRect();
+
+      live2dApp = new window.PIXI.Application({
+        view: canvas,
+        width: Math.max(1, Math.round(frameRect.width)),
+        height: Math.max(1, Math.round(frameRect.height)),
+        autoDensity: true,
+        resolution: Math.min(window.devicePixelRatio || 1, 2),
+        antialias: true,
+        backgroundAlpha: 0
+      });
+
+      const Live2DModel = window.PIXI.live2d.Live2DModel;
+      live2dModel = await Live2DModel.from(modelUrl);
+
+      live2dApp.stage.addChild(live2dModel);
+      avatarBaseBounds = null;
+      avatarReloadRequested = false;
+      fitLive2DAvatar();
+      window.addEventListener("resize", scheduleLive2DRefit);
+      avatarResizeObserver = new ResizeObserver(scheduleLive2DRefit);
+      avatarResizeObserver.observe(frame);
+      live2dApp.ticker.add(keepAvatarFacingFront, undefined, -1000);
+
+      if (modelUrl.includes("水墨")) {
+        hideShuimoWatermark();
+        keepShuimoAvatarPartsVisible();
+        live2dApp.ticker.add(hideShuimoWatermark, undefined, -1000);
+        live2dApp.ticker.add(keepShuimoAvatarPartsVisible, undefined, -999);
+      }
+
+      fallbackImg?.classList.add("avatar-panel__img--hidden");
+      if (avatarStatus) avatarStatus.textContent = "点击人物测试口型同步";
+    } catch (error) {
+      console.error("Live2D 初始化失败:", error);
+      if (avatarStatus) avatarStatus.textContent = "模型加载失败，当前使用静态图";
+    } finally {
+      showAvatarLoading(false);
+    }
+  }
+
+  function fitLive2DAvatar() {
+    const canvas = document.getElementById("live2d-canvas");
+    const frame = canvas?.parentElement;
+    if (!live2dApp || !live2dModel || !frame) return;
+    if (!isHomeViewVisible()) return;
+
+    const frameRect = frame.getBoundingClientRect();
+    const width = Math.max(1, Math.round(frameRect.width));
+    const height = Math.max(1, Math.round(frameRect.height));
+    if (width < 20 || height < 20) return;
+    live2dApp.renderer.resize(width, height);
+
+    live2dModel.scale.set(1);
+    live2dModel.pivot.set(0, 0);
+    if (!avatarBaseBounds) {
+      const bounds = live2dModel.getLocalBounds();
+      avatarBaseBounds = {
+        x: bounds.x,
+        y: bounds.y,
+        width: bounds.width,
+        height: bounds.height
+      };
+    }
+
+    const bounds = avatarBaseBounds;
+    const scale = Math.min((width * AVATAR_FIT_SCALE) / bounds.width, (height * AVATAR_FIT_SCALE) / bounds.height);
+
+    live2dModel.pivot.set(bounds.x + bounds.width / 2, bounds.y + bounds.height / 2);
+    live2dModel.scale.set(scale);
+    live2dModel.x = width / 2;
+    live2dModel.y = height * AVATAR_Y_RATIO;
+  }
+
+  let currentSpeakAudio = null;
+
+  function _stopFallbackAudio() {
+    if (currentSpeakAudio) {
+      try { currentSpeakAudio.pause(); } catch (_) {}
+      currentSpeakAudio = null;
+    }
+  }
+
+  /**
+   * 数字人讲话：
+   * - 优先用 live2dModel.speak() 做嘴型同步（pixi-live2d-display-lipsyncpatch）
+   * - 同时挂一个 HTML5 audio 作为兜底，保证用户一定能听到声音
+   * - 讲话期间锁定面向正前方，停止鼠标追踪；讲完恢复
+   */
+  function speakWithAvatar(audioUrl, options = {}) {
+    if (!live2dModel || !audioUrl) return;
+
+    _stopFallbackAudio();
+    try { live2dModel.stopSpeaking?.(); } catch (_) {}
+
+    avatarFacingFront = true;
+    keepAvatarFacingFront();
+    if (avatarStatus) avatarStatus.textContent = "语墨正在讲话…";
+
+    const finish = (errored) => {
+      avatarFacingFront = false;
+      _stopFallbackAudio();
+      if (avatarStatus) {
+        avatarStatus.textContent = errored ? "语音播放失败" : "讲解完成";
+      }
+      if (errored && typeof options.onError === "function") options.onError(errored);
+      else if (!errored && typeof options.onFinish === "function") options.onFinish();
+    };
+
+    // 主路径：Live2D 嘴型同步（默认只播一路，避免回声）
+    try {
+      return live2dModel.speak(audioUrl, {
+        volume: 1,
+        crossOrigin: "anonymous",
+        ...options,
+        onFinish: () => finish(false),
+        onError: (err) => {
+          console.error("Live2D speak 错误，回退到 HTML5 Audio:", err);
+          try {
+            currentSpeakAudio = new Audio();
+            currentSpeakAudio.crossOrigin = "anonymous";
+            currentSpeakAudio.src = audioUrl;
+            currentSpeakAudio.volume = 1;
+            currentSpeakAudio.addEventListener("ended", () => finish(false), { once: true });
+            currentSpeakAudio.addEventListener("error", () => finish(err), { once: true });
+            currentSpeakAudio.play().catch(() => finish(err));
+          } catch (_) {
+            finish(err);
+          }
+        }
+      });
+    } catch (e) {
+      console.error("Live2D speak 抛错:", e);
+      // lipsync 不可用时回退到单路 HTML5 Audio
+      try {
+        currentSpeakAudio = new Audio();
+        currentSpeakAudio.crossOrigin = "anonymous";
+        currentSpeakAudio.src = audioUrl;
+        currentSpeakAudio.volume = 1;
+        currentSpeakAudio.addEventListener("ended", () => finish(false), { once: true });
+        currentSpeakAudio.addEventListener("error", () => finish(e), { once: true });
+        currentSpeakAudio.play().catch(() => finish(e));
+      } catch (_) {
+        finish(e);
+      }
+    }
+  }
+
+  async function synthesizeAvatarSpeech(text, options = {}) {
+    const base = (typeof BACKEND_BASE !== "undefined" && BACKEND_BASE) || "http://localhost:8000";
+    const response = await fetch(`${base}/api/tts/synthesize`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        text,
+        voice: options.voice || "jianzhi",
+        dialect: options.dialect || "demo"
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`TTS 接口请求失败：${response.status}`);
+    }
+
+    const result = await response.json();
+    if (result.code !== 0 || !result.data?.audioUrl) {
+      throw new Error(result.message || "TTS 接口未返回音频地址");
+    }
+
+    const url = result.data.audioUrl;
+    result.data.audioUrl = url.startsWith("http") ? url : `${base}${url}`;
+    return result.data;
+  }
+
+  // 注意：旧版的 demoAvatarLipSync 会硬编码合成"你好，我是水墨数字人..."这一长句，
+  // 在 CPU 上要 80+ 秒。已禁用，保留壳以兼容老 window.demoAvatarLipSync 调用。
+  async function demoAvatarLipSync(_text) {
+    showToast("请直接在下方输入框与语墨对话。");
+  }
+
+  function stopAvatarSpeaking() {
+    if (!live2dModel) return;
+    avatarFacingFront = false;
+    live2dModel.stopSpeaking();
+    if (avatarStatus) avatarStatus.textContent = "已停止讲解";
+  }
+
+  window.speakWithAvatar = speakWithAvatar;
+  window.synthesizeAvatarSpeech = synthesizeAvatarSpeech;
+  window.demoAvatarLipSync = demoAvatarLipSync;
+  window.stopAvatarSpeaking = stopAvatarSpeaking;
+
+  function toggleDigitalHost() {
+    // 点击数字人：若正在讲话则停止，否则什么也不做
+    // 注意：不再触发演示 TTS（之前会跑后端合成"你好，我是水墨数字人..."拖慢一切）
+    const isSpeakingNow =
+      currentSpeakAudio && !currentSpeakAudio.paused && !currentSpeakAudio.ended;
+    if (isSpeakingNow) {
+      try { live2dModel?.stopSpeaking?.(); } catch (_) {}
+      _stopFallbackAudio();
+      avatarFacingFront = false;
+      if (avatarStatus) avatarStatus.textContent = "已停止讲话";
+      showToast("已停止数字人讲话。");
+      return;
+    }
+    if (avatarStatus) {
+      avatarStatus.textContent = "请在下方输入框与语墨对话";
+    }
+  }
+
+  digitalHost?.addEventListener("click", toggleDigitalHost);
+  digitalHost?.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      toggleDigitalHost();
+    }
+  });
+
+  window.addEventListener("pageshow", (event) => {
+    if (!isHomeViewVisible()) return;
+
+    if (event.persisted && live2dApp && live2dModel) {
+      // BFCache 恢复：模型实例仍在内存，不需要重新加载，直接恢复视觉状态
+      avatarReloadRequested = false;
+      avatarFacingFront = false;
+      if (live2dApp.ticker && !live2dApp.ticker.started) {
+        live2dApp.ticker.start();
+      }
+      scheduleLive2DRefit();
+      if (avatarStatus) avatarStatus.textContent = "点击人物测试口型同步";
+      return;
+    }
+
+    // 非 BFCache（页面重新加载等场景）走完整恢复流程
+    restoreLive2DForVisibleHome();
+  });
+
+  digitalHost?.addEventListener("click", toggleDigitalHost);
+  digitalHost?.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      toggleDigitalHost();
+    }
+  });
+
+  window.addEventListener("pageshow", (event) => {
+    if (!isHomeViewVisible()) return;
+
+    if (event.persisted && live2dApp && live2dModel) {
+      // BFCache 恢复：模型实例仍在内存，不需要重新加载，直接恢复视觉状态
+      avatarReloadRequested = false;
+      avatarFacingFront = false;
+      if (live2dApp.ticker && !live2dApp.ticker.started) {
+        live2dApp.ticker.start();
+      }
+      keepShuimoAvatarPartsVisible();
+      hideShuimoWatermark();
+      scheduleLive2DRefit();
+      if (avatarStatus) avatarStatus.textContent = "点击人物测试口型同步";
+      return;
+    }
+
+    // 非 BFCache（页面重新加载等场景）走完整恢复流程
+    restoreLive2DForVisibleHome();
+  });
+
+  window.addEventListener("pagehide", prepareLive2DForHiddenView);
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) {
+      prepareLive2DForHiddenView();
+    } else if (isHomeViewVisible()) {
+      restoreLive2DForVisibleHome();
+    }
+  });
+
+  initLive2DAvatar();
 
 
   /* ═══════════════════════════════════════════════════════════════
