@@ -56,7 +56,7 @@
         <div
           class="avatar-panel"
           id="digital-human-host"
-          data-live2d-model="./live2d/水墨/水墨.model3.json"
+          data-live2d-model="/live2d/剪纸/剪纸少女/剪纸少女o作者茶狄o.model3.json"
           role="button"
           tabindex="0"
           aria-label="数字人接入区域，点击切换演示状态"
@@ -152,12 +152,64 @@
       </section>
     </main>
 
-    <section class="vision" id="vision">
-      <div class="vision__inner">
-        <h2 class="vision__title">活态保存 · 智能传播</h2>
-        <p class="vision__text">
-          我们关注无文字或文献稀缺的口传方言，通过<strong>合成 + 采集 + 交互</strong>闭环，把个人记忆转化为可检索、可训练、可体验的数字文化资产。
-        </p>
+    <section class="vision" id="vision" aria-label="与语墨对话">
+      <div class="chat-bar" id="chat-bar">
+        <div class="chat-bar__header" id="chat-bar-toggle" role="button" aria-expanded="true" aria-controls="chat-bar-body" title="点击折叠/展开对话框">
+          <span class="pulse-dot" aria-hidden="true"></span>
+          <span class="chat-bar__title">与语墨对话</span>
+          <span class="chat-bar__sub">问方言、聊文化，或让她用你喜欢的口音说一段</span>
+          <button type="button" class="chat-bar__collapse-btn" aria-label="折叠对话框" tabindex="-1">
+            <svg class="chat-bar__chevron" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <polyline points="6 9 12 15 18 9"/>
+            </svg>
+          </button>
+        </div>
+        <div class="chat-bar__body" id="chat-bar-body">
+        <div class="chat-bubbles" id="chat-bubbles" aria-live="polite" aria-label="对话记录"></div>
+        <div class="chat-input-row">
+          <button
+            type="button"
+            class="chat-voice-btn"
+            id="btn-voice-input"
+            aria-label="语音输入"
+            title="点击语音输入"
+          >
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <rect x="9" y="2" width="6" height="12" rx="3"/>
+              <path d="M5 10a7 7 0 0 0 14 0"/>
+              <line x1="12" y1="19" x2="12" y2="22"/>
+              <line x1="8"  y1="22" x2="16" y2="22"/>
+            </svg>
+            <span class="chat-voice-btn__label">语音</span>
+          </button>
+          <div class="chat-input-wrap">
+            <input
+              type="text"
+              class="chat-input"
+              id="chat-input"
+              placeholder="向语墨提问，或说「用四川话给我讲一段」…"
+              autocomplete="off"
+              maxlength="200"
+            />
+          </div>
+          <button type="button" class="chat-send-btn" id="btn-chat-send" aria-label="发送">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <line x1="22" y1="2" x2="11" y2="13"/>
+              <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+            </svg>
+          </button>
+        </div>
+        <!-- 方言快捷选择 -->
+        <div class="chat-dialect-chips" id="chat-dialect-chips" aria-label="方言快捷选择">
+          <span class="chat-dialect-label">方言：</span>
+          <button type="button" class="chat-chip chat-chip--active" data-dialect="">普通话</button>
+          <button type="button" class="chat-chip" data-dialect="粤语">粤语</button>
+          <button type="button" class="chat-chip" data-dialect="闽南话">闽南话</button>
+          <button type="button" class="chat-chip" data-dialect="四川话">四川话</button>
+          <button type="button" class="chat-chip" data-dialect="上海话">上海话</button>
+          <button type="button" class="chat-chip" data-dialect="东北话">东北话</button>
+        </div>
+        </div><!-- /.chat-bar__body -->
       </div>
     </section>
     </div>
