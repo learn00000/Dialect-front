@@ -92,6 +92,10 @@
             <p class="mt-2 text-[11px] text-[#5d6e6d]">未选择任何类型时，显示全部类型点位。</p>
           </section>
 
+          <p class="rounded-xl border border-[rgba(58,143,138,0.1)] bg-white/60 px-3 py-2 text-[11px] leading-relaxed text-[#5d6e6d]">
+            在地图上<strong>点击空白处</strong>，会在当前筛选结果里选中距离点击位置最近的点位，并<strong>自动播放</strong>该点位的方言音频片段（约 280 km 内有效）。
+          </p>
+
           <div class="mt-auto flex flex-col gap-2">
             <button
               type="button"
@@ -193,6 +197,7 @@
 
             <div class="mt-4 rounded-2xl border border-[rgba(58,143,138,0.18)] bg-mist/60 p-3 shadow-inner">
               <div class="mb-2 text-xs text-[#5d6e6d]">音频播放</div>
+              <p class="mb-2 text-[11px] leading-snug text-[#7a8a89]">也可在地图上点击任意处，选中最近点位并播放。</p>
               <audio
                 ref="detailAudioRef"
                 class="w-full rounded-lg"
@@ -534,6 +539,52 @@ function matchesTypes(pt) {
   return selectedTypes.value.includes(pt.type)
 }
 
+/** 球面距离（米），用于「点击地图 → 找最近点位」 */
+function haversineMeters(lng1, lat1, lng2, lat2) {
+  const R = 6371000
+  const toRad = (d) => (d * Math.PI) / 180
+  const dLat = toRad(lat2 - lat1)
+  const dLng = toRad(lng2 - lng1)
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng / 2) ** 2
+  return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)))
+}
+
+function readEventLngLat(e) {
+  const ll = e?.lnglat
+  if (!ll) return null
+  if (typeof ll.getLng === 'function' && typeof ll.getLat === 'function') {
+    return { lng: ll.getLng(), lat: ll.getLat() }
+  }
+  if (typeof ll.lng === 'number' && typeof ll.lat === 'number') {
+    return { lng: ll.lng, lat: ll.lat }
+  }
+  return null
+}
+
+/** 点击地图空白处时：只接受该距离内的最近点位，避免全国尺度误匹配 */
+const MAP_CLICK_PLAY_MAX_M = 280_000
+
+function findNearestFilteredPoint(lng, lat) {
+  const list = filteredPoints.value
+  let best = null
+  let bestM = Infinity
+  for (const pt of list) {
+    const loc = pt.location || {}
+    const plng = loc.lng
+    const plat = loc.lat
+    if (typeof plng !== 'number' || typeof plat !== 'number') continue
+    const m = haversineMeters(lng, lat, plng, plat)
+    if (m < bestM) {
+      bestM = m
+      best = pt
+    }
+  }
+  if (!best || bestM > MAP_CLICK_PLAY_MAX_M) return null
+  return best
+}
+
 function onAuthClick() {
   window.alert('登录 / 注册流程可在此对接统一认证。')
 }
@@ -681,6 +732,12 @@ async function initMap() {
     })
     map.addControl(new window.AMap.Scale())
     map.addControl(new window.AMap.ToolBar({ position: { right: 12, top: 110 } }))
+    map.on('click', (e) => {
+      const pos = readEventLngLat(e)
+      if (!pos) return
+      const nearest = findNearestFilteredPoint(pos.lng, pos.lat)
+      if (nearest) onMarkerClicked(nearest)
+    })
     mapInstance.value = map
     renderMarkers()
   } catch (e) {

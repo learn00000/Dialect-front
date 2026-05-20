@@ -28,7 +28,7 @@ function dialectMapMockPlugin(env = {}) {
       area: '浙江省/杭州市/西湖区',
       dialect: '吴语·杭州小片',
       type: '方言',
-      audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
+      audioUrl: './video-stitch/wenzhou/wenzhou-001.m4a',
       content: '你好，吃饭了吗？',
       nickname: '西湖阿姐',
       time: '2026-04-10 14:22:00'
@@ -39,7 +39,7 @@ function dialectMapMockPlugin(env = {}) {
       area: '上海市/上海市/黄浦区',
       dialect: '吴语·上海话',
       type: '童谣',
-      audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3',
+      audioUrl: './video-stitch/taizhou/taizhou-001.m4a',
       content: '落雨喽，打烊喽，小八辣子开会喽。',
       nickname: '石库门囡囡',
       time: '2026-04-12 09:05:33'
@@ -50,7 +50,7 @@ function dialectMapMockPlugin(env = {}) {
       area: '北京市/北京市/东城区',
       dialect: '北京官话',
       type: '民谣',
-      audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3',
+      audioUrl: './video-stitch/minnan/minnan001.m4a',
       content: '前门情思大碗茶（节选哼唱）',
       nickname: '胡同里的风',
       time: '2026-04-15 18:40:12'
@@ -61,7 +61,7 @@ function dialectMapMockPlugin(env = {}) {
       area: '广东省/广州市/越秀区',
       dialect: '粤语·广府片',
       type: '戏曲',
-      audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3',
+      audioUrl: './video-learn/guangdongyueju/guangdongyueju-001.m4a',
       content: '帝女花之香夭（念白示范）',
       nickname: '粤剧票友阿明',
       time: '2026-04-16 11:18:45'
@@ -72,7 +72,7 @@ function dialectMapMockPlugin(env = {}) {
       area: '四川省/成都市/锦江区',
       dialect: '西南官话·成渝小片',
       type: '民俗',
-      audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3',
+      audioUrl: './video-stitch/taizhou/taizhou-003.m4a',
       content: '清明采茶调（口传版）',
       nickname: '锦江茶客',
       time: '2026-04-17 08:56:21'
@@ -83,7 +83,7 @@ function dialectMapMockPlugin(env = {}) {
       area: '江苏省/苏州市/姑苏区',
       dialect: '吴语·苏州话',
       type: '方言',
-      audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3',
+      audioUrl: './video-stitch/wenzhou/wenzhou002.m4a',
       content: '今朝天气蛮好个。',
       nickname: '评弹小周',
       time: '2026-04-17 16:02:00'
@@ -238,7 +238,7 @@ function dialectMapMockPlugin(env = {}) {
               area: '浙江省/杭州市/西湖区',
               dialect: '新上传样本',
               type: '方言',
-              audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
+              audioUrl: './video-stitch/wenzhou/wenzhou003.m4a',
               content: '（Mock 已接收上传）',
               nickname: '访客',
               time: new Date().toISOString().slice(0, 19).replace('T', ' ')
