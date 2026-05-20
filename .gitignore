@@ -1,5 +1,4 @@
-.env
+# 本地覆盖（勿提交个人覆盖）
 .env.local
 .env.*.local
-node_modules/
-dist/
+# node_modules、dist 已纳入仓库便于离线部署
