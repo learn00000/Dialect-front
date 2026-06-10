@@ -433,7 +433,15 @@ export default defineConfig(({ mode }) => {
   return {
   base: './',
   plugins: [vue(), dialectMapMockPlugin(env), videoStitchStaticPlugin(), videoLearnStaticPlugin(), copyHomeStaticAssetsPlugin()],
-  server: { port: 5173, host: true },
+  server: {
+    port: 5173,
+    host: true,
+    proxy: {
+      '/api/chat': 'http://127.0.0.1:8001',
+      '/health': 'http://127.0.0.1:8001',
+      '/audio': 'http://127.0.0.1:8001',
+    },
+  },
   build: {
     rollupOptions: {
       input: {

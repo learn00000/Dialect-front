@@ -286,14 +286,14 @@ a.btn {
   position: relative;
   z-index: 1;
   flex: 1 1 auto;
-  min-height: clamp(460px, 68vh, 760px);
+  min-height: clamp(430px, 64vh, 720px);
   width: 100%;
   margin-inline: auto;
   border-radius: 0;
   background: transparent;
   border: 0;
   box-shadow: none;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .avatar-panel__frame::after {
@@ -452,6 +452,54 @@ a.btn {
   color: var(--celadon-deep);
   writing-mode: vertical-rl;
   text-orientation: mixed;
+}
+
+.avatar-switch {
+  position: relative;
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  flex-wrap: wrap;
+  margin: 0.35rem auto 0.15rem;
+  padding: 0.35rem 0.5rem;
+  max-width: 100%;
+  pointer-events: auto;
+}
+
+.avatar-switch__chip {
+  flex-shrink: 0;
+  padding: 0.28rem 0.85rem;
+  border: 1px solid rgba(58, 143, 138, 0.22);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.88);
+  font-family: var(--font-sans);
+  font-size: 0.74rem;
+  font-weight: 600;
+  color: var(--celadon-deep);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  letter-spacing: 0.04em;
+}
+
+.avatar-switch__chip:hover:not(:disabled) {
+  background: var(--mist);
+  border-color: rgba(58, 143, 138, 0.42);
+  transform: translateY(-1px);
+}
+
+.avatar-switch__chip:disabled {
+  opacity: 0.55;
+  cursor: wait;
+}
+
+.avatar-switch__chip.avatar-switch__chip--active {
+  background: linear-gradient(135deg, var(--celadon-light), var(--celadon));
+  border-color: var(--celadon);
+  color: #fff;
+  box-shadow: 0 2px 10px rgba(58, 143, 138, 0.28);
 }
 
 .pulse-dot {
@@ -860,7 +908,13 @@ a.btn {
   position: relative;
   z-index: 1;
   flex-shrink: 0;
-  padding: 0.35rem clamp(1rem, 4vw, 2.5rem) 0.3rem;
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  padding: 0.3rem clamp(1rem, 3vw, 2rem) 0.45rem;
+  background: none;
+  border: none;
+  box-shadow: none;
 }
 
 .chat-bar {
