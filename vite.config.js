@@ -6,6 +6,7 @@ import { fileURLToPath } from 'node:url'
 import { buildStorybookResponse } from './js/storybook-mock.mjs'
 import { generateStorybookWithBailian, getBailianConfig } from './js/storybook-bailian.mjs'
 import { handleMapUpload, serveMapUploadAudio } from './js/map-mock-upload.mjs'
+import { getStageQuestions } from './js/stage-questions-data.mjs'
 
 const __dirname = fileURLToPath(new URL('.', import.meta.url))
 const MAP_UPLOAD_DIR = resolve(__dirname, '.data', 'map-uploads')
@@ -97,7 +98,8 @@ function dialectMapMockPlugin(env = {}) {
     { id: 's3', order: 3, name: '茶馆快问', theme: '川渝方言', difficulty: '中等' },
     { id: 's4', order: 4, name: '戏台试音', theme: '越剧片段', difficulty: '中等' },
     { id: 's5', order: 5, name: '乡韵进阶', theme: '多方言混合', difficulty: '困难' },
-    { id: 's6', order: 6, name: '方音大师', theme: '综合挑战', difficulty: '困难' }
+    { id: 's6', order: 6, name: '关城辨音', theme: '燕赵方音', difficulty: '困难' },
+    { id: 's7', order: 7, name: '方音大师', theme: '综合挑战', difficulty: '大师' }
   ]
 
   function readJsonBody(req) {
@@ -276,32 +278,7 @@ function dialectMapMockPlugin(env = {}) {
         const stageDetailMatch = cleanUrl.match(/^\/api\/stages\/([^/]+)$/)
         if (stageDetailMatch && req.method === 'GET') {
           const stageId = stageDetailMatch[1]
-          const questions = [
-            {
-              id: `${stageId}-q1`,
-              type: 'audioMeaning',
-              audioUrl: 'https://interactive-examples.mdn.mozilla.net/media/cc0-audio/t-rex-roar.mp3',
-              options: ['快点回家', '今天真热闹', '你吃饭了吗', '小雨下不停'],
-              correctIndex: 2
-            },
-            {
-              id: `${stageId}-q2`,
-              type: 'repeatScore',
-              sentence: '侬今朝开心伐？'
-            },
-            {
-              id: `${stageId}-q3`,
-              type: 'fillBlank',
-              stem: '方言填空：阿拉___去茶馆白相。',
-              options: ['今朝', '昨日', '明朝', '晚点'],
-              correctIndex: 0
-            },
-            {
-              id: `${stageId}-q4`,
-              type: 'operaRepeat',
-              script: '越音轻转，水袖拂风，侬且听我唱一段。'
-            }
-          ]
+          const questions = getStageQuestions(stageId)
           res.setHeader('Content-Type', 'application/json; charset=utf-8')
           res.statusCode = 200
           res.end(JSON.stringify({ code: 0, data: { id: stageId, questions } }))
@@ -408,6 +385,7 @@ function createMediaStaticPlugin(route, folderName) {
 /** 开发 / 预览时提供 video-stitch、video-learn 静态资源；构建时复制到 dist */
 const videoStitchStaticPlugin = () => createMediaStaticPlugin('video-stitch', 'video-stitch')
 const videoLearnStaticPlugin = () => createMediaStaticPlugin('video-learn', 'video-learn')
+const videoStudyStaticPlugin = () => createMediaStaticPlugin('video-study', 'video-study')
 
 /** 首页脚本在 js/（非 module），构建时需复制到 dist */
 function copyHomeStaticAssetsPlugin() {
@@ -432,7 +410,7 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
   return {
   base: './',
-  plugins: [vue(), dialectMapMockPlugin(env), videoStitchStaticPlugin(), videoLearnStaticPlugin(), copyHomeStaticAssetsPlugin()],
+  plugins: [vue(), dialectMapMockPlugin(env), videoStitchStaticPlugin(), videoLearnStaticPlugin(), videoStudyStaticPlugin(), copyHomeStaticAssetsPlugin()],
   server: {
     port: 5173,
     host: true,

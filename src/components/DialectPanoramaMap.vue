@@ -10,11 +10,10 @@
       </a>
       <nav class="nav" aria-label="主导航">
         <a class="nav__link" href="./index.html#top">首页</a>
-        <a class="nav__link" href="./index.html#features">核心功能</a>
-        <a class="nav__link" href="./index.html#vision">项目愿景</a>
-        <a class="nav__link" href="./index.html#footer">关于</a>
+        <a class="nav__link" href="./study.html">方音拾级</a>
+        <a class="nav__link nav__link--active" href="./map.html">声绘山河</a>
+        <a class="nav__link" href="./index.html#opera">方音戏韵</a>
       </nav>
-      <button type="button" class="btn btn--ghost" @click="onAuthClick">登录 / 注册</button>
     </header>
 
     <div class="relative flex min-h-0 min-w-0 flex-1">
@@ -210,10 +209,10 @@
         </transition>
       </main>
 
-      <!-- 右下角悬浮：快速录音上传（抬高以免压住底栏） -->
+      <!-- 右下角悬浮：快速录音上传 -->
       <button
         type="button"
-        class="fixed bottom-[5.5rem] right-5 z-40 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-[#7ed4ce] via-brand to-[#2a726d] text-2xl text-white shadow-[0_12px_36px_rgba(26,92,88,0.35)] ring-2 ring-white/50 transition hover:scale-105 active:scale-95 sm:right-6"
+        class="fixed bottom-5 right-5 z-40 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-[#7ed4ce] via-brand to-[#2a726d] text-2xl text-white shadow-[0_12px_36px_rgba(26,92,88,0.35)] ring-2 ring-white/50 transition hover:scale-105 active:scale-95 sm:right-6"
         title="快速录音上传"
         aria-label="快速录音上传"
         @click="openRecordPanel"
@@ -221,32 +220,6 @@
         🎙
       </button>
     </div>
-
-    <!-- 底栏：与主站 site-footer 一致 -->
-    <footer
-      class="relative z-30 shrink-0 border-t border-[rgba(58,143,138,0.07)] bg-gradient-to-b from-white/88 to-[rgba(248,252,251,0.92)] px-4 py-2 shadow-[0_-4px_24px_rgba(22,72,70,0.04)] backdrop-blur-[14px]"
-    >
-      <div
-        class="mx-auto flex max-w-[1280px] flex-wrap items-center justify-between gap-2 gap-y-1 text-[0.88rem] text-[#5d6e6d]"
-      >
-        <div class="flex flex-wrap items-center gap-2">
-          <span
-            class="inline-flex min-w-[6.75rem] rotate-[-2deg] items-center justify-center rounded-lg border-2 border-[#d14c4c] bg-white/75 px-3 py-1.5 text-[0.95rem] font-bold tracking-[0.12em] text-[#c23d3d] shadow-[0_4px_14px_rgba(194,61,61,0.1)]"
-          >语韵东方</span>
-          <span
-            class="inline-flex min-w-[6.75rem] rotate-[1.5deg] items-center justify-center rounded-lg border border-dashed border-[rgba(58,143,138,0.42)] bg-white/55 px-3 py-1.5 text-[0.95rem] font-bold tracking-[0.08em] text-brand-deep"
-          >方言数字化</span>
-        </div>
-        <nav class="flex flex-wrap gap-4">
-          <a href="./index.html#top" class="text-[#5d6e6d] no-underline transition hover:text-brand-deep">首页</a>
-          <a href="./index.html#features" class="text-[#5d6e6d] no-underline transition hover:text-brand-deep">功能</a>
-          <a href="./index.html#vision" class="text-[#5d6e6d] no-underline transition hover:text-brand-deep">愿景</a>
-        </nav>
-      </div>
-      <p class="mx-auto max-w-[1280px] px-4 pb-0.5 text-[0.68rem] leading-snug text-[#7a8a89]">
-        © 2026 语韵东方 · 地方方言语音合成与交互体验设计。
-      </p>
-    </footer>
 
     <!-- 录音 / 上传面板 -->
     <teleport to="body">
@@ -631,10 +604,6 @@ function findNearestFilteredPoint(lng, lat) {
   }
   if (!best || bestM > MAP_CLICK_PLAY_MAX_M) return null
   return best
-}
-
-function onAuthClick() {
-  window.alert('登录 / 注册流程可在此对接统一认证。')
 }
 
 async function fetchMapPoints() {

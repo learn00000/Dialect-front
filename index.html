@@ -3,10 +3,17 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>语韵东方 · 地方方言语音合成与交互体验</title>
+    <title>语韵东方 · 中国方言文化保护与数字人对话平台</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
     <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="css/home-product.css" />
   </head>
-  <body>
+  <body class="home-product">
     <div class="page-bg" aria-hidden="true">
       <svg class="page-bg__svg" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice">
         <defs>
@@ -42,182 +49,230 @@
       </a>
       <nav class="nav" aria-label="主导航">
         <a class="nav__link nav__link--active" href="#top">首页</a>
-        <a class="nav__link" href="#features">核心功能</a>
-        <a class="nav__link" href="#vision">项目愿景</a>
-        <a class="nav__link" href="#footer">关于</a>
+        <a class="nav__link" href="study.html">方音拾级</a>
+        <a class="nav__link" href="map.html">声绘山河</a>
+        <a class="nav__link" href="#opera" data-nav-feature="opera">方音戏韵</a>
       </nav>
-      <button type="button" class="btn btn--ghost" id="btn-auth">登录 / 注册</button>
+      <div class="header-actions" aria-label="用户操作">
+        <button type="button" class="header-actions__btn" aria-label="通知">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+            <path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9"/>
+            <path d="M13.73 21a2 2 0 01-3.46 0"/>
+          </svg>
+        </button>
+        <div class="header-actions__avatar" aria-hidden="true">我</div>
+      </div>
     </header>
 
     <div class="content-slot" id="content-slot">
     <div class="view-stack view-stack--home" id="view-home">
-    <main class="hero" id="top">
-      <section class="hero__left" aria-label="数字人展示与接入区域">
-        <div
-          class="avatar-panel"
-          id="digital-human-host"
-          data-live2d-model="/live2d/水墨/水墨.model3.json"
-          role="button"
-          tabindex="0"
-          aria-label="数字人接入区域，点击切换演示状态"
-        >
-          <div class="avatar-panel__glow" aria-hidden="true"></div>
-          <div class="avatar-panel__frame">
-            <canvas
-              id="live2d-canvas"
-              class="avatar-panel__canvas"
-              aria-label="Live2D 数字人画布"
-            ></canvas>
-            <div class="avatar-panel__loading" id="live2d-loading" hidden>
-              <span class="avatar-panel__spinner" aria-hidden="true"></span>
-              <span>数字人加载中…</span>
+    <main class="product-shell" id="top">
+      <section class="stage-panel hero__left" aria-label="数字人舞台">
+        <div class="stage-panel__inner">
+          <header class="stage-headline">
+            <div class="stage-headline__text">
+              <h1>声溯古韵 · 乡音焕新</h1>
+              <p>开启方言文化新章，听乡音、学发音、传非遗</p>
+            </div>
+          </header>
+
+          <div class="stage-panel__stage">
+            <aside class="stage-label" aria-label="数字人介绍">
+              <span class="stage-label__name">语墨</span>
+              <span class="stage-label__role">方言文化数字人</span>
+              <span class="stage-label__tagline">为你解读乡音之美</span>
+            </aside>
+
+            <div
+              class="avatar-panel"
+              id="digital-human-host"
+              data-live2d-model="/live2d/水墨/水墨.model3.json"
+              role="button"
+              tabindex="0"
+              aria-label="数字人语墨，点击互动"
+            >
+              <div class="avatar-panel__glow" aria-hidden="true"></div>
+              <div class="avatar-panel__frame">
+                <canvas
+                  id="live2d-canvas"
+                  class="avatar-panel__canvas"
+                  aria-label="Live2D 数字人画布"
+                ></canvas>
+                <div class="avatar-panel__loading" id="live2d-loading" hidden>
+                  <span class="avatar-panel__spinner" aria-hidden="true"></span>
+                  <span>数字人加载中…</span>
+                </div>
+              </div>
+              <div class="avatar-switch" id="avatar-switch" aria-label="切换数字人形象">
+                <button type="button" class="avatar-switch__chip avatar-switch__chip--active" data-avatar="shuimo">水墨 · 语墨</button>
+                <button type="button" class="avatar-switch__chip" data-avatar="jianzhi">剪纸 · 剪韵</button>
+              </div>
+              <div class="avatar-panel__aside">
+                <p class="avatar-panel__hint">
+                  <strong id="avatar-name">语墨</strong> 数字人已接入，可用于方言讲解与互动引导。
+                </p>
+                <div class="avatar-panel__tech" role="status">
+                  <span class="pulse-dot" aria-hidden="true"></span>
+                  <span id="avatar-status">交互引擎待接入</span>
+                </div>
+              </div>
             </div>
           </div>
-          <div class="avatar-switch" id="avatar-switch" aria-label="切换数字人形象">
-            <button type="button" class="avatar-switch__chip avatar-switch__chip--active" data-avatar="shuimo">水墨 · 语墨</button>
-            <button type="button" class="avatar-switch__chip" data-avatar="jianzhi">剪纸 · 剪韵</button>
-          </div>
-          <div class="avatar-panel__aside">
-            <p class="avatar-panel__hint">
-              <strong id="avatar-name">语墨</strong> 数字人已接入，可用于方言讲解与互动引导。
-            </p>
-            <div class="avatar-panel__tech" role="status">
-              <span class="pulse-dot" aria-hidden="true"></span>
-              <span id="avatar-status">交互引擎待接入</span>
-            </div>
-          </div>
+
+          <nav class="stage-shortcuts" aria-label="功能入口">
+            <a class="stage-shortcut" href="study.html">
+              <span class="stage-shortcut__icon" aria-hidden="true">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19V5M4 5l8-2 8 2M8 17v-6M12 19v-8M16 15V9"/></svg>
+              </span>
+              <span>
+                <span class="stage-shortcut__title">方音拾级</span>
+                <span class="stage-shortcut__desc">阶梯学习与闯关</span>
+              </span>
+            </a>
+            <a class="stage-shortcut" href="map.html">
+              <span class="stage-shortcut__icon" aria-hidden="true">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19V5M4 19h16M8 15v-4M12 15V9M16 15V7"/></svg>
+              </span>
+              <span>
+                <span class="stage-shortcut__title">声绘山河</span>
+                <span class="stage-shortcut__desc">共建乡音档案</span>
+              </span>
+            </a>
+            <a class="stage-shortcut" href="#opera" data-nav-feature="opera">
+              <span class="stage-shortcut__icon" aria-hidden="true">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3l1.5 4.5L18 9l-4.5 1.5L12 15l-1.5-4.5L6 9l4.5-1.5L12 3z"/><path d="M5 19h14"/></svg>
+              </span>
+              <span>
+                <span class="stage-shortcut__title">方音戏韵</span>
+                <span class="stage-shortcut__desc">戏韵互动体验</span>
+              </span>
+            </a>
+          </nav>
         </div>
       </section>
 
-      <section class="hero__right" id="features">
-        <div class="hero__intro">
-          <h1 class="hero__title">
-            <span class="hero__title-main"
-              ><span class="hero__title-prefix">声溯古韵</span><span class="hero__title-sep">-</span><span class="hero__title-accent">乡音焕新</span></span>
-          </h1>
-          <p class="hero__lead">
-            开启方言学习之旅，中国方言文化保护平台
-          </p>
-        </div>
+      <section class="chat-workspace hero__right" id="features" aria-label="与语墨对话">
+        <div class="chat-panel chat-bar--hero" id="chat-bar">
+          <header class="chat-panel__toolbar">
+            <span class="chat-panel__toolbar-icon" aria-hidden="true">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v-2a8 8 0 0116 0v2"/><path d="M8 12v1a4 4 0 008 0v-1"/><path d="M12 17v3"/></svg>
+            </span>
+            <span class="chat-panel__toolbar-title">与语墨对话</span>
+            <span class="chat-panel__toolbar-status">
+              <span class="pulse-dot" aria-hidden="true"></span>
+              <span id="chat-online-label">语墨在线</span>
+            </span>
+            <button type="button" class="chat-panel__toolbar-more" aria-label="更多选项">⋮</button>
+          </header>
 
-        <div class="cards" role="list">
-          <article class="feature-card" data-tilt data-card="pick">
-            <h2 class="feature-card__title">方音拾级</h2>
-            <div class="feature-card__visual" aria-hidden="true">
-              <div class="illu illu--steps">
-                <span class="illu__orb"></span>
-                <span class="illu__step illu__step--1"></span>
-                <span class="illu__step illu__step--2"></span>
-                <span class="illu__step illu__step--3"></span>
+          <div class="chat-panel__main" id="chat-bar-body">
+            <div class="chat-panel__messages chat-bubbles" id="chat-bubbles" aria-live="polite" aria-label="对话记录">
+              <div class="chat-msg chat-msg--bot">
+                <img class="chat-msg__avatar chat-msg__avatar--bot" src="assets/avatar-demo.png" alt="" width="36" height="36" />
+                <div class="chat-msg__body">
+                  <div class="chat-msg__meta"><span class="chat-msg__name">语墨</span><time datetime="10:30">10:30</time></div>
+                  <div class="chat-msg__bubble">我在。想听哪一种乡音？</div>
+                </div>
+              </div>
+              <div class="chat-msg chat-msg--user">
+                <div class="chat-msg__body">
+                  <div class="chat-msg__meta"><time datetime="10:31">10:31</time><span class="chat-msg__name">我</span></div>
+                  <div class="chat-msg__bubble">用四川话说「今天的天气真好」。</div>
+                </div>
+                <span class="chat-msg__avatar chat-msg__avatar--user" aria-hidden="true">我</span>
+              </div>
+              <div class="chat-msg chat-msg--bot chat-msg--wide">
+                <img class="chat-msg__avatar chat-msg__avatar--bot" src="assets/avatar-demo.png" alt="" width="36" height="36" />
+                <div class="chat-msg__body">
+                  <div class="chat-msg__meta"><span class="chat-msg__name">语墨</span><time datetime="10:31">10:31</time></div>
+                  <div class="chat-msg__bubble">
+                    <p>今天天气硬是巴适。</p>
+                    <div class="chat-msg__audio">
+                      <button type="button" class="chat-msg__audio-play" aria-label="播放语音">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+                      </button>
+                      <span class="chat-msg__wave" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></span>
+                      <span class="chat-msg__duration">6″</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="chat-msg chat-msg--bot chat-msg--wide">
+                <img class="chat-msg__avatar chat-msg__avatar--bot" src="assets/avatar-demo.png" alt="" width="36" height="36" />
+                <div class="chat-msg__body">
+                  <div class="chat-msg__meta"><span class="chat-msg__name">语墨</span><time datetime="10:32">10:32</time></div>
+                  <div class="chat-msg__bubble">
+                    <p>如果你想听其他方言版本，或了解这句话的来源与用法，告诉我吧～</p>
+                    <span class="chat-msg__extra-icon" title="调音" aria-hidden="true">♪</span>
+                  </div>
+                </div>
               </div>
             </div>
-            <p class="feature-card__desc">
-              阶梯式学习与闯关：跟读、辨音、情境对话，配合合成语音示范，让「难学、少书面」的方言也能被循序渐进地掌握。
-            </p>
-            <a class="btn btn--primary feature-card__cta feature-card__cta--link" href="study.html">
-              进入拾级
-            </a>
-          </article>
 
-          <article class="feature-card" data-tilt data-card="map">
-            <h2 class="feature-card__title">声绘山河</h2>
-            <div class="feature-card__visual" aria-hidden="true">
-              <div class="illu illu--map">
-                <span class="illu__map-body"></span>
-                <span class="illu__pin illu__pin--a"></span>
-                <span class="illu__pin illu__pin--b"></span>
-                <span class="illu__wave"></span>
+            <footer class="chat-panel__composer">
+              <div class="chat-dialect-row chat-dialect-chips" id="chat-dialect-chips" aria-label="方言选择">
+                <span class="chat-dialect-label">方言选择</span>
+                <button type="button" class="chat-chip chat-chip--active" data-dialect="">普通话</button>
+                <button type="button" class="chat-chip" data-dialect="粤语">粤语</button>
+                <button type="button" class="chat-chip" data-dialect="闽南话">闽南话</button>
+                <button type="button" class="chat-chip" data-dialect="四川话">四川话</button>
+                <button type="button" class="chat-chip" data-dialect="上海话">上海话</button>
+                <button type="button" class="chat-chip" data-dialect="东北话">东北话</button>
               </div>
-            </div>
-            <p class="feature-card__desc">
-              采集方言朗读与日常语料，共建地图化乡音档案；汇聚高质量录音，为模型训练与语言学留存可溯源的「声音山河」。
-            </p>
-            <a class="btn btn--primary feature-card__cta feature-card__cta--link" href="map.html">
-              参与声绘
-            </a>
-          </article>
-
-          <article class="feature-card" data-tilt data-card="opera">
-            <h2 class="feature-card__title">方音戏韵</h2>
-            <div class="feature-card__visual" aria-hidden="true">
-              <div class="illu illu--tts">
-                <span class="illu__mic"></span>
-                <span class="illu__bars"><i></i><i></i><i></i><i></i><i></i></span>
+              <div class="chat-input-row">
+                <div class="chat-voice-wrap">
+                  <button
+                    type="button"
+                    class="chat-voice-btn"
+                    id="btn-voice-input"
+                    aria-label="语音输入"
+                    title="点击语音输入"
+                  >
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <rect x="9" y="2" width="6" height="12" rx="3"/>
+                      <path d="M5 10a7 7 0 0 0 14 0"/>
+                      <line x1="12" y1="19" x2="12" y2="22"/>
+                      <line x1="8" y1="22" x2="16" y2="22"/>
+                    </svg>
+                  </button>
+                  <span class="chat-voice-wrap__label">语音输入</span>
+                </div>
+                <div class="chat-input-wrap">
+                  <input
+                    type="text"
+                    class="chat-input"
+                    id="chat-input"
+                    placeholder="输入消息，按 Enter 发送..."
+                    autocomplete="off"
+                    maxlength="200"
+                  />
+                  <button type="button" class="chat-input-emoji" aria-label="表情" tabindex="-1">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><circle cx="9" cy="10" r="0.8" fill="currentColor"/><circle cx="15" cy="10" r="0.8" fill="currentColor"/></svg>
+                  </button>
+                </div>
+                <button type="button" class="chat-send-btn" id="btn-chat-send" aria-label="发送">
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <line x1="22" y1="2" x2="11" y2="13"/>
+                    <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+                  </svg>
+                  <span>发送</span>
+                </button>
               </div>
-            </div>
-            <p class="feature-card__desc">
-              方言语音合成与戏韵化交互：角色对白、韵白体验、可分享的声音小品，让小众方音在可玩、可听、可传播中重新被看见。
-            </p>
-            <button type="button" class="btn btn--primary feature-card__cta" data-action="opera">
-              体验戏韵
-            </button>
-          </article>
+            </footer>
+          </div>
         </div>
       </section>
     </main>
 
-    <!-- 与语墨对话 · 替换原「活态保存」模块 -->
-    <section class="vision" id="vision" aria-label="与语墨对话">
-      <div class="chat-bar" id="chat-bar">
-        <div class="chat-bar__header" id="chat-bar-toggle" role="button" aria-expanded="true" aria-controls="chat-bar-body" title="点击折叠/展开对话框">
-          <span class="pulse-dot" aria-hidden="true"></span>
-          <span class="chat-bar__title">与语墨对话</span>
-          <span class="chat-bar__sub">问方言、聊文化，或让她用你喜欢的口音说一段</span>
-          <button type="button" class="chat-bar__collapse-btn" aria-label="折叠对话框" tabindex="-1">
-            <svg class="chat-bar__chevron" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <polyline points="6 9 12 15 18 9"/>
-            </svg>
-          </button>
+    <footer class="site-footer" id="footer">
+      <div class="site-footer__row">
+        <div class="site-footer__badges">
+          <span class="seal">语韵东方</span>
+          <span class="seal seal--outline">方言数字化</span>
         </div>
-        <div class="chat-bar__body" id="chat-bar-body">
-        <div class="chat-bubbles" id="chat-bubbles" aria-live="polite" aria-label="对话记录"></div>
-        <div class="chat-input-row">
-          <button
-            type="button"
-            class="chat-voice-btn"
-            id="btn-voice-input"
-            aria-label="语音输入"
-            title="点击语音输入"
-          >
-            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <rect x="9" y="2" width="6" height="12" rx="3"/>
-              <path d="M5 10a7 7 0 0 0 14 0"/>
-              <line x1="12" y1="19" x2="12" y2="22"/>
-              <line x1="8"  y1="22" x2="16" y2="22"/>
-            </svg>
-            <span class="chat-voice-btn__label">语音</span>
-          </button>
-          <div class="chat-input-wrap">
-            <input
-              type="text"
-              class="chat-input"
-              id="chat-input"
-              placeholder="向语墨提问，或说「用四川话给我讲一段」…"
-              autocomplete="off"
-              maxlength="200"
-            />
-          </div>
-          <button type="button" class="chat-send-btn" id="btn-chat-send" aria-label="发送">
-            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <line x1="22" y1="2" x2="11" y2="13"/>
-              <polygon points="22 2 15 22 11 13 2 9 22 2"/>
-            </svg>
-          </button>
-        </div>
-        <!-- 方言快捷选择 -->
-        <div class="chat-dialect-chips" id="chat-dialect-chips" aria-label="方言快捷选择">
-          <span class="chat-dialect-label">方言：</span>
-          <button type="button" class="chat-chip chat-chip--active" data-dialect="">普通话</button>
-          <button type="button" class="chat-chip" data-dialect="粤语">粤语</button>
-          <button type="button" class="chat-chip" data-dialect="闽南话">闽南话</button>
-          <button type="button" class="chat-chip" data-dialect="四川话">四川话</button>
-          <button type="button" class="chat-chip" data-dialect="东北话">东北话</button>
-          <button type="button" class="chat-chip" data-dialect="温州话">温州话</button>
-          <button type="button" class="chat-chip" data-dialect="台州话">台州话</button>
-        </div>
-        </div><!-- /.chat-bar__body -->
+        <p class="site-footer__copy">© 2026 语韵东方 · 地方方言语音合成与交互体验设计。保留所有权利。</p>
       </div>
-    </section>
+    </footer>
     </div>
 
     <div
@@ -247,7 +302,7 @@
               </div>
               <div class="opera-title-frame">
                 <span class="opera-title-frame__curl opera-title-frame__curl--l" aria-hidden="true"></span>
-                <h1 class="opera-title">方音戏韵</h1>
+                <h1 class="opera-title" id="opera">方音戏韵</h1>
                 <span class="opera-title-frame__curl opera-title-frame__curl--r" aria-hidden="true"></span>
               </div>
             </div>
@@ -303,18 +358,159 @@
           </article>
 
           <article
-            class="opera-card opera-card--chat opera-card--enter-nb"
+            class="opera-card opera-card--scroll opera-card--enter-nb"
             tabindex="0"
             role="link"
-            aria-label="进入入戏念白"
+            aria-label="进入 AI 戏曲方言绘本"
           >
-            <div class="opera-card__cloud-cap"><span>入戏念白</span></div>
-            <div class="opera-card__body opera-card__body--chat">
-              <div class="opera-chat">
-                <p class="opera-bubble opera-bubble--left">侬好呀，今朝阿拉一道练练这段韵白好伐？</p>
-                <p class="opera-bubble opera-bubble--right">好额好额，侬先起个头，我跟着念。</p>
-                <p class="opera-bubble opera-bubble--left">「月色溶溶夜」——侬听吾个腔调，中不中？</p>
-                <p class="opera-bubble opera-bubble--right">中！方音里向个落点，吾一记就听出来哉。</p>
+            <div class="opera-card__cloud-cap"><span>戏韵绘卷</span></div>
+            <div class="opera-card__body opera-card__body--scroll">
+              <div class="opera-scroll-scene" aria-hidden="true">
+                <div class="opera-scroll">
+                  <div class="opera-scroll__axis opera-scroll__axis--left" aria-hidden="true">
+                    <span class="opera-scroll__finial"></span>
+                    <span class="opera-scroll__rod"></span>
+                    <span class="opera-scroll__finial opera-scroll__finial--foot"></span>
+                  </div>
+                  <div class="opera-scroll__sheet">
+                    <svg
+                      class="opera-scroll__edge"
+                      viewBox="0 0 320 100"
+                      preserveAspectRatio="none"
+                      aria-hidden="true"
+                    >
+                      <defs>
+                        <linearGradient id="opera-scroll-paper-fill" x1="0%" y1="0%" x2="0%" y2="100%">
+                          <stop offset="0%" stop-color="#faf6ee" />
+                          <stop offset="100%" stop-color="#ebe2d0" />
+                        </linearGradient>
+                      </defs>
+                      <path
+                        class="opera-scroll__edge-path"
+                        d="M0,22 C24,10 48,16 72,12 C96,8 120,14 144,10 C168,6 192,12 216,9 C240,6 264,11 288,8 C304,6 312,8 320,10
+                           L320,88 C296,96 272,90 248,94 C224,98 200,92 176,96 C152,100 128,94 104,97 C80,100 56,94 32,97 C16,99 8,97 0,94 Z"
+                        fill="url(#opera-scroll-paper-fill)"
+                      />
+                    </svg>
+                    <div class="opera-scroll__paper">
+                      <svg
+                        class="opera-scroll__figure"
+                        viewBox="0 0 140 200"
+                        aria-hidden="true"
+                      >
+                        <defs>
+                          <linearGradient id="opera-fig-robe" x1="0%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" stop-color="#5a8a7e" stop-opacity="0.55" />
+                            <stop offset="100%" stop-color="#2d5248" stop-opacity="0.7" />
+                          </linearGradient>
+                          <linearGradient id="opera-fig-sleeve" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" stop-color="#8b4a42" stop-opacity="0.45" />
+                            <stop offset="100%" stop-color="#5a8a7e" stop-opacity="0.5" />
+                          </linearGradient>
+                        </defs>
+                        <ellipse cx="70" cy="178" rx="38" ry="8" fill="#3d6b62" opacity="0.12" />
+                        <path
+                          d="M70 42c-14 0-22 10-24 22-8 4-18 18-20 38 2 28 12 48 28 58 4 8 10 14 16 18 6-4 12-10 16-18 16-10 26-30 28-58-2-20-12-34-20-38-2-12-10-22-24-22z"
+                          fill="url(#opera-fig-robe)"
+                        />
+                        <path
+                          d="M32 78c-12-6-22 2-26 18 4 14 14 22 26 16 6-18 2-28-0-34z"
+                          fill="url(#opera-fig-sleeve)"
+                        />
+                        <path
+                          d="M108 78c12-6 22 2 26 18-4 14-14 22-26 16-6-18-2-28 0-34z"
+                          fill="url(#opera-fig-sleeve)"
+                        />
+                        <path
+                          d="M58 38c4-14 16-22 28-18 6 2 10 8 12 16-8 2-16 0-22-6-4-6-10-10-18-8z"
+                          fill="#3d5a52"
+                          opacity="0.4"
+                        />
+                        <path
+                          d="M64 18c0-10 8-16 18-14 8 2 12 10 10 20-6 2-14 0-20-6-4-4-6-8-8-14z"
+                          fill="#2a4540"
+                          opacity="0.5"
+                        />
+                        <path
+                          d="M52 12c6-8 18-10 28-4 4 12-2 22-10 26-8-4-14-14-18-22z"
+                          fill="#1d3f39"
+                          opacity="0.35"
+                        />
+                        <path
+                          d="M78 8c8-6 20-4 24 6 2 10-4 18-12 20-6 2-12-8-12-16 0-6 0-10 0-10z"
+                          fill="#8b3a32"
+                          opacity="0.25"
+                        />
+                      </svg>
+                      <div class="opera-scroll__figure-veil" aria-hidden="true"></div>
+                      <div class="opera-scroll__frame" aria-hidden="true"></div>
+                      <div class="opera-scroll__sky">
+                        <span class="opera-scroll__sun"></span>
+                      </div>
+                      <div class="opera-scroll__mist opera-scroll__mist--top"></div>
+                      <div class="opera-scroll__mist opera-scroll__mist--foot"></div>
+                      <div class="opera-scroll__land" aria-hidden="true">
+                        <span class="opera-scroll__peak opera-scroll__peak--1"></span>
+                        <span class="opera-scroll__peak opera-scroll__peak--2"></span>
+                        <span class="opera-scroll__peak opera-scroll__peak--3"></span>
+                        <span class="opera-scroll__water"></span>
+                      </div>
+                      <div class="opera-scroll__panels">
+                        <span class="opera-scroll__panel">
+                          <span class="opera-scroll__panel-inner"></span>
+                        </span>
+                        <span class="opera-scroll__panel opera-scroll__panel--focus">
+                          <span class="opera-scroll__panel-inner"></span>
+                        </span>
+                        <span class="opera-scroll__panel">
+                          <span class="opera-scroll__panel-inner"></span>
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="opera-scroll__axis opera-scroll__axis--right" aria-hidden="true">
+                    <span class="opera-scroll__finial"></span>
+                    <span class="opera-scroll__rod"></span>
+                    <span class="opera-scroll__finial opera-scroll__finial--foot"></span>
+                  </div>
+                </div>
+                <span class="opera-scroll__seal" aria-hidden="true">绘</span>
+                <div class="opera-inkdesk">
+                  <span class="opera-inkdesk__stone" aria-hidden="true"></span>
+                  <span class="opera-inkdesk__pool" aria-hidden="true"></span>
+                  <svg class="opera-brush" viewBox="0 0 72 128" aria-hidden="true">
+                    <defs>
+                      <linearGradient id="opera-brush-bristle" x1="20%" y1="0%" x2="80%" y2="100%">
+                        <stop offset="0%" stop-color="#3d6d64" />
+                        <stop offset="40%" stop-color="#1a4a44" />
+                        <stop offset="100%" stop-color="#0c2824" />
+                      </linearGradient>
+                      <linearGradient id="opera-brush-ferrule" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" stop-color="#e8d89a" />
+                        <stop offset="50%" stop-color="#b8944a" />
+                        <stop offset="100%" stop-color="#8b6b32" />
+                      </linearGradient>
+                      <linearGradient id="opera-brush-handle" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" stop-color="#5c3d24" />
+                        <stop offset="35%" stop-color="#a67c4e" />
+                        <stop offset="65%" stop-color="#c9a66a" />
+                        <stop offset="100%" stop-color="#4a3020" />
+                      </linearGradient>
+                    </defs>
+                    <path
+                      d="M36 6c-8 22-13 46-12 66 1 12 5 22 12 28 7-6 11-16 12-28 1-20-4-44-12-66z"
+                      fill="url(#opera-brush-bristle)"
+                    />
+                    <path
+                      d="M30 58c2-8 6-14 12-16 6 2 10 8 12 16l-2 4c-3 2-7 3-10 3s-7-1-10-3l-2-4z"
+                      fill="#143832"
+                      opacity="0.35"
+                    />
+                    <rect x="28" y="72" width="16" height="8" rx="2" fill="url(#opera-brush-ferrule)" />
+                    <rect x="30" y="78" width="12" height="42" rx="5" fill="url(#opera-brush-handle)" />
+                    <ellipse cx="36" cy="122" rx="14" ry="4" fill="#3d2818" opacity="0.45" />
+                  </svg>
+                </div>
               </div>
             </div>
           </article>
@@ -384,7 +580,7 @@
       hidden
       aria-hidden="true"
       role="region"
-      aria-label="入戏念白"
+      aria-label="戏曲绘本"
     >
       <div class="nb-page">
         <div class="nb-page__inner">
@@ -392,72 +588,140 @@
             <span aria-hidden="true">‹</span> 返回戏韵
           </button>
           <header class="nb-hero">
-            <h1 class="nb-title">入戏念白 · 你入戏中来</h1>
+            <h1 class="nb-title">戏曲绘本 · 方言戏韵绘卷</h1>
           </header>
 
-          <section class="nb-shell" aria-label="入戏念白交互区">
+          <section class="nb-shell" aria-label="AI 戏曲方言绘本">
             <div class="nb-main">
-              <div class="nb-headline">核心语音生成交互区</div>
+              <div class="nb-headline">AI 戏曲方言绘本</div>
               <div class="nb-grid">
                 <section class="nb-card nb-card--select">
                   <h2 class="nb-card__title nb-card__title--ornament">
                     <span class="nb-ornament" aria-hidden="true"></span>
-                    国风卡片选择
+                    绘本设置
                     <span class="nb-ornament" aria-hidden="true"></span>
                   </h2>
-                  <div class="nb-row nb-row--top">
-                    <button type="button" class="nb-chip nb-chip--active">方言选择</button>
-                    <span class="nb-plus" aria-hidden="true">+</span>
-                    <button type="button" class="nb-chip nb-chip--active">剧种选择</button>
-                    <button type="button" class="nb-drop" aria-label="展开剧种列表">▼</button>
-                  </div>
-                  <div class="nb-row nb-row--label">
-                    <span>方言选择</span>
-                    <button type="button" class="nb-drop" aria-label="展开方言列表">▼</button>
-                    <span>内容写入</span>
-                    <button type="button" class="nb-drop" aria-label="展开内容列表">▼</button>
-                  </div>
-                  <input class="nb-input" type="text" id="nb-user-input" placeholder="输入你的名字或自定义文本" />
-                  <button type="button" class="nb-generate" id="btn-nb-generate">生成并试听</button>
-                  <div class="nb-divider" aria-hidden="true"></div>
+<div class="sb-field">
+                    <label class="sb-label" for="sb-dialect">方言选择</label>
+                    <select class="sb-select" id="sb-dialect" aria-label="方言选择"></select>
+</div>
+<div class="sb-field">
+                    <label class="sb-label" for="sb-opera">剧目选择</label>
+                    <select class="sb-select" id="sb-opera" aria-label="剧目选择"></select>
+</div>
+<div class="sb-field">
+                    <label class="sb-label" for="sb-role">角色选择</label>
+                    <select class="sb-select" id="sb-role" aria-label="角色选择"></select>
+</div>
+                  <button type="button" class="nb-generate" id="btn-sb-generate">生成戏曲绘本</button>
+<div class="nb-divider" aria-hidden="true"></div>
                   <h3 class="nb-subtitle">
                     <span class="nb-ornament" aria-hidden="true"></span>
-                    拼接预览
+                    所选配置预览
                     <span class="nb-ornament" aria-hidden="true"></span>
                   </h3>
-                  <div class="nb-wave-visualizer" id="nb-wave-visualizer"></div>
+<div class="sb-config-preview" id="sb-config-preview" aria-live="polite">
+                    <p class="sb-config-preview__hint">请选择方言、剧目与角色，将为您生成连续 3 页戏曲绘本。</p>
+                    <dl class="sb-config-preview__list" hidden>
+                      <div><dt>方言</dt><dd id="sb-preview-dialect">—</dd></div>
+                      <div><dt>剧目</dt><dd id="sb-preview-opera">—</dd></div>
+                      <div><dt>角色</dt><dd id="sb-preview-role">—</dd></div>
+                      <div><dt>页数</dt><dd>预计 3 页</dd></div>
+                    </dl>
+</div>
+                  <p class="sb-config-note" id="sb-config-note">生成说明：每页含场景剧照、方言台词与经典戏词选段。</p>
                 </section>
 
-                <section class="nb-card">
-                  <h2 class="nb-card__title">背景与分享</h2>
-                  <div class="nb-background-selector">
-                    <label for="nb-bg-upload" class="nb-upload-btn">选择背景图</label>
-                    <input type="file" id="nb-bg-upload" accept="image/*" hidden>
-                    <div class="nb-background-preview" id="nb-background-preview"></div>
-                  </div>
-                  <div class="nb-share-card-container" id="nb-share-card-container" hidden>
-                    <canvas id="nb-share-canvas" width="400" height="600"></canvas>
-                    <button type="button" class="nb-generate nb-share-btn" id="btn-nb-share">分享我的戏韵名片</button>
-                  </div>
-                </section>
+<div class="nb-col-center">
+                  <section class="nb-card nb-card--player" id="sb-player-card" aria-label="戏曲绘本播放器">
+                    <h2 class="nb-card__title">AI 戏曲方言绘本播放器</h2>
+<div class="sb-player" id="sb-player">
+<div class="sb-player__state sb-player__state--idle" id="sb-state-idle">
+<div class="sb-player__empty">
+                          <h3 class="sb-player__empty-title">请先选择戏曲参数</h3>
+                          <p class="sb-player__empty-desc">选择方言、剧目与角色后，点击「生成戏曲绘本」，将在此呈现连环画式戏韵绘卷。</p>
+<div class="sb-player__placeholder" aria-hidden="true"></div>
+</div>
+</div>
+<div class="sb-player__state sb-player__state--loading" id="sb-state-loading" hidden>
+<div class="sb-player__loading-mask" aria-busy="true">
+<div class="sb-player__spinner" aria-hidden="true"></div>
+                          <p class="sb-player__loading-text">正在排演戏文，请稍候……</p>
+                          <p class="sb-player__loading-sub">正在生成方言剧本与戏曲剧照……</p>
+</div>
+</div>
+<div class="sb-player__state sb-player__state--error" id="sb-state-error" hidden>
+<div class="sb-player__error">
+                          <p class="sb-player__error-title">生成失败</p>
+                          <p class="sb-player__error-msg" id="sb-error-msg">请稍后重试</p>
+                          <button type="button" class="nb-generate sb-player__retry" id="btn-sb-retry">重新生成</button>
+</div>
+</div>
+<div class="sb-player__state sb-player__state--success" id="sb-state-success" hidden>
+<div class="sb-player__content" id="sb-player-content">
+                          <header class="sb-player__header">
+                            <h3 class="sb-player__scene" id="sb-scene-title">—</h3>
+                            <p class="sb-player__pager" id="sb-page-indicator">第 1 / 3 页</p>
+                          </header>
+                          <div class="sb-player__stage">
+                            <div class="sb-player__figure">
+                              <img id="sb-page-image" src="" alt="" class="sb-player__image" width="640" height="360" />
+                            </div>
+                          </div>
+                          <div class="sb-player__bottom">
+                            <p class="sb-player__dialogue" id="sb-page-dialogue"></p>
+                            <div class="sb-player__lyrics" aria-label="经典戏词选段">
+                              <h4 class="sb-player__lyrics-title">
+                                <span class="nb-ornament" aria-hidden="true"></span>
+                                经典戏词选段
+                                <span class="nb-ornament" aria-hidden="true"></span>
+                              </h4>
+                              <blockquote class="sb-classic-lyrics" id="sb-classic-lyrics">
+                                生成绘本后，此处将随页码同步展示经典唱词。
+                              </blockquote>
+                            </div>
+                            <nav class="sb-player__nav" aria-label="绘本翻页">
+                              <button type="button" class="sb-nav-btn" id="btn-sb-prev" disabled>上一页</button>
+                              <button type="button" class="sb-nav-btn" id="btn-sb-next">下一页</button>
+                            </nav>
+                          </div>
+</div>
+</div>
+</div>
+                  </section>
+                </div>
               </div>
             </div>
 
-            <aside class="nb-side">
+            <aside class="nb-side" aria-label="分享与操作">
               <section class="nb-side-card">
-                <h2 class="nb-side-card__title">背景留白文</h2>
-                <div class="nb-qrcode">二维码位</div>
-                <button type="button" class="nb-side-btn">回复名片</button>
+                <h2 class="nb-side-card__title">分享二维码</h2>
+<div class="nb-qrcode" id="sb-qrcode" aria-label="分享二维码">
+                  <p class="sb-qrcode__placeholder" id="sb-qrcode-placeholder">生成绘本后显示二维码</p>
+                  <canvas
+                    class="sb-qrcode__canvas"
+                    id="sb-qrcode-canvas"
+                    width="128"
+                    height="128"
+                    hidden
+                    aria-hidden="true"
+                  ></canvas>
+                </div>
+                <button type="button" class="nb-side-btn" id="btn-sb-copy-link">复制分享链接</button>
               </section>
               <section class="nb-side-card">
-                <h2 class="nb-side-card__title">导出分享区</h2>
-                <div class="nb-avatar">
-                  <img src="./assets/avatar-demo.png" alt="分享头像示意图" width="160" height="160" />
-                </div>
-                <button type="button" class="nb-side-btn nb-side-btn--primary">重新生成台词</button>
+                <h2 class="nb-side-card__title">操作区</h2>
+<div class="sb-thumb-wrap" id="sb-thumb-wrap" hidden>
+                  <img id="sb-thumb-image" class="sb-thumb" src="" alt="当前页缩略图" width="120" height="68" />
+                  <p class="sb-thumb-caption" id="sb-thumb-caption">当前页预览</p>
+</div>
+                <button type="button" class="nb-side-btn" id="btn-sb-regenerate">重新生成绘本</button>
+                <button type="button" class="nb-side-btn" id="btn-sb-export-page">导出当前页 JSON</button>
+                <button type="button" class="nb-side-btn nb-side-btn--primary" id="btn-sb-export-all">导出全部绘本数据</button>
               </section>
             </aside>
           </section>
+
         </div>
       </div>
     </div>
@@ -483,7 +747,7 @@
           <section class="by-shell" aria-label="辨音解意互动区">
             <aside class="by-wall" aria-label="戏曲图标墙">
               <h2 class="by-wall__title">戏曲图鉴</h2>
-              <p class="by-wall__desc">点亮剧种图标，逐级解锁更多地域唱段。</p>
+              <p class="by-wall__desc">点亮剧种图标，逐级解锁更多地域唱段。当前已接入广东粤剧四段原声，其余剧种筹备中。</p>
               <div class="by-level-grid" id="by-level-grid"></div>
             </aside>
 
@@ -499,23 +763,25 @@
                 <p class="by-audio-tip" id="by-audio-tip">提示：先听音，再作答。</p>
               </div>
 
-              <form class="by-options" id="by-options">
-                <label class="by-option by-option--a">
-                  <input type="radio" name="by-answer" value="A" />
-                  <span class="by-option__tag">选项 A · 现代通俗白话释义</span>
+              <div
+                class="by-options"
+                id="by-options"
+                role="radiogroup"
+                aria-label="答题选项"
+              >
+                <button type="button" class="by-option by-option--a" data-by-value="A" aria-pressed="false">
+                  <span class="by-option__tag" id="by-option-tag-a">选项 A</span>
                   <span class="by-option__text" id="by-option-a"></span>
-                </label>
-                <label class="by-option by-option--b">
-                  <input type="radio" name="by-answer" value="B" />
-                  <span class="by-option__tag">选项 B · 戏曲原文文辞</span>
+                </button>
+                <button type="button" class="by-option by-option--b" data-by-value="B" aria-pressed="false">
+                  <span class="by-option__tag" id="by-option-tag-b">选项 B</span>
                   <span class="by-option__text" id="by-option-b"></span>
-                </label>
-                <label class="by-option by-option--c">
-                  <input type="radio" name="by-answer" value="C" />
-                  <span class="by-option__tag">选项 C · 方言文化溯源注解</span>
+                </button>
+                <button type="button" class="by-option by-option--c" data-by-value="C" aria-pressed="false">
+                  <span class="by-option__tag" id="by-option-tag-c">选项 C</span>
                   <span class="by-option__text" id="by-option-c"></span>
-                </label>
-              </form>
+                </button>
+              </div>
 
               <div class="by-actions">
                 <button type="button" class="btn btn--ghost by-submit-btn" id="btn-by-submit">提交答案</button>
@@ -602,27 +868,16 @@
     </div>
     </div>
 
-    <footer class="site-footer" id="footer">
-      <div class="site-footer__row">
-        <div class="site-footer__badges">
-          <span class="seal">语韵东方</span>
-          <span class="seal seal--outline">方言数字化</span>
-        </div>
-        <div class="site-footer__links">
-          <a href="#top">首页</a>
-          <a href="#features">功能</a>
-          <a href="#vision">愿景</a>
-        </div>
-      </div>
-      <p class="site-footer__copy">© 2026 语韵东方 · 地方方言语音合成与交互体验设计。保留所有权利。</p>
-    </footer>
-    </div>
-
     <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 
     <script src="libs/live2dcubismcore.min.js"></script>
     <script src="libs/pixi.min.js"></script>
     <script src="libs/cubism4.min.js"></script>
+    <script src="js/duanzhang-data.js" defer></script>
+    <script src="js/bianyin-data.js" defer></script>
+    <script src="libs/qrcode.min.js" defer></script>
+    <script src="js/storybook-data.js" defer></script>
+    <script src="js/storybook-app.js" defer></script>
     <script src="js/main.js" defer></script>
   </body>
 </html>

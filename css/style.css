@@ -22,7 +22,7 @@
   --radius-md: 16px;
   --font-sans: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", system-ui, -apple-system,
     sans-serif;
-  --font-serif: "Songti SC", "STSong", "SimSun", "Noto Serif SC", serif;
+  --font-serif: "Noto Serif SC", "Source Han Serif SC", "Songti SC", "STSong", "SimSun", serif;
   /* 断章寻韵舞台米色（与牌匾 / 插画主区一致） */
   --dz-stage: #f4f0e8;
   --dz-stage-mid: #ebe4d6;
@@ -102,6 +102,7 @@ body {
   justify-content: space-between;
   gap: 1rem;
   padding: 0.62rem clamp(1rem, 4vw, 2.5rem);
+  font-family: var(--font-serif);
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.92) 0%, rgba(255, 255, 255, 0.78) 100%);
   backdrop-filter: blur(18px) saturate(1.2);
   border-bottom: 1px solid rgba(58, 143, 138, 0.07);
@@ -138,20 +139,27 @@ body {
 }
 
 .nav {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
   display: flex;
   flex-wrap: wrap;
-  gap: 0.35rem 1.35rem;
+  gap: 0.5rem 2.25rem;
   justify-content: center;
+  pointer-events: none;
 }
 
 .nav__link {
-  color: var(--ink-soft);
+  color: #000;
   text-decoration: none;
-  font-size: 0.9rem;
-  padding: 0.35rem 0.15rem;
+  font-size: 1.05rem;
+  font-weight: 700;
+  padding: 0.35rem 0.35rem;
   position: relative;
-  transition: color 0.2s ease;
+  transition: color 0.2s ease, opacity 0.2s ease;
   letter-spacing: 0.04em;
+  pointer-events: auto;
 }
 
 .nav__link::after {
@@ -168,8 +176,9 @@ body {
 }
 
 .nav__link:hover,
-.nav__link:focus-visible {
-  color: var(--celadon-deep);
+.nav__link:focus-visible,
+.nav__link--active {
+  color: #000;
 }
 
 .nav__link:hover::after,
@@ -237,30 +246,56 @@ a.btn {
   min-height: 0;
   overflow: hidden;
   display: grid;
-  grid-template-columns: minmax(240px, 0.92fr) minmax(300px, 1.08fr);
-  gap: clamp(0.75rem, 2vw, 1.75rem);
+  grid-template-columns: 42fr 58fr;
+  grid-template-rows: auto minmax(0, 1fr);
+  column-gap: clamp(2rem, 5vw, 4rem);
+  row-gap: clamp(0.65rem, 2vw, 1.25rem);
   align-items: stretch;
-  padding: 0.4rem clamp(1rem, 4vw, 2.5rem) 0.35rem;
-  max-width: 1280px;
+  padding: 0.35rem clamp(1.25rem, 5vw, 3.5rem) 0.5rem;
+  max-width: 1320px;
   margin: 0 auto;
   width: 100%;
 }
 
+.hero__banner.hero__intro {
+  grid-column: 1 / -1;
+  grid-row: 1;
+}
+
 .hero__left {
+  grid-column: 1;
+  grid-row: 2;
   position: relative;
   min-height: 0;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start;
+  align-items: center;
+  padding-right: clamp(0.5rem, 1.5vw, 1.25rem);
+}
+
+.hero__right {
+  grid-column: 2;
+  grid-row: 2;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  align-items: stretch;
+  justify-content: stretch;
+  padding-left: clamp(0.75rem, 2vw, 1.5rem);
+  border-left: 1px solid rgba(58, 143, 138, 0.1);
 }
 
 .avatar-panel {
   position: relative;
   flex: 1;
   min-height: 0;
+  width: 100%;
+  max-width: min(100%, 480px);
   display: flex;
   flex-direction: column;
-  padding: 0 0 0 clamp(2.8rem, 4.6vw, 4.6rem);
+  padding: 0;
   cursor: pointer;
   border-radius: var(--radius-lg);
 }
@@ -286,7 +321,7 @@ a.btn {
   position: relative;
   z-index: 1;
   flex: 1 1 auto;
-  min-height: clamp(430px, 64vh, 720px);
+  min-height: clamp(360px, 52vh, 620px);
   width: 100%;
   margin-inline: auto;
   border-radius: 0;
@@ -523,13 +558,128 @@ a.btn {
   }
 }
 
-.hero__right {
+/* 首页聊天面板：轻圆角 + 浅阴影 */
+.chat-panel.chat-bar--hero {
+  position: relative;
+  flex: 1;
+  min-height: clamp(280px, 44vh, 480px);
+  height: 100%;
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: 18px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.97) 0%, rgba(248, 252, 251, 0.95) 100%);
+  border: 1px solid rgba(58, 143, 138, 0.16);
+  box-shadow:
+    0 12px 36px rgba(22, 88, 85, 0.09),
+    0 2px 8px rgba(22, 88, 85, 0.04),
+    inset 0 1px 0 rgba(255, 255, 255, 0.92);
+}
+
+.chat-panel.chat-bar--hero .chat-panel__main {
+  flex: 1;
   min-height: 0;
   display: flex;
   flex-direction: column;
-  gap: 0.55rem;
-  padding-top: 0.15rem;
   overflow: hidden;
+}
+
+.chat-panel.chat-bar--hero .chat-panel__messages {
+  position: relative;
+  left: auto;
+  right: auto;
+  bottom: auto;
+  flex: 1;
+  min-height: 0;
+  max-height: none;
+  opacity: 1;
+  transform: none;
+  pointer-events: auto;
+  overflow-x: hidden;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  padding: 1rem 1.1rem 0.75rem;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  backdrop-filter: none;
+  background: rgba(250, 253, 252, 0.65);
+  scroll-behavior: smooth;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(58, 143, 138, 0.28) transparent;
+}
+
+.chat-panel.chat-bar--hero .chat-panel__messages:empty {
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.chat-panel.chat-bar--hero .chat-panel__messages:empty::before {
+  content: "与语墨对话";
+  display: block;
+  margin: 0 0 0.45rem;
+  max-width: none;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  line-height: 1.4;
+  color: var(--celadon-deep);
+  opacity: 1;
+}
+
+.chat-panel.chat-bar--hero .chat-panel__messages:empty::after {
+  content: "问方言、聊文化，或让她用你喜欢的口音说一段";
+  display: block;
+  max-width: 18rem;
+  font-size: 0.86rem;
+  font-weight: 400;
+  line-height: 1.65;
+  color: var(--muted);
+  opacity: 0.92;
+}
+
+.chat-panel.chat-bar--hero .chat-panel__messages:not(:empty)::before,
+.chat-panel.chat-bar--hero .chat-panel__messages:not(:empty)::after {
+  display: none;
+}
+
+.chat-panel.chat-bar--hero .chat-bubble {
+  max-width: 82%;
+  font-size: 0.88rem;
+}
+
+.chat-panel.chat-bar--hero .chat-panel__composer {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  padding: 0.8rem 1rem 1rem;
+  border-top: 1px solid rgba(58, 143, 138, 0.1);
+  background: rgba(255, 255, 255, 0.96);
+}
+
+.chat-panel.chat-bar--hero .chat-dialect-chips {
+  padding-top: 0.1rem;
+}
+
+.chat-panel.chat-bar--hero .chat-voice-btn {
+  box-shadow: 0 2px 8px rgba(58, 143, 138, 0.12);
+}
+
+.chat-panel.chat-bar--hero .chat-input {
+  box-shadow: 0 1px 4px rgba(22, 88, 85, 0.05);
+}
+
+.chat-panel.chat-bar--hero .chat-chip {
+  border-radius: 999px;
+  box-shadow: 0 2px 6px rgba(22, 88, 85, 0.07);
 }
 
 .hero__intro {
@@ -539,9 +689,9 @@ a.btn {
   align-items: center;
   text-align: center;
   width: 100%;
-  padding-inline: 0.35rem;
-  margin-top: 20px; 
-  margin-bottom: 20px;
+  padding-inline: 0.25rem;
+  margin-top: 0.15rem;
+  margin-bottom: 0.15rem;
 }
 
 .hero__title-prefix {
@@ -1369,8 +1519,9 @@ a.btn {
 }
 
 .site-footer__copy {
-  max-width: 1280px;
-  margin: 0 auto;
+  margin: 0;
+  margin-left: auto;
+  text-align: right;
   font-size: 0.68rem;
   color: #7a8a89;
 }
@@ -1417,12 +1568,6 @@ a.btn {
   outline: none;
 }
 
-.app--opera .site-footer {
-  background: linear-gradient(180deg, #143a34 0%, #102a26 55%, #0c221f 100%);
-  border-top: 1px solid rgba(212, 177, 92, 0.26);
-  box-shadow: 0 -8px 28px rgba(0, 0, 0, 0.2);
-}
-
 .app--opera .seal {
   background: rgba(12, 36, 32, 0.72);
   color: #f5c8c8;
@@ -1436,38 +1581,18 @@ a.btn {
   border-color: rgba(143, 217, 212, 0.5);
 }
 
-.app--opera .site-footer__links a {
-  color: rgba(232, 224, 204, 0.72);
-}
-
-.app--opera .site-footer__links a:hover {
-  color: #f5edd4;
-}
-
-.app--opera .site-footer__copy {
-  color: rgba(186, 204, 198, 0.55);
-}
-
 body:has(.app--opera) .page-bg {
   opacity: 0.22;
   transition: opacity 0.35s ease;
 }
 
-/* 断章寻韵：顶栏底栏与舞台米色统一（非透明） */
+/* 断章寻韵：顶栏与舞台米色统一（非透明） */
 .app--duanzhang .site-header {
   background: linear-gradient(180deg, var(--dz-tone-top) 0%, var(--dz-tone-mid) 58%, var(--dz-tone-deep) 100%);
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
   border-bottom: 1px solid rgba(39, 97, 90, 0.14);
   box-shadow: 0 1px 0 rgba(255, 255, 255, 0.62) inset;
-}
-
-.app--duanzhang .site-footer {
-  background: linear-gradient(180deg, var(--dz-tone-top) 0%, var(--dz-tone-mid) 58%, var(--dz-tone-deep) 100%);
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
-  border-top: 1px solid rgba(39, 97, 90, 0.12);
-  box-shadow: 0 -1px 0 rgba(255, 255, 255, 0.42) inset;
 }
 
 body:has(.app--duanzhang) {
@@ -3837,8 +3962,40 @@ body:has(.app--duanzhang) .page-bg {
 
   .hero {
     grid-template-columns: 1fr;
+    grid-template-rows: auto auto auto;
+    column-gap: 0;
+    row-gap: clamp(1.25rem, 4vw, 2rem);
     min-height: min(70vh, 560px);
     overflow: visible;
+    padding-inline: clamp(1rem, 4vw, 2rem);
+  }
+
+  .hero__banner.hero__intro {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .hero__left {
+    grid-column: 1;
+    grid-row: 2;
+    padding-right: 0;
+    align-items: center;
+  }
+
+  .hero__right {
+    grid-column: 1;
+    grid-row: 3;
+    padding-left: 0;
+    border-left: none;
+  }
+
+  .avatar-panel {
+    max-width: min(100%, 560px);
+    padding-right: 0;
+  }
+
+  .chat-panel.chat-bar--hero {
+    min-height: clamp(280px, 50vh, 440px);
   }
 
   .avatar-panel__frame {
@@ -3870,11 +4027,14 @@ body:has(.app--duanzhang) .page-bg {
   }
 
   .nav {
+    position: static;
+    transform: none;
     order: 3;
     width: 100%;
     justify-content: space-between;
     padding-top: 0.35rem;
     border-top: 1px solid rgba(44, 122, 118, 0.08);
+    pointer-events: auto;
   }
 
   .app--opera .nav {
@@ -3886,7 +4046,8 @@ body:has(.app--duanzhang) .page-bg {
   }
 
   .nav__link {
-    font-size: 0.86rem;
+    font-size: 0.98rem;
+    font-weight: 700;
   }
 
   .view-stack--home {

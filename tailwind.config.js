@@ -7,11 +7,15 @@ export default {
         brand: '#3a8f8a',
         'brand-deep': '#1a5c58',
         'brand-light': '#69c4bf',
+        'brand-green': '#2E7D32',
+        ochre: '#8D6E63',
+        paper: '#FAF7F0',
         ink: '#152322',
         mist: '#e8f4f2'
       },
       fontFamily: {
-        sans: ['"PingFang SC"', '"Hiragino Sans GB"', '"Microsoft YaHei"', 'system-ui', 'sans-serif']
+        sans: ['Inter', '"PingFang SC"', '"Hiragino Sans GB"', '"Microsoft YaHei"', 'system-ui', 'sans-serif'],
+        serif: ['"Noto Serif SC"', '"Source Han Serif SC"', '"Songti SC"', 'serif']
       },
       boxShadow: {
         card: '0 6px 28px rgba(22, 88, 85, 0.055), 0 1px 3px rgba(22, 88, 85, 0.04)'
