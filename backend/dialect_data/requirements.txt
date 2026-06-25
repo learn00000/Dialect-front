@@ -1,0 +1,51 @@
+# =============================================================================
+# dialect-data 方言新闻 → TTS 数据（一站式 main.py all）
+# Python 3.10 / 3.11 推荐  |  系统需安装 ffmpeg、ffprobe（不在 pip 内）
+# =============================================================================
+
+# --- 核心 ---
+PyYAML>=6.0.1
+numpy>=1.24.0,<3.0.0
+requests>=2.28.0
+
+# --- OCR 硬字幕（默认 engine=paddle）---
+opencv-python-headless>=4.8.0
+paddleocr>=2.7.0
+
+# Paddle 推理后端（与 paddleocr 配套，必装其一，否则 OCR 报错）
+# CPU（国内镜像）:
+#   pip install paddlepaddle -i https://www.paddlepaddle.org.cn/packages/stable/cpu/
+# GPU（按官网 CUDA 版本选）:
+#   pip install paddlepaddle-gpu -i https://www.paddlepaddle.org.cn/packages/stable/xxx/
+#
+# 若已装 GPU 版，勿再装 CPU 版。Windows 见 https://www.paddlepaddle.org.cn/install/quick
+
+# --- 可选 OCR 引擎：config.yaml 里 ocr.engine: easyocr 时才需要（会拉 torch，体积大）---
+# easyocr>=1.7.0
+
+# --- 百炼云端 ASR（仅 mandarin_filter.asr_backend: dashscope 时需要）---
+# LLM 字幕校对走 HTTP，不依赖 dashscope 包；云端语音识别需要：
+dashscope>=1.20.0
+
+# --- 普通话过滤（默认 asr_backend: local）---
+funasr>=1.2,<2
+sherpa-onnx>=1.10.0
+
+# --- 本地 ASR 模型（压缩包已自带，无需再下载）---
+# 路径: models/sherpa-onnx-paraformer-zh-2023-09-14/
+# 需含: model.int8.onnx（或 paraformer.onnx）、tokens.txt、config.yaml 等
+# 若目录缺失再执行: bash scripts/setup_local_asr.sh
+
+# =============================================================================
+# 安装顺序（组员解压后）
+#   python -m venv .venv && source .venv/bin/activate   # Windows: .venv\Scripts\activate
+#   pip install -U pip
+#   pip install -r requirements.txt
+#   pip install paddlepaddle -i https://www.paddlepaddle.org.cn/packages/stable/cpu/
+#   # 无需 bash scripts/setup_local_asr.sh（包内已带 models/）
+#
+# 运行
+#   export DASHSCOPE_API_KEY='sk-...'   # LLM 校对必填
+#   # 视频放入 taizhou-news/、wenzhou-news/ 后:
+#   python main.py all --profile all --audio-only
+# =============================================================================

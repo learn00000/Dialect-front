@@ -1,5 +1,20 @@
 # 本地覆盖（勿提交个人覆盖）
+.env
 .env.local
+.env.*
 .env.*.local
+backend/.env
+backend/.env.*
 .data/map-uploads/
+backend/service/data/
+backend/service/uploads/
+backend/service/jobs/
 # node_modules、dist 已纳入仓库便于离线部署
+node_modules
+backend/dialect_data/models/
+backend/dialect_data/models.zip
+.venv/
+__pycache__/
+*.pyc
+.DS_Store
+backend/service/training/

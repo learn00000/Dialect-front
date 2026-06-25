@@ -1,0 +1,255 @@
+# 方言新闻视频 -> TTS 数据批处理默认配置（可被命令行覆盖）
+# 切换地区：active_profile: taizhou | wenzhou，或 python main.py --profile taizhou
+
+active_profile: taizhou
+
+# 一站式流水线：扫描两地新闻目录，分地区输出到 output/<地区>/
+pipeline:
+  output_base: output
+  recursive: true
+  regions:
+    taizhou:
+      inputs: [taizhou-news]
+      profile: taizhou
+    wenzhou:
+      inputs: [wenzhou-news]
+      profile: wenzhou
+
+# 旧版扁平目录（仅单独跑 main.py slice 且未指定 pipeline 时备用）
+inputs:
+  - taizhou-news
+  - wenzhou-news
+
+output_dir: output
+output_prefix: "taizhou"
+
+# 切片时间修整（秒）。头部 pre_roll 保留；尾部收紧减轻「下一句露头」
+pre_roll: 0.34
+post_roll: 0.16
+clip_end_trim_sec: 0.14
+
+# subtitle：按 SRT 每条切一片；packed：按时长窗口打包（旧逻辑）
+segment_split_mode: subtitle
+
+# 相邻 OCR 条「差不多」时合并为一条（去重后再切片）
+subtitle_fuzzy_merge:
+  enabled: true
+  max_gap_sec: 0.45
+  similarity_threshold: 0.80
+
+merge_adjacent_gap_sec: 0
+merge_max_span_sec: 30.0
+
+# 单条切片最短时长；不足时与前后合并（见 short_clip_merge）
+min_duration_sec: 3.0
+max_duration_sec: 0
+
+short_clip_merge:
+  enabled: true
+  min_duration_sec: 3.0
+  max_merge_span_sec: 10.0
+  max_neighbors_each_side: 2
+
+# 相邻 clip 边界：间隙过小则合并成一条 clip，避免硬切吃字
+clip_boundary:
+  tight_gap_sec: 0.40
+  tight_tail_ratio: 0.20
+  max_tail_sec: 0.04
+  split_at_midgap: false
+  split_pad_sec: 0.02
+  merge_on_gap_sec: 0.50
+
+collapse_whitespace: true
+strip_newlines: true
+drop_punctuation_only: true
+# 新闻硬字幕极少整行单字；OCR 常多出「商」「我」等噪声条
+drop_single_char_subtitles: true
+single_char_allowlist: []
+
+ocr:
+  enabled: true
+  engine: paddle
+  use_gpu: true
+  sample_interval_sec: 0.30
+  # 字幕单行区域（test_roi.py 试参：--x 0.14 --w 0.70 --y 0.88 --h 0.075）
+  roi_ratio:
+    x: 0.14
+    y: 0.88
+    w: 0.70
+    h: 0.075
+  languages: ["ch_sim", "en"]
+  min_segment_sec: 0.5
+  stability:
+    enabled: true
+    diff_threshold: 6.0
+    max_reuse_sec: 0.20
+    vote_offsets_sec: [0.06, 0.12]
+  text_debounce:
+    enabled: true
+    same_line_similarity: 0.96
+    confirm_steps: 2
+  # 多帧置信度门槛 + 相似聚类后按字投票
+  vote:
+    min_confidence: 0.35
+    cluster_similarity: 0.85
+    merge_similarity: 0.88
+    # 去掉仅少数帧多出的句首字（我/哦/洗/强 等 OCR 噪声）
+    prefix_strip_min_support: 0.52
+  preprocess:
+    enabled: true
+    upscale: 3
+    # 左右留白：缓解句首漏字（实测 pad_x≈50 时「订了一台LG干衣机」可识别完整）
+    pad:
+      enabled: true
+      pad_x: 50
+      pad_y: 16
+    # 局部对比度（本节目实测 clahe:false 更稳；可 test_roi --ocr 对比）
+    clahe: false
+    clahe_clip: 2.0
+    color_binarize:
+      enabled: false
+      method: clahe_mask
+      v_min: 155
+    contrast_alpha: 1.35
+    contrast_beta: 12
+    unsharp_sigma: 0.5
+    unsharp_amount: 0.3
+
+audio:
+  sample_rate: 22050
+  channels: 1
+  codec: "pcm_s16le"
+
+video:
+  video_codec: "libx264"
+  audio_codec: "aac"
+  crf: 23
+  preset: "veryfast"
+
+# 阿里百炼 LLM 批量校对 OCR 字幕（密钥用环境变量，勿写入本文件）
+llm_proofread:
+  enabled: true
+  model: deepseek-v4-flash
+  base_url: https://dashscope.aliyuncs.com/compatible-mode/v1
+  api_key_env: DASHSCOPE_API_KEY
+  batch_size: 30
+  temperature: 0.1
+  max_tokens: 4096
+  timeout_sec: 120
+  enable_thinking: false
+  retries: 2
+  retry_sleep_sec: 2.0
+  skip_if_proofread_exists: true
+  fail_open: true
+  dialect_hint: "台州方言新闻口播，硬字幕 OCR，保留口语习惯"
+  consolidate_clip_variants: true
+  clip_similarity_threshold: 0.82
+  # 校对后再合并相邻相似 OCR 条（解决「同一句出现多条」）
+  collapse_similar:
+    enabled: true
+    max_gap_sec: 0.45
+    similarity_threshold: 0.80
+  drop_single_char:
+    enabled: true
+    allowlist: []
+
+# 地区参数档（会覆盖上面的 pre_roll / clip_boundary 等）
+profiles:
+  # 台州《阿福讲白搭》定稿：句首多留一点、句尾少带下一句
+  taizhou:
+    pre_roll: 0.34
+    post_roll: 0.04
+    clip_end_trim_sec: 0.26
+    clip_boundary:
+      tight_gap_sec: 0.40
+      tight_tail_ratio: 0.18
+      max_tail_sec: 0.03
+      split_at_midgap: false
+      merge_on_gap_sec: 0.50
+    llm_proofread:
+      enabled: true
+      dialect_hint: "台州方言《阿福讲白搭》，阿福主持口语；硬字幕 OCR，保留方言用词"
+  wenzhou:
+    output_prefix: "wenzhou"
+    pre_roll: 0.30
+    post_roll: 0.10
+    clip_end_trim_sec: 0.16
+    clip_boundary:
+      tight_gap_sec: 0.32
+      merge_on_gap_sec: 0.45
+    ocr:
+      roi_ratio:
+        x: 0.22
+        y: 0.89
+        w: 0.70
+        h: 0.075
+      preprocess:
+        pad:
+          pad_x: 40
+    llm_proofread:
+      dialect_hint: "温州方言新闻口播，硬字幕 OCR，保留口语"
+
+# 听感质检 filter_clips.py（不耗 ASR 额度）
+# mode=dialect_news：反转 speech_ratio，剔除「语音帧占比过高」的普通话专题，保留停顿多的方言口播
+quality_filter:
+  enabled: true
+  default:
+    mode: dialect_news
+    min_rms: 0.003
+    max_rms: 0.45
+    min_speech_ratio: 0.08
+    max_speech_ratio: 0.26
+    max_low_band_ratio: 0.96
+    min_crest_db: 2.0
+  profiles:
+    taizhou:
+      enabled: true
+      mode: dialect_news
+      max_speech_ratio: 0.26
+      min_speech_ratio: 0.08
+    wenzhou:
+      enabled: true
+      mode: dialect_news
+      max_speech_ratio: 0.27
+      min_speech_ratio: 0.08
+
+# 普通话剔除：推荐本地免费 ASR（不耗百炼语音额度）+ 与 OCR 字幕比对
+mandarin_filter:
+  enabled: true
+  asr_backend: dashscope
+  asr_enabled: true
+  local_asr_backend: funasr
+  local_asr_model_name: funasr/paraformer-zh
+  local_asr_device: cpu
+  local_asr_model_dir: models/sherpa-onnx-paraformer-zh-2023-09-14
+  local_asr_sample_rate: 16000
+  match_only_mode: false
+  llm_enabled: true
+  high_match_reject: 0.9
+  low_match_keep: 0.55
+  # 混合 clip：只有逐句与普通话探针高度接近时才剔除整段
+  segment_check_enabled: true
+  segment_check_min_lines: 2
+  segment_high_match: 0.9
+  use_segment_ratio_reject: false
+  segment_min_duration_sec: 0.35
+  # 留空则按 metadata 的 source_video 自动匹配 logs/work/<视频名>.srt
+  srt_path:
+  # 百炼语音（仅 asr_backend: dashscope 时用）
+  asr_model: paraformer-realtime-8k-v2
+  asr_sample_rate: 8000
+  api_key_env: DASHSCOPE_API_KEY
+  model: deepseek-v4-flash
+  base_url: https://dashscope.aliyuncs.com/compatible-mode/v1
+  min_match_score: 0.82
+  min_mandarin_confidence: 0.86
+  reject_text_mandarin_only: false
+  request_interval_sec: 0.0
+  dialect_hint: "台州方言《阿福讲白搭》，阿福主持口语；政策清单、民生实事宣读为普通话应剔除"
+  profiles:
+    taizhou:
+      dialect_hint: "台州方言《阿福讲白搭》"
+      min_match_score: 0.8
+    wenzhou:
+      dialect_hint: "温州方言新闻口播"
+      min_match_score: 0.8

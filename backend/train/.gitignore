@@ -1,0 +1,4 @@
+# 训练过程生成的中间数据
+pipelines/*/data/
+pipelines/*/exp/
+**/__pycache__/

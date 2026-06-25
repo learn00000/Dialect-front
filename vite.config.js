@@ -1,11 +1,24 @@
 import { defineConfig, loadEnv } from 'vite'
 import vue from '@vitejs/plugin-vue'
-import { cpSync, createReadStream, existsSync, mkdirSync, statSync, unlinkSync } from 'node:fs'
+import { cpSync, createReadStream, existsSync, mkdirSync, statSync } from 'node:fs'
 import { extname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { buildStorybookResponse } from './js/storybook-mock.mjs'
 import { generateStorybookWithBailian, getBailianConfig } from './js/storybook-bailian.mjs'
-import { handleMapUpload, serveMapUploadAudio } from './js/map-mock-upload.mjs'
+import {
+  deleteUploadedContribution,
+  handleContributionCreate,
+  handleLegacyMapUpload,
+  listBackendMapPoints,
+  serveMapUploadAudio
+} from './js/map-mock-upload.mjs'
+import {
+  getContributionDetail,
+  getContributionPipeline,
+  getMapOverview,
+  getPipelineMetrics,
+  listMapPoints
+} from './js/map-mock-system.mjs'
 import { getStageQuestions } from './js/stage-questions-data.mjs'
 
 const __dirname = fileURLToPath(new URL('.', import.meta.url))
@@ -24,74 +37,6 @@ function dialectMapMockPlugin(env = {}) {
     console.log('[storybook] 未配置 DASHSCOPE_API_KEY，使用本地 Mock')
   }
   const MOCK_TTS_AUDIO = new Map()
-  const MOCK_POINTS = [
-    {
-      id: '1',
-      location: { lng: 120.153576, lat: 30.287459 },
-      area: '浙江省/杭州市/西湖区',
-      dialect: '吴语·杭州小片',
-      type: '方言',
-      audioUrl: './video-stitch/wenzhou/wenzhou-001.m4a',
-      content: '你好，吃饭了吗？',
-      nickname: '西湖阿姐',
-      time: '2026-04-10 14:22:00'
-    },
-    {
-      id: '2',
-      location: { lng: 121.473701, lat: 31.230416 },
-      area: '上海市/上海市/黄浦区',
-      dialect: '吴语·上海话',
-      type: '童谣',
-      audioUrl: './video-stitch/taizhou/taizhou-001.m4a',
-      content: '落雨喽，打烊喽，小八辣子开会喽。',
-      nickname: '石库门囡囡',
-      time: '2026-04-12 09:05:33'
-    },
-    {
-      id: '3',
-      location: { lng: 116.397428, lat: 39.90923 },
-      area: '北京市/北京市/东城区',
-      dialect: '北京官话',
-      type: '民谣',
-      audioUrl: './video-stitch/minnan/minnan001.m4a',
-      content: '前门情思大碗茶（节选哼唱）',
-      nickname: '胡同里的风',
-      time: '2026-04-15 18:40:12'
-    },
-    {
-      id: '4',
-      location: { lng: 113.264385, lat: 23.129112 },
-      area: '广东省/广州市/越秀区',
-      dialect: '粤语·广府片',
-      type: '戏曲',
-      audioUrl: './video-learn/guangdongyueju/guangdongyueju-001.m4a',
-      content: '帝女花之香夭（念白示范）',
-      nickname: '粤剧票友阿明',
-      time: '2026-04-16 11:18:45'
-    },
-    {
-      id: '5',
-      location: { lng: 104.065735, lat: 30.659462 },
-      area: '四川省/成都市/锦江区',
-      dialect: '西南官话·成渝小片',
-      type: '民俗',
-      audioUrl: './video-stitch/taizhou/taizhou-003.m4a',
-      content: '清明采茶调（口传版）',
-      nickname: '锦江茶客',
-      time: '2026-04-17 08:56:21'
-    },
-    {
-      id: '6',
-      location: { lng: 120.585315, lat: 31.298886 },
-      area: '江苏省/苏州市/姑苏区',
-      dialect: '吴语·苏州话',
-      type: '方言',
-      audioUrl: './video-stitch/wenzhou/wenzhou002.m4a',
-      content: '今朝天气蛮好个。',
-      nickname: '评弹小周',
-      time: '2026-04-17 16:02:00'
-    }
-  ]
   const MOCK_STAGES = [
     { id: 's1', order: 1, name: '乡音启程', theme: '吴语入门', difficulty: '简单' },
     { id: 's2', order: 2, name: '市井晨曲', theme: '粤语日常', difficulty: '简单' },
@@ -220,35 +165,113 @@ function dialectMapMockPlugin(env = {}) {
           return
         }
 
-        if (url.startsWith('/api/map/points') && req.method === 'GET') {
+        if (cleanUrl === '/api/map/overview' && req.method === 'GET') {
           res.setHeader('Content-Type', 'application/json; charset=utf-8')
           res.statusCode = 200
-          res.end(JSON.stringify({ code: 0, data: MOCK_POINTS }))
+          res.end(JSON.stringify({ code: 0, data: getMapOverview() }))
+          return
+        }
+
+        if (cleanUrl === '/api/map/points' && req.method === 'GET') {
+          const requestUrl = new URL(req.url || '', 'http://localhost')
+          const filters = Object.fromEntries(requestUrl.searchParams.entries())
+          Promise.allSettled([Promise.resolve(listMapPoints(filters)), listBackendMapPoints(filters)])
+            .then((results) => {
+              const localItems = results[0].status === 'fulfilled' ? results[0].value : []
+              const backendItems = results[1].status === 'fulfilled' ? results[1].value : []
+              if (results[1].status === 'rejected') {
+                console.error('[map] backend points fetch failed:', results[1].reason)
+              }
+              const merged = [...localItems]
+              const indexById = new Map(localItems.map((item, index) => [item.id, index]))
+              for (const item of backendItems) {
+                if (indexById.has(item.id)) {
+                  merged[indexById.get(item.id)] = { ...merged[indexById.get(item.id)], ...item }
+                  continue
+                }
+                indexById.set(item.id, merged.length)
+                merged.push(item)
+              }
+              res.setHeader('Content-Type', 'application/json; charset=utf-8')
+              res.statusCode = 200
+              res.end(JSON.stringify({ code: 0, data: merged }))
+            })
+            .catch((err) => {
+              console.error('[map] points merge failed:', err)
+              res.setHeader('Content-Type', 'application/json; charset=utf-8')
+              res.statusCode = 500
+              res.end(JSON.stringify({ code: 1, message: '点位获取失败' }))
+            })
           return
         }
 
         const mapPointDeleteMatch = cleanUrl.match(/^\/api\/map\/points\/([^/]+)$/)
         if (mapPointDeleteMatch && req.method === 'DELETE') {
-          const id = mapPointDeleteMatch[1]
-          const idx = MOCK_POINTS.findIndex((p) => String(p.id) === id)
-          if (idx === -1) {
+          deleteUploadedContribution(mapPointDeleteMatch[1], MAP_UPLOAD_DIR)
+            .then((deleted) => {
+              if (!deleted) {
+                res.statusCode = 404
+                res.setHeader('Content-Type', 'application/json; charset=utf-8')
+                res.end(JSON.stringify({ code: 1, message: '点位不存在' }))
+                return
+              }
+              res.setHeader('Content-Type', 'application/json; charset=utf-8')
+              res.statusCode = 200
+              res.end(JSON.stringify({ code: 0, message: 'ok' }))
+            })
+            .catch((err) => {
+              console.error('[map] delete failed:', err)
+              res.statusCode = 500
+              res.setHeader('Content-Type', 'application/json; charset=utf-8')
+              res.end(JSON.stringify({ code: 1, message: err.message || '删除失败' }))
+            })
+          return
+        }
+
+        const contributionDetailMatch = cleanUrl.match(/^\/api\/contributions\/([^/]+)$/)
+        if (contributionDetailMatch && req.method === 'GET') {
+          const detail = getContributionDetail(contributionDetailMatch[1])
+          if (!detail) {
             res.statusCode = 404
             res.setHeader('Content-Type', 'application/json; charset=utf-8')
-            res.end(JSON.stringify({ code: 1, message: '点位不存在' }))
+            res.end(JSON.stringify({ code: 1, message: '贡献记录不存在' }))
             return
-          }
-          const [removed] = MOCK_POINTS.splice(idx, 1)
-          const audioName = removed.audioUrl?.match(/\/api\/map\/audio\/([^/]+)$/)?.[1]
-          if (audioName) {
-            try {
-              unlinkSync(join(MAP_UPLOAD_DIR, audioName))
-            } catch {
-              /* 文件可能已手动删除 */
-            }
           }
           res.setHeader('Content-Type', 'application/json; charset=utf-8')
           res.statusCode = 200
-          res.end(JSON.stringify({ code: 0, message: 'ok' }))
+          res.end(JSON.stringify({ code: 0, data: detail }))
+          return
+        }
+
+        const contributionPipelineMatch = cleanUrl.match(/^\/api\/contributions\/([^/]+)\/pipeline$/)
+        if (contributionPipelineMatch && req.method === 'GET') {
+          const pipeline = getContributionPipeline(contributionPipelineMatch[1])
+          if (!pipeline) {
+            res.statusCode = 404
+            res.setHeader('Content-Type', 'application/json; charset=utf-8')
+            res.end(JSON.stringify({ code: 1, message: '流水线记录不存在' }))
+            return
+          }
+          res.setHeader('Content-Type', 'application/json; charset=utf-8')
+          res.statusCode = 200
+          res.end(JSON.stringify({ code: 0, data: pipeline }))
+          return
+        }
+
+        if (cleanUrl === '/api/pipeline/metrics' && req.method === 'GET') {
+          res.setHeader('Content-Type', 'application/json; charset=utf-8')
+          res.statusCode = 200
+          res.end(JSON.stringify({ code: 0, data: getPipelineMetrics() }))
+          return
+        }
+
+        if (cleanUrl === '/api/contributions' && req.method === 'POST') {
+          handleContributionCreate(req, MAP_UPLOAD_DIR, { res }).catch((err) => {
+            console.error('[map] contribution create failed:', err)
+            res.statusCode = 500
+            res.setHeader('Content-Type', 'application/json; charset=utf-8')
+            res.end(JSON.stringify({ code: 1, message: '上传处理失败' }))
+          })
           return
         }
 
@@ -258,9 +281,9 @@ function dialectMapMockPlugin(env = {}) {
           return
         }
 
-        if (url.startsWith('/api/map/upload') && req.method === 'POST') {
-          handleMapUpload(req, MAP_UPLOAD_DIR, { res, mockPoints: MOCK_POINTS }).catch((err) => {
-            console.error('[map] upload failed:', err)
+        if (cleanUrl === '/api/map/upload' && req.method === 'POST') {
+          handleLegacyMapUpload(req, MAP_UPLOAD_DIR, { res }).catch((err) => {
+            console.error('[map] legacy upload failed:', err)
             res.statusCode = 500
             res.setHeader('Content-Type', 'application/json; charset=utf-8')
             res.end(JSON.stringify({ code: 1, message: '上传处理失败' }))
@@ -425,6 +448,7 @@ export default defineConfig(({ mode }) => {
       input: {
         main: resolve(__dirname, 'index.html'),
         map: resolve(__dirname, 'map.html'),
+        database: resolve(__dirname, 'database.html'),
         study: resolve(__dirname, 'study.html')
       }
     }
